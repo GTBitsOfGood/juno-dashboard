@@ -1,8 +1,5 @@
 const SettingsPage = () => {
-  return (
-    <>
-    </>
-  )
-}
+  return <></>;
+};
 
 export default SettingsPage;

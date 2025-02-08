@@ -1,8 +1,5 @@
 const ProjectSettingsPage = () => {
-  return (
-    <>
-    </>
-  );
-}
+  return <></>;
+};
 
 export default ProjectSettingsPage;

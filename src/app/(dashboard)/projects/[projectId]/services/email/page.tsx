@@ -1,8 +1,5 @@
 const EmailServicePage = () => {
-  return (
-    <>
-    </>
-  )
-}
+  return <></>;
+};
 
 export default EmailServicePage;

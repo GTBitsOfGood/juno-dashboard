@@ -5,12 +5,7 @@ interface ProjectsLayoutProps {
 }
 
 const ProjectsLayout = async ({ children }: ProjectsLayoutProps) => {
-  return (
-    <>
-      {children}
-    </>
-  )
-
-}
+  return <>{children}</>;
+};
 
 export default ProjectsLayout;

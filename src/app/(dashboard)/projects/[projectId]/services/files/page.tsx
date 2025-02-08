@@ -1,8 +1,5 @@
 const FileServicePage = () => {
-  return (
-    <>
-    </>
-  )
-}
+  return <></>;
+};
 
 export default FileServicePage;

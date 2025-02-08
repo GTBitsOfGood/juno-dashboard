@@ -1,8 +1,5 @@
 const ProjectPage = () => {
-  return (
-    <>
-    </>
-  );
-}
+  return <></>;
+};
 
 export default ProjectPage;

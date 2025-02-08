@@ -42,7 +42,7 @@ To run locally for development:
 bun dev
 ```
 
-The site is served at [http://localhost:3000](http://localhost:3000) for local development.
+The site is served at [http://localhost:3000](http://localhost:3000).
 
 ### Components 
 

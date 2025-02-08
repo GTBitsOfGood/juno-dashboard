@@ -6,8 +6,8 @@ let initialized = false;
 export function getJunoInstance() {
   if (!initialized) {
     juno.init({
-      "apiKey": "insert key here",
-      "baseURL": "http://localhost:32774",
+      "apiKey": process.env.JUNO_API_KEY,
+      "baseURL": process.env.JUNO_BASE_URL,
     });
 
     initialized = true;

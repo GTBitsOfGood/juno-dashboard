@@ -1,0 +1,26 @@
+name: Format & Lint
+on: [pull_request]
+
+jobs:
+  lint:
+    name: Format & Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install
+        run: bun install --frozen-lockfile
+        id: install
+
+      - name: Run prettier
+        run: bun test:prettier
+
+      - name: Run ESLint
+        run: && bun lint
+        # Always run the linter, even if prettier failed
+        if: ${{ steps.install.outcome == 'success' }}

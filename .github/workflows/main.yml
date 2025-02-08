@@ -21,6 +21,6 @@ jobs:
         run: bun test:prettier
 
       - name: Run ESLint
-        run: && bun lint
+        run: bun lint
         # Always run the linter, even if prettier failed
         if: ${{ steps.install.outcome == 'success' }}

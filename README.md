@@ -26,6 +26,7 @@ This is the dashboard code for easily interacting with [Juno](https://github.com
 
 ## Getting Started
 
+Installing all needed packages:
 
 ```bash
 bun install
@@ -34,6 +35,12 @@ bun install
 ## Development 
 
 ### Running locally
+
+To run locally for development:
+
+```
+bun dev
+```
 
 The site is served at [http://localhost:3000](http://localhost:3000) for local development.
 

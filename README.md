@@ -47,3 +47,5 @@ The site is served at [http://localhost:3000](http://localhost:3000).
 ### Components 
 
 This repository uses [shadcn/ui](https://ui.shadcn.com/) for streamlining component development.
+
+THis is some random test message.

@@ -75,7 +75,7 @@ const EmailServicePage = () => {
     registerJunoDomain(values.domain, values.subdomain);
   }
   function onSubmitSenderAddressForm(
-    values: z.infer<typeof registerSenderAddressFormSchema>
+    values: z.infer<typeof registerSenderAddressFormSchema>,
   ) {
     registerJunoSenderAddress(
       values.email,
@@ -86,7 +86,7 @@ const EmailServicePage = () => {
       values.city,
       values.state,
       values.zip,
-      values.country
+      values.country,
     );
   }
   return (
@@ -151,7 +151,7 @@ const EmailServicePage = () => {
       <Form {...registerSenderAddressForm}>
         <form
           onSubmit={registerSenderAddressForm.handleSubmit(
-            onSubmitSenderAddressForm
+            onSubmitSenderAddressForm,
           )}
           className="space-y-4"
         >

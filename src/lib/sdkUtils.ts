@@ -15,7 +15,7 @@ export async function setupJunoEmail(sendgridKey: string) {
 
 export async function registerJunoDomain(
   domain: string,
-  subdomain: string | undefined
+  subdomain: string | undefined,
 ) {
   try {
     const juno = getJunoInstance();
@@ -37,7 +37,7 @@ export async function registerJunoSenderAddress(
   city: string,
   state: string,
   zip: string,
-  country: string
+  country: string,
 ) {
   try {
     const juno = getJunoInstance();

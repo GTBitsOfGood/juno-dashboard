@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { z } from "zod";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -26,7 +27,7 @@ const sendgridFormSchema = z.object({
 });
 
 const domainFormSchema = z.object({
-  domain: z.string(),
+  domain: z.string().regex(/^.+\..+$/, "Please enter a valid domain"),
   subdomain: z.string(),
 });
 
@@ -43,6 +44,17 @@ const registerSenderAddressFormSchema = z.object({
 });
 
 const EmailServicePage = () => {
+  const [sendgridMessage, setSendgridMessage] = useState<string | null>(null);
+  const [sendgridSuccess, setSendgridSuccess] = useState<boolean | null>(null);
+  const [domainMessage, setDomainMessage] = useState<string | null>(null);
+  const [domainSuccess, setDomainSuccess] = useState<boolean | null>(null);
+  const [senderAddressMessage, setSenderAddressMessage] = useState<
+    string | null
+  >(null);
+  const [senderAddressSuccess, setSenderAddressSuccess] = useState<
+    boolean | null
+  >(null);
+
   const sendgridForm = useForm<z.infer<typeof sendgridFormSchema>>({
     resolver: zodResolver(sendgridFormSchema),
     defaultValues: { apiKey: "" },
@@ -68,16 +80,24 @@ const EmailServicePage = () => {
     },
   });
 
-  function onSubmitSendgridForm(values: z.infer<typeof sendgridFormSchema>) {
-    setupJunoEmail(values.apiKey);
-  }
-  function onSubmitDomainForm(values: z.infer<typeof domainFormSchema>) {
-    registerJunoDomain(values.domain, values.subdomain);
-  }
-  function onSubmitSenderAddressForm(
-    values: z.infer<typeof registerSenderAddressFormSchema>,
+  async function onSubmitSendgridForm(
+    values: z.infer<typeof sendgridFormSchema>
   ) {
-    registerJunoSenderAddress(
+    const response = await setupJunoEmail(values.apiKey);
+    setSendgridMessage(response.message);
+    setSendgridSuccess(response.success);
+  }
+
+  async function onSubmitDomainForm(values: z.infer<typeof domainFormSchema>) {
+    const response = await registerJunoDomain(values.domain, values.subdomain);
+    setDomainMessage(response.message);
+    setDomainSuccess(response.success);
+  }
+
+  async function onSubmitSenderAddressForm(
+    values: z.infer<typeof registerSenderAddressFormSchema>
+  ) {
+    const response = await registerJunoSenderAddress(
       values.email,
       values.name,
       values.replyTo,
@@ -86,9 +106,12 @@ const EmailServicePage = () => {
       values.city,
       values.state,
       values.zip,
-      values.country,
+      values.country
     );
+    setSenderAddressMessage(response.message);
+    setSenderAddressSuccess(response.success);
   }
+
   return (
     <div className="space-y-8">
       <Form {...sendgridForm}>
@@ -110,6 +133,11 @@ const EmailServicePage = () => {
             )}
           />
           <Button type="submit">Submit</Button>
+          {sendgridMessage && (
+            <p className={sendgridSuccess ? "text-green-500" : "text-red-500"}>
+              {sendgridMessage}
+            </p>
+          )}
         </form>
       </Form>
 
@@ -145,13 +173,18 @@ const EmailServicePage = () => {
             )}
           />
           <Button type="submit">Submit</Button>
+          {domainMessage && (
+            <p className={domainSuccess ? "text-green-500" : "text-red-500"}>
+              {domainMessage}
+            </p>
+          )}
         </form>
       </Form>
 
       <Form {...registerSenderAddressForm}>
         <form
           onSubmit={registerSenderAddressForm.handleSubmit(
-            onSubmitSenderAddressForm,
+            onSubmitSenderAddressForm
           )}
           className="space-y-4"
         >
@@ -273,6 +306,15 @@ const EmailServicePage = () => {
             )}
           />
           <Button type="submit">Submit</Button>
+          {senderAddressMessage && (
+            <p
+              className={
+                senderAddressSuccess ? "text-green-500" : "text-red-500"
+              }
+            >
+              {senderAddressMessage}
+            </p>
+          )}
         </form>
       </Form>
     </div>

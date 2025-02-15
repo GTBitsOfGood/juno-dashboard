@@ -13,36 +13,34 @@ type projectInputType =
     };
 
 type userInputType =
-| {
-    email: string;
-    id?: never;
-  }
-| {
-    id: number;
-    email?: never;
-  };
+  | {
+      email: string;
+      id?: never;
+    }
+  | {
+      id: number;
+      email?: never;
+    };
 
-export async function getJunoProject( input: projectInputType ) {
+export async function getJunoProject(input: projectInputType) {
   try {
     const juno = getJunoInstance();
     const res = await juno.project.getProject(input);
     return { success: true, projectId: res.id, projectName: res.name };
   } catch (e) {
-    console.error("Error getting project:", e);
-    return { success: false, error: "Failed to get project."};
+    return { success: false, error: `Error getting project: ${e}` };
   }
 }
 
-export async function linkJunoProjectToUser( options: {
+export async function linkJunoProjectToUser(options: {
   project: projectInputType;
   user: userInputType;
-} ) {
+}) {
   try {
     const juno = getJunoInstance();
     await juno.project.linkProjectToUser(options);
     return { success: true };
   } catch (e) {
-    console.error("Error linking project to user:", e);
-    return { success: false, error: e};
+    return { success: false, error: `Error linking project to user: ${e}` };
   }
 }

@@ -34,7 +34,7 @@ const ProjectPage = () => {
           const name = res.projectName;
           setProjectName(name);
         } else {
-          console.log(res.error);
+          alert("Failed to get project name");
         }
       } catch (e) {
         console.error("Error getting project:", e);
@@ -56,7 +56,6 @@ const ProjectPage = () => {
   const onLinkProjectToUserSubmit = async (
     values: z.infer<typeof linkProjectToUserSchema>
   ) => {
-    console.log("Linking project to user:");
     const options = {
       project: {
         id: Number(projectId),
@@ -69,13 +68,13 @@ const ProjectPage = () => {
             id: values.user,
           },
     };
+
     try {
       const res = await linkJunoProjectToUser(options);
       if (res.success) {
-        alert("Project successfully linked to user");
+        alert("Project successfully linked to user!");
       } else {
-        console.log(res.error);
-        alert("Project not successfully linked to user");
+        alert("Project not successfully linked to user. Make sure your email or ID is valid!");
       }
     } catch (e) {
       console.error("Error linking project to user:", e);
@@ -97,7 +96,7 @@ const ProjectPage = () => {
             name="user"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email or User ID</FormLabel>
+                <FormLabel>User Email or ID</FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>

@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { getJunoProject, linkJunoProjectToUser } from "@/lib/sdkActions";
 import {
@@ -18,91 +18,86 @@ import * as z from "zod";
 import { Button } from "@/components/ui/button";
 
 const linkProjectToUserSchema = z.object({
-  email: z.string().email("Invalid email"),
-  userId: z.string().min(1, "User ID is required"),
-})
+  user: z.string().min(1, "Email or ID is required"),
+});
 
 const ProjectPage = () => {
   const { projectId } = useParams();
-  
+
   const [projectName, setProjectName] = useState(null);
 
   useEffect(() => {
     const displayProjectName = async () => {
       try {
-        const res = await getJunoProject({ id: Number(projectId) })
+        const res = await getJunoProject({ id: Number(projectId) });
         if (res.success) {
           const name = res.projectName;
-          console.log(name)
-          setProjectName(name)
+          setProjectName(name);
         } else {
-          console.log(res.error)
+          console.log(res.error);
         }
       } catch (e) {
         console.error("Error getting project:", e);
       }
-      
     };
 
     displayProjectName();
   }, [projectId]);
 
-  const linkProjectToUserForm = useForm<z.infer<typeof linkProjectToUserSchema>>({
+  const linkProjectToUserForm = useForm<
+    z.infer<typeof linkProjectToUserSchema>
+  >({
     resolver: zodResolver(linkProjectToUserSchema),
     defaultValues: {
-      email: "",
-      userId: "",
+      user: "",
     },
   });
 
-  const onLinkProjectToUserSubmit = async (values: z.infer<typeof linkProjectToUserSchema>) => {
+  const onLinkProjectToUserSubmit = async (
+    values: z.infer<typeof linkProjectToUserSchema>
+  ) => {
     console.log("Linking project to user:");
     const options = {
-      input: {
+      project: {
         id: Number(projectId),
       },
-      email: values.email,
-      id: Number(values.userId),
+      user: isNaN(Number(values.user))
+        ? {
+            email: values.user,
+          }
+        : {
+            id: values.user,
+          },
     };
-    console.log(options)
     try {
       const res = await linkJunoProjectToUser(options);
       if (res.success) {
         alert("Project successfully linked to user");
       } else {
-        console.log(res.error)
-        alert("Project not successfully linked to user")
+        console.log(res.error);
+        alert("Project not successfully linked to user");
       }
     } catch (e) {
       console.error("Error linking project to user:", e);
     }
-    
-  }
-  
+  };
+
   return (
     <div className="p-6">
       <h1 className="mb-6 text-xl">{projectName}</h1>
       <Form {...linkProjectToUserForm}>
-        <form onSubmit={linkProjectToUserForm.handleSubmit(onLinkProjectToUserSubmit)} className="space-y-8">
+        <form
+          onSubmit={linkProjectToUserForm.handleSubmit(
+            onLinkProjectToUserSubmit
+          )}
+          className="space-y-8"
+        >
           <FormField
             control={linkProjectToUserForm.control}
-            name="email"
+            name="user"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={linkProjectToUserForm.control}
-            name="userId"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>User ID</FormLabel>
+                <FormLabel>Email or User ID</FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>

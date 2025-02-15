@@ -12,6 +12,16 @@ type projectInputType =
       name?: never;
     };
 
+type userInputType =
+| {
+    email: string;
+    id?: never;
+  }
+| {
+    id: number;
+    email?: never;
+  };
+
 export async function getJunoProject( input: projectInputType ) {
   try {
     const juno = getJunoInstance();
@@ -24,9 +34,8 @@ export async function getJunoProject( input: projectInputType ) {
 }
 
 export async function linkJunoProjectToUser( options: {
-  input: projectInputType;
-  email: string;
-  id: number;
+  project: projectInputType;
+  user: userInputType;
 } ) {
   try {
     const juno = getJunoInstance();

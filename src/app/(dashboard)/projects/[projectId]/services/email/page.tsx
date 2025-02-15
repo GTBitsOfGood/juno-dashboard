@@ -81,7 +81,7 @@ const EmailServicePage = () => {
   });
 
   async function onSubmitSendgridForm(
-    values: z.infer<typeof sendgridFormSchema>
+    values: z.infer<typeof sendgridFormSchema>,
   ) {
     const response = await setupJunoEmail(values.apiKey);
     setSendgridMessage(response.message);
@@ -95,7 +95,7 @@ const EmailServicePage = () => {
   }
 
   async function onSubmitSenderAddressForm(
-    values: z.infer<typeof registerSenderAddressFormSchema>
+    values: z.infer<typeof registerSenderAddressFormSchema>,
   ) {
     const response = await registerJunoSenderAddress(
       values.email,
@@ -106,7 +106,7 @@ const EmailServicePage = () => {
       values.city,
       values.state,
       values.zip,
-      values.country
+      values.country,
     );
     setSenderAddressMessage(response.message);
     setSenderAddressSuccess(response.success);
@@ -184,7 +184,7 @@ const EmailServicePage = () => {
       <Form {...registerSenderAddressForm}>
         <form
           onSubmit={registerSenderAddressForm.handleSubmit(
-            onSubmitSenderAddressForm
+            onSubmitSenderAddressForm,
           )}
           className="space-y-4"
         >

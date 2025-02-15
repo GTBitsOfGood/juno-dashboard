@@ -1,0 +1,39 @@
+"use server";
+
+import { getJunoInstance } from "./juno";
+
+type projectInputType =
+  | {
+      name: string;
+      id?: never;
+    }
+  | {
+      id: number;
+      name?: never;
+    };
+
+export async function getJunoProject( input: projectInputType ) {
+  try {
+    const juno = getJunoInstance();
+    const res = await juno.project.getProject(input);
+    return { success: true, projectId: res.id, projectName: res.name };
+  } catch (e) {
+    console.error("Error getting project:", e);
+    return { success: false, error: "Failed to get project."};
+  }
+}
+
+export async function linkJunoProjectToUser( options: {
+  input: projectInputType;
+  email: string;
+  id: number;
+} ) {
+  try {
+    const juno = getJunoInstance();
+    await juno.project.linkProjectToUser(options);
+    return { success: true };
+  } catch (e) {
+    console.error("Error linking project to user:", e);
+    return { success: false, error: e};
+  }
+}

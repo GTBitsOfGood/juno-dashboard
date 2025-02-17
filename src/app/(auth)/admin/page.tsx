@@ -33,7 +33,7 @@ const userTypeMap = {
 } as const;
 
 const userTypeEnum = z.enum(
-  Object.keys(userTypeMap) as [keyof typeof userTypeMap],
+  Object.keys(userTypeMap) as [keyof typeof userTypeMap]
 );
 
 const createUserSchema = z.object({
@@ -72,9 +72,8 @@ const AdminPage = () => {
   });
 
   const handleCreateUser = async (
-    data: Required<z.infer<typeof createUserSchema>>,
+    data: Required<z.infer<typeof createUserSchema>>
   ) => {
-    console.log("Creating User:", data);
     try {
       const result = await createUserAction(data);
       if (result.success) {
@@ -85,6 +84,7 @@ const AdminPage = () => {
     } catch (error) {
       console.error("Error creating user:", error);
     }
+    ``;
   };
 
   /** Form to set user type */
@@ -95,11 +95,11 @@ const AdminPage = () => {
       userType: "USER",
       adminEmail: "",
       adminPassword: "",
-    }, // ✅ Added admin fields
+    },
   });
 
   const handleSetUserType = async (
-    data: Required<z.infer<typeof setUserTypeSchema>>,
+    data: Required<z.infer<typeof setUserTypeSchema>>
   ) => {
     try {
       const result = await setUserTypeAction({
@@ -110,7 +110,7 @@ const AdminPage = () => {
       });
       if (result.success) {
         alert(
-          `User type updated to ${data.userType} by Admin: ${data.adminEmail}`,
+          `User type updated to ${data.userType} by Admin: ${data.adminEmail}`
         );
       } else {
         alert("Failed to set user type.");
@@ -132,9 +132,8 @@ const AdminPage = () => {
   });
 
   const handleLinkUserToProject = async (
-    data: Required<z.infer<typeof linkUserToProjectSchema>>,
+    data: Required<z.infer<typeof linkUserToProjectSchema>>
   ) => {
-    console.log("Linking User to Project:", data);
     try {
       const result = await linkUserToProject(data);
       if (result.success) {
@@ -286,7 +285,6 @@ const AdminPage = () => {
             )}
           />
 
-          {/* ✅ Admin Password Field */}
           <FormField
             control={setUserTypeForm.control}
             name="adminPassword"

@@ -9,18 +9,18 @@ export async function setUserTypeAction(data: {
 }) {
   const junoClient = getJunoInstance();
   try {
-    console.log(data);
     //Type should be a string, not a number?
     await junoClient.user.setUserType({
       adminEmail: data.adminEmail,
       adminPassword: data.adminPassword,
       input: { email: data.email, type: data.type },
     });
-    console.log("User type updated:", data);
     return { success: true };
   } catch (error) {
-    console.error("Error updating user type:", error);
-    return { success: false, error: "Failed to update user type." };
+    return {
+      success: false,
+      error: `Failed to update user type: ${data.type}`,
+    };
   }
 }
 
@@ -33,9 +33,7 @@ export async function createUserAction(data: {
 }) {
   const junoClient = getJunoInstance();
   try {
-    console.log("Creating user:", data);
     const result = await junoClient.user.createUser(data);
-    console.log(result);
     return { success: true };
   } catch (error) {
     console.error("Error creating user:", error);
@@ -51,17 +49,15 @@ export async function linkUserToProject(data: {
 }) {
   const junoClient = getJunoInstance();
   try {
-    console.log(data);
     const result = await junoClient.user.linkToProject({
       adminEmail: data.adminEmail,
       adminPassword: data.adminPassword,
       project: { name: data.projectName },
       userId: data.userId,
     });
-    console.log("Linking user: ", result);
     return { success: true };
   } catch (error) {
     console.error("Error linking user:", error);
-    return { success: false, error: "Failed to link user type." };
+    return { success: false, error: "Failed to link user type to project" };
   }
 }

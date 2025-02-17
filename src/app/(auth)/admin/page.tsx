@@ -33,7 +33,7 @@ const userTypeMap = {
 } as const;
 
 const userTypeEnum = z.enum(
-  Object.keys(userTypeMap) as [keyof typeof userTypeMap]
+  Object.keys(userTypeMap) as [keyof typeof userTypeMap],
 );
 
 const createUserSchema = z.object({
@@ -72,7 +72,7 @@ const AdminPage = () => {
   });
 
   const handleCreateUser = async (
-    data: Required<z.infer<typeof createUserSchema>>
+    data: Required<z.infer<typeof createUserSchema>>,
   ) => {
     try {
       const result = await createUserAction(data);
@@ -99,7 +99,7 @@ const AdminPage = () => {
   });
 
   const handleSetUserType = async (
-    data: Required<z.infer<typeof setUserTypeSchema>>
+    data: Required<z.infer<typeof setUserTypeSchema>>,
   ) => {
     try {
       const result = await setUserTypeAction({
@@ -110,7 +110,7 @@ const AdminPage = () => {
       });
       if (result.success) {
         alert(
-          `User type updated to ${data.userType} by Admin: ${data.adminEmail}`
+          `User type updated to ${data.userType} by Admin: ${data.adminEmail}`,
         );
       } else {
         alert("Failed to set user type.");
@@ -132,7 +132,7 @@ const AdminPage = () => {
   });
 
   const handleLinkUserToProject = async (
-    data: Required<z.infer<typeof linkUserToProjectSchema>>
+    data: Required<z.infer<typeof linkUserToProjectSchema>>,
   ) => {
     try {
       const result = await linkUserToProject(data);

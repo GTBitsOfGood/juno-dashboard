@@ -16,7 +16,7 @@ export async function setUserTypeAction(data: {
       input: { email: data.email, type: data.type },
     });
     return { success: true };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: `Failed to update user type: ${data.type}`,
@@ -33,7 +33,7 @@ export async function createUserAction(data: {
 }) {
   const junoClient = getJunoInstance();
   try {
-    const result = await junoClient.user.createUser(data);
+    await junoClient.user.createUser(data);
     return { success: true };
   } catch (error) {
     console.error("Error creating user:", error);
@@ -49,7 +49,7 @@ export async function linkUserToProject(data: {
 }) {
   const junoClient = getJunoInstance();
   try {
-    const result = await junoClient.user.linkToProject({
+    await junoClient.user.linkToProject({
       adminEmail: data.adminEmail,
       adminPassword: data.adminPassword,
       project: { name: data.projectName },

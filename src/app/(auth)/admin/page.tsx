@@ -84,7 +84,6 @@ const AdminPage = () => {
     } catch (error) {
       console.error("Error creating user:", error);
     }
-    ``;
   };
 
   /** Form to set user type */

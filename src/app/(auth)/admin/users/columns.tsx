@@ -21,7 +21,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
-import { SetUserTypeModel } from "juno-sdk/build/main/internal/api";
 import { MoreHorizontal } from "lucide-react";
 
 export type UserColumn = {
@@ -35,13 +34,11 @@ export type UserColumn = {
 export const columns: ColumnDef<UserColumn>[] = [
   {
     id: "select",
-    header: ({ table }) => (
+    header: () => (
       // TODO: Add check all feature
       <Checkbox className="ms-2 align-middle mr-5" />
     ),
-    cell: ({ row }) => {
-      const project = row.original;
-
+    cell: () => {
       // TODO: Add selection logic
       return <Checkbox className="ms-2 align-middle" />;
     },

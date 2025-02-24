@@ -1,11 +1,7 @@
 import {
-  Calendar,
   ChevronDown,
-  Home,
-  Inbox,
   LayoutDashboard,
   ListTodo,
-  Search,
   Settings,
   User,
 } from "lucide-react";

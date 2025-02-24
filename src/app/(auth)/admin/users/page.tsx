@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import { UserColumn, columns } from "./columns";
 import { DataTable } from "./data-table";
 import {

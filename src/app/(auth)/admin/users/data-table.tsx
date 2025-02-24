@@ -20,6 +20,9 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useState } from "react"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { CreateUserModel } from "juno-sdk/build/main/internal/api"
+import CreateUserForm from "@/components/forms/AddUserForm"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -51,9 +54,24 @@ export function DataTable<TData, TValue>({
         } onChange={(event) => {
           table.getColumn("email")?.setFilterValue(event.target.value);
         }} />
-        <Button>
-          Add User
-        </Button>
+
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button>Add User</Button>
+          </DialogTrigger>
+
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add User</DialogTitle>
+              <DialogDescription>Create a new user for Juno.</DialogDescription>
+
+
+
+
+            </DialogHeader>
+            <CreateUserForm />
+          </DialogContent>
+        </Dialog>
 
       </div >
       <div className="rounded-md border">

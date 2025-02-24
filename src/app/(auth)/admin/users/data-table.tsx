@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   ColumnDef,
@@ -7,7 +7,7 @@ import {
   getCoreRowModel,
   getFilteredRowModel,
   useReactTable,
-} from "@tanstack/react-table"
+} from "@tanstack/react-table";
 
 import {
   Table,
@@ -16,17 +16,24 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { useState } from "react"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { CreateUserModel } from "juno-sdk/build/main/internal/api"
-import CreateUserForm from "@/components/forms/AddUserForm"
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { CreateUserModel } from "juno-sdk/build/main/internal/api";
+import CreateUserForm from "@/components/forms/AddUserForm";
 
 interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[]
-  data: TData[]
+  columns: ColumnDef<TData, TValue>[];
+  data: TData[];
 }
 
 export function DataTable<TData, TValue>({
@@ -42,18 +49,21 @@ export function DataTable<TData, TValue>({
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
     state: {
-      columnFilters
-    }
-  })
+      columnFilters,
+    },
+  });
 
   // TODO: skeleton animation
   return (
     <>
       <div className="items-center flex justify-between py-4 gap-3">
-        <Input placeholder="Filter users..." value={(table.getColumn("email")?.getFilterValue() as string ?? "")
-        } onChange={(event) => {
-          table.getColumn("email")?.setFilterValue(event.target.value);
-        }} />
+        <Input
+          placeholder="Filter users..."
+          value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
+          onChange={(event) => {
+            table.getColumn("email")?.setFilterValue(event.target.value);
+          }}
+        />
 
         <Dialog>
           <DialogTrigger asChild>
@@ -64,16 +74,11 @@ export function DataTable<TData, TValue>({
             <DialogHeader>
               <DialogTitle>Add User</DialogTitle>
               <DialogDescription>Create a new user for Juno.</DialogDescription>
-
-
-
-
             </DialogHeader>
             <CreateUserForm />
           </DialogContent>
         </Dialog>
-
-      </div >
+      </div>
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -81,15 +86,18 @@ export function DataTable<TData, TValue>({
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead style={{ width: header.getSize() }} key={header.id}>
+                    <TableHead
+                      style={{ width: header.getSize() }}
+                      key={header.id}
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
                     </TableHead>
-                  )
+                  );
                 })}
               </TableRow>
             ))}
@@ -103,14 +111,20 @@ export function DataTable<TData, TValue>({
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext(),
+                      )}
                     </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
                   No results.
                 </TableCell>
               </TableRow>
@@ -118,7 +132,6 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-
     </>
-  )
+  );
 }

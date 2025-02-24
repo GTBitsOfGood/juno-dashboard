@@ -1,22 +1,36 @@
-"use client"
+"use client";
 
-import SetUserTypeForm from "@/components/forms/SetUserTypeForm"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { ColumnDef } from "@tanstack/react-table"
-import { SetUserTypeModel } from "juno-sdk/build/main/internal/api"
-import { MoreHorizontal } from "lucide-react"
+import SetUserTypeForm from "@/components/forms/SetUserTypeForm";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ColumnDef } from "@tanstack/react-table";
+import { SetUserTypeModel } from "juno-sdk/build/main/internal/api";
+import { MoreHorizontal } from "lucide-react";
 
 export type UserColumn = {
-  id: string
-  name: string
-  email: string
-  role: "USER" | "ADMIN" | "SUPERADMIN"
-  projects: string[]
-}
+  id: string;
+  name: string;
+  email: string;
+  role: "USER" | "ADMIN" | "SUPERADMIN";
+  projects: string[];
+};
 
 export const columns: ColumnDef<UserColumn>[] = [
   {
@@ -29,9 +43,7 @@ export const columns: ColumnDef<UserColumn>[] = [
       const project = row.original;
 
       // TODO: Add selection logic
-      return (
-        <Checkbox className="ms-2 align-middle" />
-      )
+      return <Checkbox className="ms-2 align-middle" />;
     },
     size: 50,
   },
@@ -52,9 +64,7 @@ export const columns: ColumnDef<UserColumn>[] = [
   {
     accessorKey: "role",
     header: "Role",
-    cell: ({ row }) => (
-      <Badge>{row.original.role}</Badge>
-    )
+    cell: ({ row }) => <Badge>{row.original.role}</Badge>,
   },
   {
     accessorKey: "projects",
@@ -66,7 +76,6 @@ export const columns: ColumnDef<UserColumn>[] = [
       const user = row.original;
 
       return (
-
         <Dialog>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -78,9 +87,8 @@ export const columns: ColumnDef<UserColumn>[] = [
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuItem>
-                <DialogTrigger >
-                  Set user type
-                </DialogTrigger></DropdownMenuItem>
+                <DialogTrigger>Set user type</DialogTrigger>
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => navigator.clipboard.writeText(user.id)}
@@ -100,7 +108,6 @@ export const columns: ColumnDef<UserColumn>[] = [
             </DropdownMenuContent>
           </DropdownMenu>
 
-
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Add User</DialogTitle>
@@ -109,7 +116,7 @@ export const columns: ColumnDef<UserColumn>[] = [
             <SetUserTypeForm />
           </DialogContent>
         </Dialog>
-      )
+      );
     },
   },
-]
+];

@@ -4,7 +4,7 @@ import "./globals.css";
 
 const geistSans = Geist({
   subsets: ["latin"],
-  display: "swap"
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -19,9 +19,7 @@ export default function RootLayout({
 }>) {
   return (
     <html className="dark" lang="en" suppressHydrationWarning>
-      <body className={geistSans.className}>
-        {children}
-      </body>
+      <body className={geistSans.className}>{children}</body>
     </html>
   );
 }

@@ -1,7 +1,5 @@
 "use client";
-import {
-  linkUserToProject,
-} from "@/lib/actions";
+import { linkUserToProject } from "@/lib/actions";
 import {
   Form,
   FormControl,
@@ -16,7 +14,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
-
 const linkUserToProjectSchema = z.object({
   userId: z.string(),
   projectName: z.string().min(1, "Project Name is required"),
@@ -25,8 +22,6 @@ const linkUserToProjectSchema = z.object({
 });
 
 const AdminPage = () => {
-
-
   /** Form to link user to a project */
   const linkUserToProjectForm = useForm({
     resolver: zodResolver(linkUserToProjectSchema),

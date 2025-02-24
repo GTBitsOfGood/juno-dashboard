@@ -1,4 +1,14 @@
-import { Calendar, ChevronDown, Home, Inbox, LayoutDashboard, ListTodo, Search, Settings, User } from "lucide-react"
+import {
+  Calendar,
+  ChevronDown,
+  Home,
+  Inbox,
+  LayoutDashboard,
+  ListTodo,
+  Search,
+  Settings,
+  User,
+} from "lucide-react";
 
 import {
   Sidebar,
@@ -10,8 +20,13 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu"
+} from "@/components/ui/sidebar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 
 // Menu items.
 const items = [
@@ -35,7 +50,7 @@ const items = [
     url: "/admin/projects",
     icon: Settings,
   },
-]
+];
 
 export function AdminSidebar() {
   return (
@@ -50,7 +65,10 @@ export function AdminSidebar() {
                   <ChevronDown className="ml-auto" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
-              <DropdownMenuContent defaultValue={"Acme Inc"} className="w-[--radix-popper-anchor-width]">
+              <DropdownMenuContent
+                defaultValue={"Acme Inc"}
+                className="w-[--radix-popper-anchor-width]"
+              >
                 <DropdownMenuItem>
                   <span>Acme Inc</span>
                 </DropdownMenuItem>
@@ -83,5 +101,5 @@ export function AdminSidebar() {
         </SidebarGroup>
       </SidebarContent>
     </Sidebar>
-  )
+  );
 }

@@ -1,7 +1,15 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "../ui/button"
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "../ui/form"
-import { Input } from "../ui/input"
+import { Button } from "../ui/button";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "../ui/form";
+import { Input } from "../ui/input";
 import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { createUserAction } from "@/lib/actions";
@@ -44,7 +52,7 @@ const CreateUserForm = () => {
   };
 
   return (
-    < Form {...createUserForm}>
+    <Form {...createUserForm}>
       <form
         onSubmit={createUserForm.handleSubmit(handleCreateUser)}
         className="space-y-6 rounded-lg"
@@ -74,7 +82,9 @@ const CreateUserForm = () => {
                 <Input type="password" {...field} />
               </FormControl>
               <FormMessage />
-              <FormDescription>Your admin password credentials.</FormDescription>
+              <FormDescription>
+                Your admin password credentials.
+              </FormDescription>
             </FormItem>
           )}
         />
@@ -123,8 +133,8 @@ const CreateUserForm = () => {
         />
         <Button type="submit">Create User</Button>
       </form>
-    </Form >
-  )
-}
+    </Form>
+  );
+};
 
 export default CreateUserForm;

@@ -1,12 +1,25 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "../ui/button"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form"
-import { Input } from "../ui/input"
+import { Button } from "../ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "../ui/form";
+import { Input } from "../ui/input";
 import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { setUserTypeAction } from "@/lib/actions";
 import { SetUserTypeModel } from "juno-sdk/build/main/internal/api";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 import { Separator } from "../ui/separator";
 
 const userTypeMap = {
@@ -60,6 +73,7 @@ const SetUserTypeForm = () => {
     }
   };
 
+  // TODO: remove admin fields, replace with jwt
   return (
     <Form {...setUserTypeForm}>
       <form
@@ -117,10 +131,7 @@ const SetUserTypeForm = () => {
           render={({ field }) => (
             <FormItem>
               <FormLabel>User Type</FormLabel>
-              <Select
-                onValueChange={field.onChange}
-                defaultValue={field.value}
-              >
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
@@ -139,7 +150,7 @@ const SetUserTypeForm = () => {
         <Button type="submit">Update User Type</Button>
       </form>
     </Form>
-  )
-}
+  );
+};
 
 export default SetUserTypeForm;

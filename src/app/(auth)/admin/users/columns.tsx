@@ -1,5 +1,6 @@
 "use client"
 
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -18,11 +19,13 @@ export const columns: ColumnDef<UserColumn>[] = [
   {
     id: "select",
     header: ({ table }) => (
+      // TODO: Add check all feature
       <Checkbox className="ms-2 align-middle mr-5" />
     ),
     cell: ({ row }) => {
       const project = row.original;
 
+      // TODO: Add selection logic
       return (
         <Checkbox className="ms-2 align-middle" />
       )
@@ -46,6 +49,7 @@ export const columns: ColumnDef<UserColumn>[] = [
   {
     accessorKey: "role",
     header: "Role",
+    cell: ({ row }) => (<Badge>{row.original.role}</Badge>)
   },
   {
     accessorKey: "projects",
@@ -82,8 +86,7 @@ export const columns: ColumnDef<UserColumn>[] = [
               Copy user email
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>View customer</DropdownMenuItem>
-            <DropdownMenuItem>View payment details</DropdownMenuItem>
+            <DropdownMenuItem>View user</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       )

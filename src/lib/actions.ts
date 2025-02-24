@@ -41,6 +41,21 @@ export async function createUserAction(data: {
   }
 }
 
+export async function createProjectAction(data: {
+  projectName: string;
+  superadminEmail: string;
+  superadminPassword: string;
+}) {
+  const junoClient = getJunoInstance();
+  try {
+    await junoClient.project.createProject(data);
+    return { success: true };
+  } catch (error) {
+    console.error("Error creating project:", error);
+    return { success: false, error: "Failed to create project." };
+  }
+}
+
 export async function linkUserToProject(data: {
   adminEmail: string;
   adminPassword: string;

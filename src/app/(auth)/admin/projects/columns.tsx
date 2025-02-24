@@ -1,27 +1,74 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
+import { MoreHorizontal } from "lucide-react";
 
-// This type is used to define the shape of our data.
-// You can use a Zod schema here if you want.
-export type Payment = {
+export type ProjectColumn = {
   id: string;
-  amount: number;
-  status: "pending" | "processing" | "success" | "failed";
-  email: string;
+  name: string;
 };
 
-export const columns: ColumnDef<Payment>[] = [
+export const columns: ColumnDef<ProjectColumn>[] = [
   {
-    accessorKey: "status",
-    header: "Status",
+    id: "select",
+    header: () => (
+      // TODO: Add check all feature
+      <Checkbox className="ms-2 align-middle mr-5" />
+    ),
+    cell: () => {
+      // TODO: Add selection logic
+      return <Checkbox className="ms-2 align-middle" />;
+    },
+    size: 50,
   },
   {
-    accessorKey: "email",
-    header: "Email",
+    accessorKey: "id",
+    header: "ID",
   },
   {
-    accessorKey: "amount",
-    header: "Amount",
+    accessorKey: "name",
+    header: "Name",
+    size: 400,
+  },
+  {
+    id: "actions",
+    cell: ({ row }) => {
+      const project = row.original;
+
+      return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => navigator.clipboard.writeText(project.id)}
+              >
+                Copy project ID
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => navigator.clipboard.writeText(project.name)}
+              >
+                Copy project name
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+      );
+    },
   },
 ];

@@ -107,8 +107,8 @@ export const columns: ColumnDef<UserColumn>[] = [
 
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Add User</DialogTitle>
-              <DialogDescription>Create a new user for Juno.</DialogDescription>
+              <DialogTitle>Set user type</DialogTitle>
+              <DialogDescription>Change the user type of an existing user.</DialogDescription>
             </DialogHeader>
             <SetUserTypeForm />
           </DialogContent>

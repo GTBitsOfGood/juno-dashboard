@@ -1,5 +1,5 @@
 import { UserColumn, columns } from "./columns";
-import { DataTable } from "./data-table";
+import { UserDataTable } from "./data-table";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -83,7 +83,7 @@ export default async function DemoPage() {
 
       <h1>Users</h1>
 
-      <DataTable columns={columns} data={data} />
+      <UserDataTable columns={columns} data={data} />
     </div>
   );
 }

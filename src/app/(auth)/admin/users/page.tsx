@@ -39,7 +39,7 @@ async function getData(): Promise<UserColumn[]> {
       ]
     },
     {
-      id: "1",
+      id: "2",
       name: "Bob",
       email: "bob@gmail.com",
       role: "ADMIN",
@@ -50,7 +50,7 @@ async function getData(): Promise<UserColumn[]> {
       ]
     },
     {
-      id: "1",
+      id: "2",
       name: "Bob",
       email: "bob@gmail.com",
       role: "ADMIN",
@@ -61,7 +61,7 @@ async function getData(): Promise<UserColumn[]> {
       ]
     },
     {
-      id: "1",
+      id: "2",
       name: "Bob",
       email: "bob@gmail.com",
       role: "ADMIN",
@@ -72,7 +72,7 @@ async function getData(): Promise<UserColumn[]> {
       ]
     },
     {
-      id: "1",
+      id: "2",
       name: "Bob",
       email: "bob@gmail.com",
       role: "ADMIN",

@@ -18,15 +18,16 @@ export const columns: ColumnDef<UserColumn>[] = [
   {
     id: "select",
     header: ({ table }) => (
-      <Checkbox className="align-middle mr-5" />
+      <Checkbox className="ms-2 align-middle mr-5" />
     ),
     cell: ({ row }) => {
       const project = row.original;
 
       return (
-        <Checkbox className="align-middle" />
+        <Checkbox className="ms-2 align-middle" />
       )
     },
+    size: 50,
   },
   {
     accessorKey: "id",
@@ -35,10 +36,12 @@ export const columns: ColumnDef<UserColumn>[] = [
   {
     accessorKey: "name",
     header: "Name",
+    size: 400,
   },
   {
     accessorKey: "email",
     header: "Email",
+    size: 400,
   },
   {
     accessorKey: "role",
@@ -46,12 +49,12 @@ export const columns: ColumnDef<UserColumn>[] = [
   },
   {
     accessorKey: "projects",
-    header: "Linked Users",
+    header: "Projects",
   },
   {
     id: "actions",
     cell: ({ row }) => {
-      const project = row.original;
+      const user = row.original;
 
       return (
         <DropdownMenu>
@@ -64,9 +67,19 @@ export const columns: ColumnDef<UserColumn>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(project.name)}
+              onClick={() => navigator.clipboard.writeText(user.id)}
             >
-              Copy payment ID
+              Copy user ID
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => navigator.clipboard.writeText(user.name)}
+            >
+              Copy user name
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => navigator.clipboard.writeText(user.email)}
+            >
+              Copy user email
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem>View customer</DropdownMenuItem>

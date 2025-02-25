@@ -21,14 +21,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
+import { SetUserTypeModel } from "juno-sdk/build/main/internal/api";
 import { MoreHorizontal } from "lucide-react";
 
 export type UserColumn = {
-  id: string;
+  id: number;
   name: string;
   email: string;
-  role: "USER" | "ADMIN" | "SUPERADMIN";
-  projects: string[];
+  role: SetUserTypeModel.TypeEnum;
+  projects: number[];
 };
 
 export const columns: ColumnDef<UserColumn>[] = [

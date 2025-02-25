@@ -12,7 +12,6 @@ import { Input } from "../ui/input";
 import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { createProjectAction } from "@/lib/actions";
-import { Separator } from "../ui/separator";
 import { Button } from "../ui/button";
 
 const createProjectSchema = z.object({

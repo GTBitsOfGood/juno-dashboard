@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from "../ui/select";
 import { Separator } from "../ui/separator";
-import { InputMultiSelect, InputMultiSelectTrigger, SelectOption } from "../ui/multiselect";
+import { InputMultiSelect, InputMultiSelectTrigger } from "../ui/multiselect";
 import { useState } from "react";
 import { ProjectColumn } from "@/app/(auth)/admin/projects/columns";
 import { UserColumn } from "@/app/(auth)/admin/users/columns";
@@ -41,11 +41,16 @@ const setUserTypeSchema = z.object({
   userType: userTypeEnum,
   adminEmail: z.string().email("Invalid admin email"),
   adminPassword: z.string().min(6, "Invalid admin password"),
-  projects: z.array(z.number())
+  projects: z.array(z.number()),
 });
 
-
-const EditUserForm = ({ projectData, initialUserData }: { projectData: ProjectColumn[], initialUserData: UserColumn }) => {
+const EditUserForm = ({
+  projectData,
+  initialUserData,
+}: {
+  projectData: ProjectColumn[];
+  initialUserData: UserColumn;
+}) => {
   const setUserTypeForm = useForm<z.infer<typeof setUserTypeSchema>>({
     resolver: zodResolver(setUserTypeSchema),
     defaultValues: {
@@ -53,7 +58,7 @@ const EditUserForm = ({ projectData, initialUserData }: { projectData: ProjectCo
       userType: "ADMIN",
       adminEmail: "",
       adminPassword: "",
-      projects: []
+      projects: [],
     },
   });
 
@@ -68,9 +73,7 @@ const EditUserForm = ({ projectData, initialUserData }: { projectData: ProjectCo
         adminEmail: data.adminEmail,
       });
       if (result.success) {
-        alert(
-          `User updated to ${data}`,
-        );
+        alert(`User updated to ${data}`);
       } else {
         alert("Failed to edit user");
       }
@@ -81,12 +84,10 @@ const EditUserForm = ({ projectData, initialUserData }: { projectData: ProjectCo
 
   const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
 
-  const projectOptions = projectData.map(project => (
-    {
-      value: project.id.toString(),
-      label: project.name
-    }
-  ));
+  const projectOptions = projectData.map((project) => ({
+    value: project.id.toString(),
+    label: project.name,
+  }));
 
   // TODO: remove admin fields, replace with jwt
   return (
@@ -169,13 +170,12 @@ const EditUserForm = ({ projectData, initialUserData }: { projectData: ProjectCo
           render={() => (
             <FormItem>
               <FormLabel>Projects</FormLabel>
-              <InputMultiSelect options={projectOptions}
+              <InputMultiSelect
+                options={projectOptions}
                 value={selectedProjects}
                 onValueChange={(p) => setSelectedProjects(p)}
               >
                 {(provided) => <InputMultiSelectTrigger {...provided} />}
-
-
               </InputMultiSelect>
               <FormMessage />
             </FormItem>

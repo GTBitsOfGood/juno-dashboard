@@ -54,7 +54,7 @@ const ProjectPage = () => {
   });
 
   const onLinkProjectToUserSubmit = async (
-    values: z.infer<typeof linkProjectToUserSchema>
+    values: z.infer<typeof linkProjectToUserSchema>,
   ) => {
     const options = {
       project: {
@@ -74,7 +74,9 @@ const ProjectPage = () => {
       if (res.success) {
         alert("Project successfully linked to user!");
       } else {
-        alert("Project not successfully linked to user. Make sure your email or ID is valid!");
+        alert(
+          "Project not successfully linked to user. Make sure your email or ID is valid!",
+        );
       }
     } catch (e) {
       console.error("Error linking project to user:", e);
@@ -87,7 +89,7 @@ const ProjectPage = () => {
       <Form {...linkProjectToUserForm}>
         <form
           onSubmit={linkProjectToUserForm.handleSubmit(
-            onLinkProjectToUserSubmit
+            onLinkProjectToUserSubmit,
           )}
           className="space-y-8"
         >

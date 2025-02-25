@@ -33,92 +33,98 @@ export type UserColumn = {
   projects: number[];
 };
 
-export const userColumns = (projectData: ProjectColumn[]): ColumnDef<UserColumn>[] => {
-  return ([{
-    id: "select",
-    header: () => (
-      // TODO: Add check all feature
-      <Checkbox className="ms-2 align-middle mr-5" />
-    ),
-    cell: () => {
-      // TODO: Add selection logic
-      return <Checkbox className="ms-2 align-middle" />;
+export const userColumns = (
+  projectData: ProjectColumn[],
+): ColumnDef<UserColumn>[] => {
+  return [
+    {
+      id: "select",
+      header: () => (
+        // TODO: Add check all feature
+        <Checkbox className="ms-2 align-middle mr-5" />
+      ),
+      cell: () => {
+        // TODO: Add selection logic
+        return <Checkbox className="ms-2 align-middle" />;
+      },
+      size: 50,
     },
-    size: 50,
-  },
-  {
-    accessorKey: "id",
-    header: "ID",
-  },
-  {
-    accessorKey: "name",
-    header: "Name",
-    size: 400,
-  },
-  {
-    accessorKey: "email",
-    header: "Email",
-    size: 400,
-  },
-  {
-    accessorKey: "role",
-    header: "Role",
-    cell: ({ row }) => <Badge>{row.original.role}</Badge>,
-  },
-  {
-    accessorKey: "projects",
-    header: "Projects",
-    size: 500,
-  },
-  {
-    id: "actions",
-    cell: ({ row }) => {
-      const user = row.original;
-
-      return (
-        <Dialog>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem>
-                <DialogTrigger>Set user type</DialogTrigger>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={() => navigator.clipboard.writeText(user.id.toString())}
-              >
-                Copy user ID
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => navigator.clipboard.writeText(user.name)}
-              >
-                Copy user name
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => navigator.clipboard.writeText(user.email)}
-              >
-                Copy user email
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Set user type</DialogTitle>
-              <DialogDescription>Change the user type of an existing user.</DialogDescription>
-            </DialogHeader>
-            <EditUserForm initialUserData={user} projectData={projectData} />
-          </DialogContent>
-        </Dialog>
-      );
+    {
+      accessorKey: "id",
+      header: "ID",
     },
-  },
-  ]
-  )
-}
+    {
+      accessorKey: "name",
+      header: "Name",
+      size: 400,
+    },
+    {
+      accessorKey: "email",
+      header: "Email",
+      size: 400,
+    },
+    {
+      accessorKey: "role",
+      header: "Role",
+      cell: ({ row }) => <Badge>{row.original.role}</Badge>,
+    },
+    {
+      accessorKey: "projects",
+      header: "Projects",
+      size: 500,
+    },
+    {
+      id: "actions",
+      cell: ({ row }) => {
+        const user = row.original;
+
+        return (
+          <Dialog>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <span className="sr-only">Open menu</span>
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <DropdownMenuItem>
+                  <DialogTrigger>Set user type</DialogTrigger>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() =>
+                    navigator.clipboard.writeText(user.id.toString())
+                  }
+                >
+                  Copy user ID
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => navigator.clipboard.writeText(user.name)}
+                >
+                  Copy user name
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => navigator.clipboard.writeText(user.email)}
+                >
+                  Copy user email
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Set user type</DialogTitle>
+                <DialogDescription>
+                  Change the user type of an existing user.
+                </DialogDescription>
+              </DialogHeader>
+              <EditUserForm initialUserData={user} projectData={projectData} />
+            </DialogContent>
+          </Dialog>
+        );
+      },
+    },
+  ];
+};

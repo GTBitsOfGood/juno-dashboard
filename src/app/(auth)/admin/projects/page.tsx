@@ -1,3 +1,4 @@
+import { getJunoInstance } from "@/lib/juno";
 import { ProjectColumn, columns } from "./columns";
 import { ProjectDataTable } from "./data-table";
 import {
@@ -9,38 +10,22 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 
+// TODO: As soon as JWT gets merged into Juno, replace with credentials
+const ADMIN_EMAIL: string = "test-superadmin@test.com";
+const ADMIN_PASSWORD: string = "test-password";
+
 async function getData(): Promise<ProjectColumn[]> {
-  // Fetch data from your API here.
-  return [
-    {
-      id: "1",
-      name: "Project",
-    },
-    {
-      id: "1",
-      name: "Project",
-    },
-    {
-      id: "1",
-      name: "Project",
-    },
-    {
-      id: "2",
-      name: "Project",
-    },
-    {
-      id: "2",
-      name: "Project",
-    },
-    {
-      id: "2",
-      name: "Project",
-    },
-    {
-      id: "2",
-      name: "Project",
-    },
-  ];
+  const client = getJunoInstance();
+
+  const { projects } = await client.project.getProjects(
+    ADMIN_EMAIL,
+    ADMIN_PASSWORD,
+  );
+
+  return projects.map((project) => ({
+    id: project.id.toString(),
+    name: project.name,
+  }));
 }
 
 export default async function DemoPage() {

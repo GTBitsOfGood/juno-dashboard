@@ -1,5 +1,5 @@
-import { ProjectResponse, UserResponse } from "juno-sdk/build/main/internal/api";
-import { columns, UserColumn } from "./columns";
+import { ProjectResponse } from "juno-sdk/build/main/internal/api";
+import { UserColumn } from "./columns";
 import { UserDataTable } from "./data-table";
 import {
   Breadcrumb,
@@ -10,36 +10,35 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { getJunoInstance } from "@/lib/juno";
-import { ProjectColumn } from "../projects/columns";
 
 // TODO: As soon as JWT gets merged into Juno, replace with credentials
-const ADMIN_EMAIL: string = 'test-superadmin@test.com';
-const ADMIN_PASSWORD: string = 'test-password';
-
+const ADMIN_EMAIL: string = "test-superadmin@test.com";
+const ADMIN_PASSWORD: string = "test-password";
 
 async function getUserData(): Promise<UserColumn[]> {
   const client = getJunoInstance();
 
   const { users } = await client.user.getUsers(ADMIN_EMAIL, ADMIN_PASSWORD);
 
-  return users.map(user => ({
+  return users.map((user) => ({
     id: user.id,
     name: user.name,
     email: user.email,
     projects: user.projectIds,
-    role: user.type
+    role: user.type,
   }));
-
 }
 
-async function getProjectData(): Promise<ProjectResponse[]> {
+export async function getProjectData(): Promise<ProjectResponse[]> {
   const client = getJunoInstance();
 
-  const { projects } = await client.project.getProjects(ADMIN_EMAIL, ADMIN_PASSWORD);
+  const { projects } = await client.project.getProjects(
+    ADMIN_EMAIL,
+    ADMIN_PASSWORD,
+  );
 
   return projects;
 }
-
 
 export default async function DemoPage() {
   const userData = await getUserData();
@@ -61,7 +60,13 @@ export default async function DemoPage() {
 
       <h1>Users</h1>
 
-      <UserDataTable data={userData} projectData={projectData.map(project => ({ name: project.name, id: project.id.toString() }))} />
+      <UserDataTable
+        data={userData}
+        projectData={projectData.map((project) => ({
+          name: project.name,
+          id: project.id.toString(),
+        }))}
+      />
     </div>
   );
 }

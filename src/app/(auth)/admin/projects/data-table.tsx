@@ -72,7 +72,9 @@ export function ProjectDataTable<TData, TValue>({
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Add Project</DialogTitle>
-              <DialogDescription>Create a new project for Juno.</DialogDescription>
+              <DialogDescription>
+                Create a new project for Juno.
+              </DialogDescription>
             </DialogHeader>
             <CreateProjectForm />
           </DialogContent>

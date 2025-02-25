@@ -1,6 +1,6 @@
 "use client";
 
-import SetUserTypeForm from "@/components/forms/SetUserTypeForm";
+import EditUserForm from "@/components/forms/EditUserForm";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -23,6 +23,7 @@ import {
 import { ColumnDef } from "@tanstack/react-table";
 import { SetUserTypeModel } from "juno-sdk/build/main/internal/api";
 import { MoreHorizontal } from "lucide-react";
+import { ProjectColumn } from "../projects/columns";
 
 export type UserColumn = {
   id: number;
@@ -32,8 +33,8 @@ export type UserColumn = {
   projects: number[];
 };
 
-export const columns: ColumnDef<UserColumn>[] = [
-  {
+export const userColumns = (projectData: ProjectColumn[]): ColumnDef<UserColumn>[] => {
+  return ([{
     id: "select",
     header: () => (
       // TODO: Add check all feature
@@ -67,6 +68,7 @@ export const columns: ColumnDef<UserColumn>[] = [
   {
     accessorKey: "projects",
     header: "Projects",
+    size: 500,
   },
   {
     id: "actions",
@@ -89,7 +91,7 @@ export const columns: ColumnDef<UserColumn>[] = [
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
-                onClick={() => navigator.clipboard.writeText(user.id)}
+                onClick={() => navigator.clipboard.writeText(user.id.toString())}
               >
                 Copy user ID
               </DropdownMenuItem>
@@ -111,10 +113,12 @@ export const columns: ColumnDef<UserColumn>[] = [
               <DialogTitle>Set user type</DialogTitle>
               <DialogDescription>Change the user type of an existing user.</DialogDescription>
             </DialogHeader>
-            <SetUserTypeForm />
+            <EditUserForm initialUserData={user} projectData={projectData} />
           </DialogContent>
         </Dialog>
       );
     },
   },
-];
+  ]
+  )
+}

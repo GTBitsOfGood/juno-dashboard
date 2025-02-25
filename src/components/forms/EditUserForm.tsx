@@ -21,6 +21,10 @@ import {
   SelectValue,
 } from "../ui/select";
 import { Separator } from "../ui/separator";
+import { InputMultiSelect, InputMultiSelectTrigger, SelectOption } from "../ui/multiselect";
+import { useState } from "react";
+import { ProjectColumn } from "@/app/(auth)/admin/projects/columns";
+import { UserColumn } from "@/app/(auth)/admin/users/columns";
 
 const userTypeMap = {
   SUPERADMIN: 0,
@@ -37,17 +41,19 @@ const setUserTypeSchema = z.object({
   userType: userTypeEnum,
   adminEmail: z.string().email("Invalid admin email"),
   adminPassword: z.string().min(6, "Invalid admin password"),
+  projects: z.array(z.number())
 });
 
-const SetUserTypeForm = () => {
-  /** Form to set user type */
+
+const EditUserForm = ({ projectData, initialUserData }: { projectData: ProjectColumn[], initialUserData: UserColumn }) => {
   const setUserTypeForm = useForm<z.infer<typeof setUserTypeSchema>>({
     resolver: zodResolver(setUserTypeSchema),
     defaultValues: {
-      userEmail: "",
-      userType: "USER",
+      userEmail: initialUserData.email,
+      userType: "ADMIN",
       adminEmail: "",
       adminPassword: "",
+      projects: []
     },
   });
 
@@ -63,22 +69,31 @@ const SetUserTypeForm = () => {
       });
       if (result.success) {
         alert(
-          `User type updated to ${data.userType} by Admin: ${data.adminEmail}`,
+          `User updated to ${data}`,
         );
       } else {
-        alert("Failed to set user type.");
+        alert("Failed to edit user");
       }
     } catch (error) {
       console.error("Error updating user type:", error);
     }
   };
 
+  const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
+
+  const projectOptions = projectData.map(project => (
+    {
+      value: project.id.toString(),
+      label: project.name
+    }
+  ));
+
   // TODO: remove admin fields, replace with jwt
   return (
     <Form {...setUserTypeForm}>
       <form
         onSubmit={setUserTypeForm.handleSubmit(handleSetUserType)}
-        className="space-y-4 border p-4 rounded-lg"
+        className="space-y-4 p-4 rounded-lg"
       >
         <h2 className="text-lg font-semibold">Set User Type</h2>
 
@@ -147,10 +162,30 @@ const SetUserTypeForm = () => {
             </FormItem>
           )}
         />
-        <Button type="submit">Update User Type</Button>
+
+        <FormField
+          control={setUserTypeForm.control}
+          name="projects"
+          render={() => (
+            <FormItem>
+              <FormLabel>Projects</FormLabel>
+              <InputMultiSelect options={projectOptions}
+                value={selectedProjects}
+                onValueChange={(p) => setSelectedProjects(p)}
+              >
+                {(provided) => <InputMultiSelectTrigger {...provided} />}
+
+
+              </InputMultiSelect>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <Button type="submit">Update User</Button>
       </form>
     </Form>
   );
 };
 
-export default SetUserTypeForm;
+export default EditUserForm;

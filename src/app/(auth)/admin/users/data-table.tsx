@@ -29,21 +29,25 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import CreateUserForm from "@/components/forms/AddUserForm";
+import { ProjectColumn } from "../projects/columns";
+import { userColumns } from "./columns";
 
 interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  projectData: ProjectColumn[]
 }
 
 export function UserDataTable<TData, TValue>({
-  columns,
   data,
+  projectData
 }: DataTableProps<TData, TValue>) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
+  const columns = userColumns(projectData);
+
   const table = useReactTable({
     data,
-    columns,
+    columns: columns as ColumnDef<TData, any>[],
     getCoreRowModel: getCoreRowModel(),
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
@@ -92,9 +96,9 @@ export function UserDataTable<TData, TValue>({
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
                     </TableHead>
                   );
                 })}

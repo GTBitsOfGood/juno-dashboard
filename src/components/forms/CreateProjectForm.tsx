@@ -53,7 +53,6 @@ const CreateProjectForm = () => {
         onSubmit={createUserForm.handleSubmit(handleCreateUser)}
         className="space-y-6 rounded-lg"
       >
-        <h2 className="text-lg font-semibold">Create User</h2>
         <FormField
           control={createUserForm.control}
           name="superadminEmail"

@@ -20,7 +20,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { Separator } from "../ui/separator";
 import { InputMultiSelect, InputMultiSelectTrigger } from "../ui/multiselect";
 import { useState } from "react";
 import { ProjectColumn } from "@/app/(auth)/admin/projects/columns";
@@ -39,8 +38,6 @@ const userTypeEnum = z.enum(
 const setUserTypeSchema = z.object({
   userEmail: z.string().email("Invalid user email"),
   userType: userTypeEnum,
-  adminEmail: z.string().email("Invalid admin email"),
-  adminPassword: z.string().min(6, "Invalid admin password"),
   projects: z.array(z.number()),
 });
 
@@ -56,8 +53,6 @@ const EditUserForm = ({
     defaultValues: {
       userEmail: initialUserData.email,
       userType: "ADMIN",
-      adminEmail: "",
-      adminPassword: "",
       projects: [],
     },
   });
@@ -69,8 +64,6 @@ const EditUserForm = ({
       const result = await setUserTypeAction({
         type: data.userType as unknown as SetUserTypeModel.TypeEnum, //May not be good
         email: data.userEmail,
-        adminPassword: data.adminPassword,
-        adminEmail: data.adminEmail,
       });
       if (result.success) {
         alert(`User updated to ${data}`);
@@ -97,36 +90,6 @@ const EditUserForm = ({
         className="space-y-4 p-4 rounded-lg"
       >
         <h2 className="text-lg font-semibold">Set User Type</h2>
-
-        <FormField
-          control={setUserTypeForm.control}
-          name="adminEmail"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Admin Email</FormLabel>
-              <FormControl>
-                <Input type="email" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={setUserTypeForm.control}
-          name="adminPassword"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Admin Password</FormLabel>
-              <FormControl>
-                <Input type="password" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <Separator className="mt-8 mb-8" />
 
         <FormField
           control={setUserTypeForm.control}

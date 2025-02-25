@@ -12,13 +12,10 @@ import { Input } from "../ui/input";
 import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { createProjectAction } from "@/lib/actions";
-import { Separator } from "../ui/separator";
 import { Button } from "../ui/button";
 
 const createProjectSchema = z.object({
   projectName: z.string().min(2, "Name must be at least 2 characters"),
-  superadminEmail: z.string().email("Invalid admin email"),
-  superadminPassword: z.string().min(6, "Invalid admin password"),
 });
 
 const CreateProjectForm = () => {
@@ -27,8 +24,6 @@ const CreateProjectForm = () => {
     resolver: zodResolver(createProjectSchema),
     defaultValues: {
       projectName: "",
-      superadminEmail: "",
-      superadminPassword: "",
     },
   });
 
@@ -53,37 +48,6 @@ const CreateProjectForm = () => {
         onSubmit={createUserForm.handleSubmit(handleCreateUser)}
         className="space-y-6 rounded-lg"
       >
-        <FormField
-          control={createUserForm.control}
-          name="superadminEmail"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Admin Email</FormLabel>
-              <FormControl>
-                <Input type="email" {...field} />
-              </FormControl>
-              <FormMessage />
-              <FormDescription>Your admin email credentials.</FormDescription>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={createUserForm.control}
-          name="superadminPassword"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Admin Password</FormLabel>
-              <FormControl>
-                <Input type="password" {...field} />
-              </FormControl>
-              <FormMessage />
-              <FormDescription>
-                Your admin password credentials.
-              </FormDescription>
-            </FormItem>
-          )}
-        />
-        <Separator className="mt-8 mb-8" />
         <FormField
           control={createUserForm.control}
           name="projectName"

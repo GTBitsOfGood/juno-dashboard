@@ -1,5 +1,4 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "../ui/button";
 import {
   Form,
   FormControl,
@@ -12,35 +11,32 @@ import {
 import { Input } from "../ui/input";
 import * as z from "zod";
 import { useForm } from "react-hook-form";
-import { createUserAction } from "@/lib/actions";
+import { createProjectAction } from "@/lib/actions";
 import { Separator } from "../ui/separator";
+import { Button } from "../ui/button";
 
-const createUserSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Invalid email"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  adminEmail: z.string().email("Invalid admin email"),
-  adminPassword: z.string().min(6, "Invalid admin password"),
+const createProjectSchema = z.object({
+  projectName: z.string().min(2, "Name must be at least 2 characters"),
+  superadminEmail: z.string().email("Invalid admin email"),
+  superadminPassword: z.string().min(6, "Invalid admin password"),
 });
 
-const CreateUserForm = () => {
+const CreateProjectForm = () => {
   /** Form to create a user */
   const createUserForm = useForm({
-    resolver: zodResolver(createUserSchema),
+    resolver: zodResolver(createProjectSchema),
     defaultValues: {
-      name: "",
-      email: "",
-      password: "",
-      adminEmail: "",
-      adminPassword: "",
+      projectName: "",
+      superadminEmail: "",
+      superadminPassword: "",
     },
   });
 
   const handleCreateUser = async (
-    data: Required<z.infer<typeof createUserSchema>>,
+    data: Required<z.infer<typeof createProjectSchema>>,
   ) => {
     try {
-      const result = await createUserAction(data);
+      const result = await createProjectAction(data);
       if (result.success) {
         alert("User created successfully!");
       } else {
@@ -59,7 +55,7 @@ const CreateUserForm = () => {
       >
         <FormField
           control={createUserForm.control}
-          name="adminEmail"
+          name="superadminEmail"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Admin Email</FormLabel>
@@ -73,7 +69,7 @@ const CreateUserForm = () => {
         />
         <FormField
           control={createUserForm.control}
-          name="adminPassword"
+          name="superadminPassword"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Admin Password</FormLabel>
@@ -90,7 +86,7 @@ const CreateUserForm = () => {
         <Separator className="mt-8 mb-8" />
         <FormField
           control={createUserForm.control}
-          name="name"
+          name="projectName"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Name</FormLabel>
@@ -98,42 +94,15 @@ const CreateUserForm = () => {
                 <Input {...field} />
               </FormControl>
               <FormMessage />
-              <FormDescription>Name for the new User.</FormDescription>
+              <FormDescription>Name for the new Project.</FormDescription>
             </FormItem>
           )}
         />
-        <FormField
-          control={createUserForm.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input type="email" {...field} />
-              </FormControl>
-              <FormMessage />
-              <FormDescription>Email for the new User.</FormDescription>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={createUserForm.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Password</FormLabel>
-              <FormControl>
-                <Input type="password" {...field} />
-              </FormControl>
-              <FormMessage />
-              <FormDescription>Password for the new User.</FormDescription>
-            </FormItem>
-          )}
-        />
-        <Button type="submit">Create User</Button>
+
+        <Button type="submit">Create Project</Button>
       </form>
     </Form>
   );
 };
 
-export default CreateUserForm;
+export default CreateProjectForm;

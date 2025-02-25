@@ -29,21 +29,25 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import CreateUserForm from "@/components/forms/AddUserForm";
+import { ProjectColumn } from "../projects/columns";
+import { userColumns } from "./columns";
 
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
+interface DataTableProps<TData> {
   data: TData[];
+  projectData: ProjectColumn[];
 }
 
-export function DataTable<TData, TValue>({
-  columns,
+export function UserDataTable<TData>({
   data,
-}: DataTableProps<TData, TValue>) {
+  projectData,
+}: DataTableProps<TData>) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+
+  const columns = userColumns(projectData);
 
   const table = useReactTable({
     data,
-    columns,
+    columns: columns as ColumnDef<TData>[],
     getCoreRowModel: getCoreRowModel(),
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),

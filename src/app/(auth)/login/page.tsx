@@ -1,7 +1,14 @@
-"use client"
+"use client";
 
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -10,14 +17,14 @@ import { z } from "zod";
 const loginSchema = z.object({
   email: z.string().email("Invalid email"),
   password: z.string(),
-})
+});
 
 const LoginPage = () => {
   const loginForm = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       email: "",
-      password: ""
+      password: "",
     },
   });
 
@@ -25,10 +32,13 @@ const LoginPage = () => {
     <>
       <div className="container mx-auto max-w-xl">
         <Form {...loginForm}>
-
-          <form onSubmit={() => alert("TODO: Log In Information")} className="space-y-4 p-4 rounded-lg">
+          <form
+            onSubmit={() => alert("TODO: Log In Information")}
+            className="space-y-4 p-4 rounded-lg"
+          >
             <h2 className="text-lg font-semibold mt-24">Log in to Juno</h2>
-            <FormField control={loginForm.control}
+            <FormField
+              control={loginForm.control}
               name="email"
               render={({ field }) => (
                 <FormItem>
@@ -41,7 +51,8 @@ const LoginPage = () => {
               )}
             />
 
-            <FormField control={loginForm.control}
+            <FormField
+              control={loginForm.control}
               name="password"
               render={({ field }) => (
                 <FormItem>
@@ -59,7 +70,7 @@ const LoginPage = () => {
         </Form>
       </div>
     </>
-  )
+  );
 };
 
 export default LoginPage;

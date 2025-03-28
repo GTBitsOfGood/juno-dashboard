@@ -54,11 +54,10 @@ const items = [
 ];
 
 export function AdminSidebar() {
-  const router = useRouter();
-  async function logOut() {
-    deleteJWT();
-    router.push("/admin");
-  }
+async function logOut() {
+  await deleteJWT();
+  router.push("/admin");
+}
   return (
     <Sidebar>
       <SidebarHeader>

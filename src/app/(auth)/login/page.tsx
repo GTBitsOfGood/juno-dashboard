@@ -11,6 +11,9 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
+import { createJWTAuthentication } from "@/lib/actions";
+import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -20,6 +23,7 @@ const loginSchema = z.object({
 });
 
 const LoginPage = () => {
+  const router = useRouter();
   const loginForm = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -28,12 +32,28 @@ const LoginPage = () => {
     },
   });
 
+  async function handleLoginSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+
+    const values = loginForm.getValues();
+    const result = await createJWTAuthentication({
+      email: values.email,
+      password: values.password,
+    });
+    if (result.success) {
+      //Go to admin page
+      router.push("/admin");
+    } else {
+      alert("Login failed.");
+    }
+  }
+
   return (
     <>
       <div className="container mx-auto max-w-xl">
         <Form {...loginForm}>
           <form
-            onSubmit={() => alert("TODO: Log In Information")}
+            onSubmit={handleLoginSubmit}
             className="space-y-4 p-4 rounded-lg"
           >
             <h2 className="text-lg font-semibold mt-24">Log in to Juno</h2>

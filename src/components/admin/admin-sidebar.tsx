@@ -1,10 +1,15 @@
+"use client";
 import {
   ChevronDown,
   LayoutDashboard,
   ListTodo,
   Settings,
   User,
+  LogOut,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
+
+import { deleteJWT } from "@/lib/actions";
 
 import {
   Sidebar,
@@ -49,6 +54,11 @@ const items = [
 ];
 
 export function AdminSidebar() {
+  const router = useRouter();
+  async function logOut() {
+    deleteJWT();
+    router.push("/admin");
+  }
   return (
     <Sidebar>
       <SidebarHeader>
@@ -92,6 +102,12 @@ export function AdminSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+              <button
+                onClick={logOut}
+                className="p-2 rounded hover:bg-gray-200"
+              >
+                <LogOut className="h-6 w-6" />
+              </button>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

@@ -119,5 +119,10 @@ export async function getCredentialsFromJWT() {
 }
 
 export async function deleteJWT() {
-  (await cookies()).delete("jwt-token");
+  const cookieStore = await cookies();
+  const cookie = cookieStore.get("jwt-token");
+  //Revoke key as well
+  const junoClient = getJunoInstance();
+  junoClient.auth.revokeKey({ apiKey: cookie.value });
+  cookieStore.delete("jwt-token");
 }

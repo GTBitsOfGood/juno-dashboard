@@ -3,11 +3,6 @@ import { getJunoInstance } from "@/lib/juno";
 import { cookies } from "next/headers";
 
 import { SetUserTypeModel } from "juno-sdk/build/main/internal/api";
-import { get } from "http";
-
-// TODO: Replace as soon as JWT features implemented (sprint 3)
-const ADMIN_EMAIL: string = "test-superadmin@test.com";
-const ADMIN_PASSWORD: string = "test-password";
 
 export async function setUserTypeAction(data: {
   email: string;

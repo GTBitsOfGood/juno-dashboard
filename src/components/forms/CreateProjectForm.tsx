@@ -38,7 +38,7 @@ const CreateProjectForm = () => {
         alert("Project failed to be created.");
       }
     } catch (error) {
-      console.error("Error creating user:", error);
+      console.error("Error creating project:", error);
     }
   };
 

@@ -103,12 +103,9 @@ export function AdminSidebar() {
                 </SidebarMenuItem>
               ))}
 
-
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <button
-                    onClick={logOut}
-                  >
+                  <button onClick={logOut}>
                     <LogOut className="text-red-300 h-6 w-6" />
 
                     <div className="text-red-300">Logout</div>

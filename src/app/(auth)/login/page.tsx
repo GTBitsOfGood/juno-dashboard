@@ -39,9 +39,8 @@ const LoginPage = () => {
   async function handleLoginSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    // start loading animation 
+    // start loading animation
     setLoading(true);
-
 
     const values = loginForm.getValues();
     const result = await createJWTAuthentication({
@@ -65,20 +64,18 @@ const LoginPage = () => {
             onSubmit={handleLoginSubmit}
             className="space-y-4 p-4 rounded-lg"
           >
-
-
-
             <h2 className="text-lg font-semibold mt-24">Log in to Juno</h2>
 
-            {
-              error.length > 0 ?
-                <Alert>
-                  <div className="flex space-x-2 text-red-300 items-center align-middle">
-                    <CircleX className="h-4 w-4" />
-                    <div>Invalid password.</div>
-                  </div>
-                </Alert> : <></>
-            }
+            {error.length > 0 ? (
+              <Alert>
+                <div className="flex space-x-2 text-red-300 items-center align-middle">
+                  <CircleX className="h-4 w-4" />
+                  <div>Invalid password.</div>
+                </div>
+              </Alert>
+            ) : (
+              <></>
+            )}
 
             <FormField
               control={loginForm.control}
@@ -114,7 +111,7 @@ const LoginPage = () => {
             </Button>
           </form>
         </Form>
-      </div >
+      </div>
     </>
   );
 };

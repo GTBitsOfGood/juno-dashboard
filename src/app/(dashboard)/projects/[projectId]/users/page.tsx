@@ -32,13 +32,6 @@ export default function ProjectUsersPage() {
         ]);
 
         if (usersResult.success) {
-          // const mappedUsers = usersResult.users.map((user) => ({
-          //   id: user.id,
-          //   name: user.name,
-          //   email: user.email,
-          //   role: user.type,
-          //   projects: user.projectIds || [],
-          // }));
           setUsers(usersResult.users);
         } else {
           console.error(usersResult.error);

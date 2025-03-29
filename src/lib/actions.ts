@@ -104,7 +104,7 @@ export async function getProjectUsers(projectId: string) {
     const users = await junoClient.project.getProjectUsersById(
       projectId,
       ADMIN_EMAIL,
-      ADMIN_PASSWORD
+      ADMIN_PASSWORD,
     );
 
     return {

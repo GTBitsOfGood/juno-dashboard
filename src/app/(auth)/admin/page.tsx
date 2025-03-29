@@ -35,7 +35,7 @@ const AdminPage = () => {
   });
 
   const handleLinkUserToProject = async (
-    data: Required<z.infer<typeof linkUserToProjectSchema>>
+    data: Required<z.infer<typeof linkUserToProjectSchema>>,
   ) => {
     try {
       const result = await linkUserToProject(data);

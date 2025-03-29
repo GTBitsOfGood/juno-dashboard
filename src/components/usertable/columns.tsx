@@ -35,7 +35,7 @@ export type UserColumn = {
 
 export const userColumns = (
   projectData: ProjectColumn[],
-  onUserUpdate?: (unknown) => void
+  onUserUpdate?: (unknown) => void,
 ): ColumnDef<UserColumn>[] => {
   return [
     {

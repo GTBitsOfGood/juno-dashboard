@@ -61,7 +61,7 @@ const ProjectPage = () => {
   });
 
   const onLinkProjectToUserSubmit = async (
-    values: z.infer<typeof linkProjectToUserSchema>
+    values: z.infer<typeof linkProjectToUserSchema>,
   ) => {
     const options = {
       project: {
@@ -95,7 +95,7 @@ const ProjectPage = () => {
       <Form {...linkProjectToUserForm}>
         <form
           onSubmit={linkProjectToUserForm.handleSubmit(
-            onLinkProjectToUserSubmit
+            onLinkProjectToUserSubmit,
           )}
           className="space-y-8"
         >

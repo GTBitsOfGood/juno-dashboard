@@ -57,7 +57,7 @@ export async function getProjects() {
     const client = getJunoInstance();
     const { projects } = await client.project.getProjects(
       ADMIN_EMAIL,
-      ADMIN_PASSWORD
+      ADMIN_PASSWORD,
     );
 
     return {

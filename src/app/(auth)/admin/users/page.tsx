@@ -47,7 +47,9 @@ export default function UsersPage() {
 
   const handleUserUpdate = (updatedUser: UserColumn) => {
     setUserData((prevUsers) =>
-      prevUsers.map((user) => (user.id === updatedUser.id ? updatedUser : user))
+      prevUsers.map((user) =>
+        user.id === updatedUser.id ? updatedUser : user,
+      ),
     );
   };
 

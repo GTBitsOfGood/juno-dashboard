@@ -33,7 +33,7 @@ const userTypeMap = {
 } as const;
 
 const userTypeEnum = z.enum(
-  Object.keys(userTypeMap) as [keyof typeof userTypeMap]
+  Object.keys(userTypeMap) as [keyof typeof userTypeMap],
 );
 
 const setUserTypeSchema = z.object({
@@ -64,7 +64,7 @@ const EditUserForm = ({
   });
 
   const handleSetUserType = async (
-    data: Required<z.infer<typeof setUserTypeSchema>>
+    data: Required<z.infer<typeof setUserTypeSchema>>,
   ) => {
     try {
       // Update user type
@@ -84,10 +84,10 @@ const EditUserForm = ({
       const projectLinkingPromises = selectedProjects.map((projectId) =>
         linkUserToProject({
           projectName: projectData.find(
-            (p) => parseInt(p.id) === parseInt(projectId)
+            (p) => parseInt(p.id) === parseInt(projectId),
           )?.name,
           userId: initialUserData.id.toString(),
-        })
+        }),
       );
 
       const projectResults = await Promise.all(projectLinkingPromises);
@@ -121,7 +121,7 @@ const EditUserForm = ({
   const [selectedProjects, setSelectedProjects] = useState<string[]>(
     initialUserData.projects
       ? initialUserData.projects.map((id) => id.toString())
-      : []
+      : [],
   );
 
   const projectOptions = projectData.map((project) => ({

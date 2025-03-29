@@ -23,7 +23,7 @@ import {
 import { ColumnDef } from "@tanstack/react-table";
 import { SetUserTypeModel } from "juno-sdk/build/main/internal/api";
 import { MoreHorizontal } from "lucide-react";
-import { ProjectColumn } from "../projects/columns";
+import { ProjectColumn } from "../../app/(auth)/admin/projects/columns";
 
 export type UserColumn = {
   id: number;
@@ -35,6 +35,7 @@ export type UserColumn = {
 
 export const userColumns = (
   projectData: ProjectColumn[],
+  onUserUpdate?: (unknown) => void
 ): ColumnDef<UserColumn>[] => {
   return [
     {
@@ -72,6 +73,20 @@ export const userColumns = (
       accessorKey: "projects",
       header: "Projects",
       size: 500,
+      cell: ({ row }) => {
+        const projects = row.original.projects || [];
+        return projects.length > 0 ? (
+          <div className="flex flex-wrap gap-1">
+            {projects.map((projectId) => (
+              <Badge key={projectId} variant="secondary">
+                {projectId}
+              </Badge>
+            ))}
+          </div>
+        ) : (
+          <Badge variant="secondary">None</Badge>
+        );
+      },
     },
     {
       id: "actions",
@@ -79,8 +94,8 @@ export const userColumns = (
         const user = row.original;
 
         return (
-          <Dialog>
-            <DropdownMenu>
+          <Dialog modal={false}>
+            <DropdownMenu modal={false}>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="h-8 w-8 p-0">
                   <span className="sr-only">Open menu</span>
@@ -89,7 +104,7 @@ export const userColumns = (
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={(e) => e.stopPropagation()}>
                   <DialogTrigger>Set user type</DialogTrigger>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
@@ -120,7 +135,11 @@ export const userColumns = (
                   Change the user type of an existing user.
                 </DialogDescription>
               </DialogHeader>
-              <EditUserForm initialUserData={user} projectData={projectData} />
+              <EditUserForm
+                initialUserData={user}
+                projectData={projectData}
+                onUserUpdate={onUserUpdate}
+              />
             </DialogContent>
           </Dialog>
         );

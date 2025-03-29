@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
+import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
   subsets: ["latin"],
@@ -19,7 +20,10 @@ export default function RootLayout({
 }>) {
   return (
     <html className="dark" lang="en" suppressHydrationWarning>
-      <body className={geistSans.className}>{children}</body>
+      <body className={geistSans.className}>
+        {children}
+        <Toaster />
+      </body>
     </html>
   );
 }

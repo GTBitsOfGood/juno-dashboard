@@ -37,7 +37,7 @@ export async function createUserAction(data: {
   const { name, email, password } = data;
 
   try {
-    await junoClient.user.createUser({
+    const user = await junoClient.user.createUser({
       name,
       email,
       password,
@@ -45,10 +45,19 @@ export async function createUserAction(data: {
       adminPassword: ADMIN_PASSWORD,
     });
 
-    return { success: true };
+    return {
+      success: true,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        type: user.type,
+        projectIds: user.projectIds,
+      },
+    };
   } catch (error) {
     console.error("Error creating user:", error);
-    return { success: false, error: "Failed to create user." };
+    return { success: false, error: error.body };
   }
 }
 
@@ -85,5 +94,35 @@ export async function linkUserToProject(data: {
   } catch (error) {
     console.error("Error linking user:", error);
     return { success: false, error: "Failed to link user type to project" };
+  }
+}
+
+export async function getProjectUsers(projectId: string) {
+  const junoClient = getJunoInstance();
+
+  try {
+    const users = await junoClient.project.getProjectUsersById(
+      projectId,
+      ADMIN_EMAIL,
+      ADMIN_PASSWORD
+    );
+
+    return {
+      success: true,
+      users:
+        users?.users?.map((user) => ({
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.type,
+          projects: user.projectIds,
+        })) || [],
+    };
+  } catch (error) {
+    console.error("Error fetching project users:", error);
+    return {
+      success: false,
+      error: "Failed to fetch project users: " + error.message,
+    };
   }
 }

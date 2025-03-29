@@ -1,6 +1,10 @@
 "use client";
 
-import { getJunoProject, linkJunoProjectToUser } from "@/lib/sdkActions";
+import {
+  getJunoProject,
+  linkJunoProjectToUser,
+  userInputType,
+} from "@/lib/sdkActions";
 import {
   Form,
   FormControl,
@@ -16,6 +20,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 const linkProjectToUserSchema = z.object({
   user: z.string().min(1, "Email or ID is required"),
@@ -34,7 +39,9 @@ const ProjectPage = () => {
           const name = res.projectName;
           setProjectName(name);
         } else {
-          alert("Failed to get project name");
+          toast.error("Error", {
+            description: "Failed to get project",
+          });
         }
       } catch (e) {
         console.error("Error getting project:", e);
@@ -54,29 +61,28 @@ const ProjectPage = () => {
   });
 
   const onLinkProjectToUserSubmit = async (
-    values: z.infer<typeof linkProjectToUserSchema>,
+    values: z.infer<typeof linkProjectToUserSchema>
   ) => {
     const options = {
       project: {
         id: Number(projectId),
       },
-      user: isNaN(Number(values.user))
-        ? {
-            email: values.user,
-          }
-        : {
-            id: values.user,
-          },
+      user: (isNaN(Number(values.user))
+        ? { email: values.user }
+        : { id: Number(values.user) }) as userInputType,
     };
 
     try {
       const res = await linkJunoProjectToUser(options);
       if (res.success) {
-        alert("Project successfully linked to user!");
+        toast.success("Success", {
+          description: "Project successfully linked to user!",
+        });
       } else {
-        alert(
-          "Project not successfully linked to user. Make sure your email or ID is valid!",
-        );
+        toast.error("Error", {
+          description:
+            "Failed to link project to user. Make sure your email or ID is valid!",
+        });
       }
     } catch (e) {
       console.error("Error linking project to user:", e);
@@ -89,7 +95,7 @@ const ProjectPage = () => {
       <Form {...linkProjectToUserForm}>
         <form
           onSubmit={linkProjectToUserForm.handleSubmit(
-            onLinkProjectToUserSubmit,
+            onLinkProjectToUserSubmit
           )}
           className="space-y-8"
         >

@@ -13,6 +13,8 @@ import { Input } from "../ui/input";
 import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { createUserAction } from "@/lib/actions";
+import { toast } from "sonner";
+import { UserColumn } from "../usertable/columns";
 
 const createUserSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -20,7 +22,11 @@ const createUserSchema = z.object({
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
-const CreateUserForm = () => {
+type CreateUserFormProps = {
+  onUserAdd: (newUser: UserColumn) => void;
+};
+
+const CreateUserForm = ({ onUserAdd }: CreateUserFormProps) => {
   /** Form to create a user */
   const createUserForm = useForm({
     resolver: zodResolver(createUserSchema),
@@ -32,14 +38,28 @@ const CreateUserForm = () => {
   });
 
   const handleCreateUser = async (
-    data: Required<z.infer<typeof createUserSchema>>,
+    data: Required<z.infer<typeof createUserSchema>>
   ) => {
     try {
       const result = await createUserAction(data);
       if (result.success) {
-        alert("User successfully created");
+        toast.success("Success", {
+          description: "User successfully created!",
+        });
+        const newUser = {
+          id: result.user.id,
+          name: result.user.name,
+          email: result.user.email,
+          role: result.user.type,
+          projects: result.user.projectIds,
+        };
+        if (onUserAdd) {
+          onUserAdd(newUser);
+        }
       } else {
-        alert("User failed to be created.");
+        toast.error("Error", {
+          description: result.error,
+        });
       }
     } catch (error) {
       console.error("Error creating user:", error);

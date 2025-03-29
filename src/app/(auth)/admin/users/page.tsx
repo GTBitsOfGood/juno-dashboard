@@ -1,6 +1,8 @@
+"use client";
+
 import { ProjectResponse } from "juno-sdk/build/main/internal/api";
-import { UserColumn } from "./columns";
-import { UserDataTable } from "./data-table";
+import { UserColumn } from "../../../../components/usertable/columns";
+import { UserDataTable } from "../../../../components/usertable/data-table";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -9,40 +11,49 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { getJunoInstance } from "@/lib/juno";
+import { useEffect, useState } from "react";
+import { getUsers, getProjects } from "@/lib/sdkActions";
 
-// TODO: As soon as JWT gets merged into Juno, replace with credentials
-const ADMIN_EMAIL: string = "test-superadmin@test.com";
-const ADMIN_PASSWORD: string = "test-password";
+export default function UsersPage() {
+  const [userData, setUserData] = useState<UserColumn[]>([]);
+  const [projectData, setProjectData] = useState<ProjectResponse[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [usersResult, projectsResult] = await Promise.all([
+          getUsers(),
+          getProjects(),
+        ]);
 
-async function getUserData(): Promise<UserColumn[]> {
-  const client = getJunoInstance();
+        if (!usersResult.success) {
+          console.error(`Failed to fetch users: ${usersResult.error}`);
+        }
+        if (!projectsResult.success) {
+          console.error(`Failed to fetch projects: ${projectsResult.error}`);
+        }
 
-  const { users } = await client.user.getUsers(ADMIN_EMAIL, ADMIN_PASSWORD);
+        setUserData(usersResult.users);
+        setProjectData(projectsResult.projects);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
 
-  return users.map((user) => ({
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    projects: user.projectIds,
-    role: user.type,
-  }));
-}
+    fetchData();
+  }, []);
 
-export async function getProjectData(): Promise<ProjectResponse[]> {
-  const client = getJunoInstance();
+  const handleUserUpdate = (updatedUser: UserColumn) => {
+    setUserData((prevUsers) =>
+      prevUsers.map((user) => (user.id === updatedUser.id ? updatedUser : user))
+    );
+  };
 
-  const { projects } = await client.project.getProjects(
-    ADMIN_EMAIL,
-    ADMIN_PASSWORD,
-  );
-
-  return projects;
-}
-
-export default async function DemoPage() {
-  const userData = await getUserData();
-  const projectData = await getProjectData();
+  const handleUserAdd = (newUser: UserColumn) => {
+    setUserData((prevUsers) => [...prevUsers, newUser]);
+  };
 
   return (
     <div className="container mx-auto px-10 py-10">
@@ -57,15 +68,16 @@ export default async function DemoPage() {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-
       <h1>Users</h1>
-
       <UserDataTable
         data={userData}
         projectData={projectData.map((project) => ({
           name: project.name,
           id: project.id.toString(),
         }))}
+        isLoading={isLoading}
+        onUserUpdate={handleUserUpdate}
+        onUserAdd={handleUserAdd}
       />
     </div>
   );

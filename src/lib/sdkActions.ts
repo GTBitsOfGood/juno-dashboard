@@ -2,7 +2,11 @@
 
 import { getJunoInstance } from "./juno";
 
-type projectInputType =
+// TODO: As soon as JWT gets merged into Juno, replace with credentials
+const ADMIN_EMAIL: string = "test-superadmin@test.com";
+const ADMIN_PASSWORD: string = "test-password";
+
+export type projectInputType =
   | {
       name: string;
       id?: never;
@@ -12,7 +16,7 @@ type projectInputType =
       name?: never;
     };
 
-type userInputType =
+export type userInputType =
   | {
       email: string;
       id?: never;
@@ -21,6 +25,53 @@ type userInputType =
       id: number;
       email?: never;
     };
+
+export async function getUsers() {
+  try {
+    const client = getJunoInstance();
+    const { users } = await client.user.getUsers(ADMIN_EMAIL, ADMIN_PASSWORD);
+
+    const formattedUsers = users.map((user) => ({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      projects: user.projectIds,
+      role: user.type,
+    }));
+
+    return {
+      success: true,
+      users: formattedUsers,
+    };
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    return {
+      success: false,
+      error: `Error fetching users: ${error}`,
+    };
+  }
+}
+
+export async function getProjects() {
+  try {
+    const client = getJunoInstance();
+    const { projects } = await client.project.getProjects(
+      ADMIN_EMAIL,
+      ADMIN_PASSWORD
+    );
+
+    return {
+      success: true,
+      projects,
+    };
+  } catch (error) {
+    console.error("Error fetching projects:", error);
+    return {
+      success: false,
+      error: `Error fetching projects: ${error}`,
+    };
+  }
+}
 
 export async function getJunoProject(input: projectInputType) {
   try {
@@ -32,6 +83,7 @@ export async function getJunoProject(input: projectInputType) {
   }
 }
 
+// requires api key to be for the project being linked
 export async function linkJunoProjectToUser(options: {
   project: projectInputType;
   user: userInputType;

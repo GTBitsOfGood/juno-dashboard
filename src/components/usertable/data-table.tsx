@@ -29,21 +29,27 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import CreateUserForm from "@/components/forms/AddUserForm";
-import { ProjectColumn } from "../projects/columns";
-import { userColumns } from "./columns";
+import { ProjectColumn } from "../../app/(auth)/admin/projects/columns";
+import { userColumns, UserColumn } from "./columns";
 
 interface DataTableProps<TData> {
   data: TData[];
   projectData: ProjectColumn[];
+  isLoading: boolean;
+  onUserUpdate?: (updatedUser: TData) => void;
+  onUserAdd?: (newUser: UserColumn) => void;
 }
 
 export function UserDataTable<TData>({
   data,
   projectData,
+  isLoading,
+  onUserUpdate,
+  onUserAdd,
 }: DataTableProps<TData>) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
-  const columns = userColumns(projectData);
+  const columns = userColumns(projectData, onUserUpdate);
 
   const table = useReactTable({
     data,
@@ -78,7 +84,7 @@ export function UserDataTable<TData>({
               <DialogTitle>Add User</DialogTitle>
               <DialogDescription>Create a new user for Juno.</DialogDescription>
             </DialogHeader>
-            <CreateUserForm />
+            <CreateUserForm onUserAdd={onUserAdd} />
           </DialogContent>
         </Dialog>
       </div>
@@ -128,7 +134,7 @@ export function UserDataTable<TData>({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No results.
+                  {isLoading ? "Loading..." : "No results."}
                 </TableCell>
               </TableRow>
             )}

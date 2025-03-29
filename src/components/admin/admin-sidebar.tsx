@@ -102,12 +102,19 @@ export function AdminSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
-              <button
-                onClick={logOut}
-                className="p-2 rounded hover:bg-gray-200"
-              >
-                <LogOut className="h-6 w-6" />
-              </button>
+
+
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <button
+                    onClick={logOut}
+                  >
+                    <LogOut className="text-red-300 h-6 w-6" />
+
+                    <div className="text-red-300">Logout</div>
+                  </button>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

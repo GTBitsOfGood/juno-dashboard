@@ -16,7 +16,7 @@ import { createJWTAuthentication } from "@/lib/actions";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Alert } from "@/components/ui/alert";
 import { CircleX, Loader2 } from "lucide-react";
 
 const loginSchema = z.object({

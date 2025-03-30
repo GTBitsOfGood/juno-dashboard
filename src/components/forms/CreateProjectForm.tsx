@@ -27,25 +27,25 @@ const CreateProjectForm = () => {
     },
   });
 
-  const handleCreateUser = async (
+  const handleCreateProject = async (
     data: Required<z.infer<typeof createProjectSchema>>,
   ) => {
     try {
       const result = await createProjectAction(data);
       if (result.success) {
-        alert("User created successfully!");
+        alert("Project created successfully!");
       } else {
-        alert("User failed to be created.");
+        alert("Project failed to be created.");
       }
     } catch (error) {
-      console.error("Error creating user:", error);
+      console.error("Error creating project:", error);
     }
   };
 
   return (
     <Form {...createUserForm}>
       <form
-        onSubmit={createUserForm.handleSubmit(handleCreateUser)}
+        onSubmit={createUserForm.handleSubmit(handleCreateProject)}
         className="space-y-6 rounded-lg"
       >
         <FormField

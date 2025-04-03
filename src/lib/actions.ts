@@ -40,7 +40,7 @@ export async function createUserAction(data: {
       name,
       email,
       password,
-      credentials: jwt
+      credentials: jwt,
     });
 
     return {
@@ -67,7 +67,7 @@ export async function createProjectAction(data: { projectName: string }) {
     const jwt = await getCredentialsFromJWT();
     await junoClient.project.createProject({
       projectName,
-      credentials: jwt
+      credentials: jwt,
     });
     return { success: true };
   } catch (error) {
@@ -101,10 +101,7 @@ export async function getProjectUsers(projectId: string) {
   try {
     const jwt = await getCredentialsFromJWT();
 
-    const users = await junoClient.project.getProjectUsersById(
-      projectId,
-      jwt
-    );
+    const users = await junoClient.project.getProjectUsersById(projectId, jwt);
 
     return {
       success: true,

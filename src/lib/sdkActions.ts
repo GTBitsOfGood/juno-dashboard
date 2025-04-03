@@ -57,9 +57,7 @@ export async function getProjects() {
 
     const jwt = await getCredentialsFromJWT();
 
-    const { projects } = await client.project.getProjects(
-      jwt
-    );
+    const { projects } = await client.project.getProjects(jwt);
 
     return {
       success: true,

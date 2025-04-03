@@ -41,7 +41,7 @@ const CreateProjectForm = () => {
         toast.error("Error", {
           description: "Failed to create project",
         });
-    }
+      }
     } catch (error) {
       console.error("Error creating project:", error);
     }

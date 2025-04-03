@@ -1,10 +1,7 @@
 "use server";
 
+import { getCredentialsFromJWT } from "./actions";
 import { getJunoInstance } from "./juno";
-
-// TODO: As soon as JWT gets merged into Juno, replace with credentials
-const ADMIN_EMAIL: string = "test-superadmin@test.com";
-const ADMIN_PASSWORD: string = "test-password";
 
 export type projectInputType =
   | {
@@ -29,7 +26,9 @@ export type userInputType =
 export async function getUsers() {
   try {
     const client = getJunoInstance();
-    const { users } = await client.user.getUsers(ADMIN_EMAIL, ADMIN_PASSWORD);
+    const jwt = await getCredentialsFromJWT();
+
+    const { users } = await client.user.getUsers(jwt);
 
     const formattedUsers = users.map((user) => ({
       id: user.id,
@@ -55,9 +54,11 @@ export async function getUsers() {
 export async function getProjects() {
   try {
     const client = getJunoInstance();
+
+    const jwt = await getCredentialsFromJWT();
+
     const { projects } = await client.project.getProjects(
-      ADMIN_EMAIL,
-      ADMIN_PASSWORD,
+      jwt
     );
 
     return {

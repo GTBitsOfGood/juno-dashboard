@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { toast } from "sonner";
 
 const linkUserToProjectSchema = z.object({
   userId: z.string(),
@@ -39,9 +40,13 @@ const AdminPage = () => {
     try {
       const result = await linkUserToProject(data);
       if (result.success) {
-        alert("User successfully linked to project!");
+        toast.success("Success", {
+          description: "Operation completed successfully",
+        });
       } else {
-        alert("User not linked to project.");
+        toast.error("Error", {
+          description: "User not linked to project",
+        });
       }
     } catch (error) {
       console.error("Error linking user to project:", error);

@@ -13,6 +13,7 @@ import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { createProjectAction } from "@/lib/actions";
 import { Button } from "../ui/button";
+import { toast } from "sonner";
 
 const createProjectSchema = z.object({
   projectName: z.string().min(2, "Name must be at least 2 characters"),
@@ -27,15 +28,19 @@ const CreateProjectForm = () => {
     },
   });
 
-  const handleCreateProject = async (
+  const onSubmit = async (
     data: Required<z.infer<typeof createProjectSchema>>,
   ) => {
     try {
       const result = await createProjectAction(data);
       if (result.success) {
-        alert("Project created successfully!");
+        toast.success("Success", {
+          description: `Project "${data.projectName}" created successfully!`,
+        });
       } else {
-        alert("Project failed to be created.");
+        toast.error("Error", {
+          description: "Failed to create project",
+        });
       }
     } catch (error) {
       console.error("Error creating project:", error);
@@ -45,7 +50,7 @@ const CreateProjectForm = () => {
   return (
     <Form {...createUserForm}>
       <form
-        onSubmit={createUserForm.handleSubmit(handleCreateProject)}
+        onSubmit={createUserForm.handleSubmit(onSubmit)}
         className="space-y-6 rounded-lg"
       >
         <FormField

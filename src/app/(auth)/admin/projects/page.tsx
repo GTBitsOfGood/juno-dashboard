@@ -9,18 +9,14 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-
-// TODO: As soon as JWT gets merged into Juno, replace with credentials
-const ADMIN_EMAIL: string = "test-superadmin@test.com";
-const ADMIN_PASSWORD: string = "test-password";
+import { getCredentialsFromJWT } from "@/lib/actions";
 
 async function getData(): Promise<ProjectColumn[]> {
   const client = getJunoInstance();
 
-  const { projects } = await client.project.getProjects(
-    ADMIN_EMAIL,
-    ADMIN_PASSWORD,
-  );
+  const jwt = await getCredentialsFromJWT();
+
+  const { projects } = await client.project.getProjects(jwt);
 
   return projects.map((project) => ({
     id: project.id.toString(),

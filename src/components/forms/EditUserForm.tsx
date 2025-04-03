@@ -11,7 +11,7 @@ import {
 import { Input } from "../ui/input";
 import * as z from "zod";
 import { useForm } from "react-hook-form";
-import { setUserTypeAction } from "@/lib/actions";
+import { linkUserToProject, setUserTypeAction } from "@/lib/actions";
 import { SetUserTypeModel } from "juno-sdk/build/main/internal/api";
 import {
   Select,
@@ -20,10 +20,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import { toast } from "sonner";
 import { InputMultiSelect, InputMultiSelectTrigger } from "../ui/multiselect";
 import { useState } from "react";
 import { ProjectColumn } from "@/app/(auth)/admin/projects/columns";
-import { UserColumn } from "@/app/(auth)/admin/users/columns";
+import { UserColumn } from "@/components/usertable/columns";
 
 const userTypeMap = {
   SUPERADMIN: 0,
@@ -44,16 +45,21 @@ const setUserTypeSchema = z.object({
 const EditUserForm = ({
   projectData,
   initialUserData,
+  onUserUpdate,
 }: {
   projectData: ProjectColumn[];
   initialUserData: UserColumn;
+  onUserUpdate?: (updatedUser: UserColumn) => void;
 }) => {
   const setUserTypeForm = useForm<z.infer<typeof setUserTypeSchema>>({
     resolver: zodResolver(setUserTypeSchema),
     defaultValues: {
       userEmail: initialUserData.email,
-      userType: "ADMIN",
-      projects: [],
+      userType: initialUserData.role as unknown as
+        | "SUPERADMIN"
+        | "ADMIN"
+        | "USER",
+      projects: initialUserData.projects || [],
     },
   });
 
@@ -61,21 +67,62 @@ const EditUserForm = ({
     data: Required<z.infer<typeof setUserTypeSchema>>,
   ) => {
     try {
+      // Update user type
       const result = await setUserTypeAction({
         type: data.userType as unknown as SetUserTypeModel.TypeEnum, //May not be good
         email: data.userEmail,
       });
-      if (result.success) {
-        alert(`User updated to ${data}`);
+
+      if (!result.success) {
+        toast.error("Error", {
+          description: "Failed to edit user type",
+        });
+        return;
+      }
+
+      // Link selected projects to user
+      const projectLinkingPromises = selectedProjects.map((projectId) =>
+        linkUserToProject({
+          projectName: projectData.find(
+            (p) => parseInt(p.id) === parseInt(projectId),
+          )?.name,
+          userId: initialUserData.id.toString(),
+        }),
+      );
+
+      const projectResults = await Promise.all(projectLinkingPromises);
+      const failedProjects = projectResults.filter((result) => !result.success);
+
+      if (failedProjects.length > 0) {
+        toast.error("Error", {
+          description: `Failed to link some projects: ${failedProjects.map((p) => p.error).join(", ")}`,
+        });
       } else {
-        alert("Failed to edit user");
+        // Update the local state with the new user data
+        const updatedUser: UserColumn = {
+          ...initialUserData,
+          email: data.userEmail,
+          role: data.userType as unknown as UserColumn["role"],
+          projects: selectedProjects.map((id) => parseInt(id)),
+        };
+        onUserUpdate?.(updatedUser);
+        toast.success("Success", {
+          description: `${initialUserData.name} has been updated successfully!`,
+        });
       }
     } catch (error) {
-      console.error("Error updating user type:", error);
+      console.error("Error updating user:", error);
+      toast.error("Error", {
+        description: "Failed to update user",
+      });
     }
   };
 
-  const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
+  const [selectedProjects, setSelectedProjects] = useState<string[]>(
+    initialUserData.projects
+      ? initialUserData.projects.map((id) => id.toString())
+      : [],
+  );
 
   const projectOptions = projectData.map((project) => ({
     value: project.id.toString(),
@@ -87,10 +134,8 @@ const EditUserForm = ({
     <Form {...setUserTypeForm}>
       <form
         onSubmit={setUserTypeForm.handleSubmit(handleSetUserType)}
-        className="space-y-4 p-4 rounded-lg"
+        className="space-y-4 p-2 rounded-lg"
       >
-        <h2 className="text-lg font-semibold">Set User Type</h2>
-
         <FormField
           control={setUserTypeForm.control}
           name="userEmail"

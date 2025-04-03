@@ -14,7 +14,7 @@ export async function setUserTypeAction(data: {
     const jwt = await getCredentialsFromJWT();
     await junoClient.user.setUserType({
       input: { email: data.email, type: data.type },
-      auth: jwt,
+      credentials: jwt,
     });
     return { success: true };
   } catch {
@@ -36,17 +36,26 @@ export async function createUserAction(data: {
 
   try {
     const jwt = await getCredentialsFromJWT();
-    await junoClient.user.createUser({
+    const user = await junoClient.user.createUser({
       name,
       email,
       password,
-      auth: jwt,
+      credentials: jwt,
     });
 
-    return { success: true };
+    return {
+      success: true,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        type: user.type,
+        projectIds: user.projectIds,
+      },
+    };
   } catch (error) {
     console.error("Error creating user:", error);
-    return { success: false, error: "Failed to create user." };
+    return { success: false, error: error.body };
   }
 }
 
@@ -58,7 +67,7 @@ export async function createProjectAction(data: { projectName: string }) {
     const jwt = await getCredentialsFromJWT();
     await junoClient.project.createProject({
       projectName,
-      auth: jwt,
+      credentials: jwt,
     });
     return { success: true };
   } catch (error) {
@@ -75,7 +84,7 @@ export async function linkUserToProject(data: {
   try {
     const jwt = await getCredentialsFromJWT();
     await junoClient.user.linkToProject({
-      auth: jwt,
+      credentials: jwt,
       project: { name: data.projectName },
       userId: data.userId,
     });
@@ -83,6 +92,34 @@ export async function linkUserToProject(data: {
   } catch (error) {
     console.error("Error linking user:", error);
     return { success: false, error: "Failed to link user type to project" };
+  }
+}
+
+export async function getProjectUsers(projectId: string) {
+  const junoClient = getJunoInstance();
+
+  try {
+    const jwt = await getCredentialsFromJWT();
+
+    const users = await junoClient.project.getProjectUsersById(projectId, jwt);
+
+    return {
+      success: true,
+      users:
+        users?.users?.map((user) => ({
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.type,
+          projects: user.projectIds,
+        })) || [],
+    };
+  } catch (error) {
+    console.error("Error fetching project users:", error);
+    return {
+      success: false,
+      error: "Failed to fetch project users: " + error.message,
+    };
   }
 }
 

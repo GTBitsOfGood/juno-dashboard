@@ -24,6 +24,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { SetUserTypeModel } from "juno-sdk/build/main/internal/api";
 import { MoreHorizontal } from "lucide-react";
 import { ProjectColumn } from "../../app/(auth)/admin/projects/columns";
+import Link from "next/link";
 
 export type UserColumn = {
   id: number;
@@ -78,9 +79,14 @@ export const userColumns = (
         return projects.length > 0 ? (
           <div className="flex flex-wrap gap-1">
             {projects.map((projectId) => (
-              <Badge key={projectId} variant="secondary">
-                {projectId}
-              </Badge>
+              <Link
+                href={`/projects/${projectId}`}
+                key={projectId}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Badge variant="secondary">{projectId}</Badge>
+              </Link>
             ))}
           </div>
         ) : (

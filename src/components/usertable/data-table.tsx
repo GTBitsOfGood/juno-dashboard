@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -27,10 +27,13 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import CreateUserForm from "@/components/forms/AddUserForm";
 import { ProjectColumn } from "../../app/(auth)/admin/projects/columns";
 import { userColumns, UserColumn } from "./columns";
+import { deleteUserAction } from "@/lib/actions";
+import { toast } from "sonner";
 
 interface DataTableProps<TData> {
   data: TData[];
@@ -47,6 +50,9 @@ export function UserDataTable<TData>({
 }: DataTableProps<TData>) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [isAddUserDialogOpen, setIsAddUserDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [hasSelectedRows, setHasSelectedRows] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const columns = userColumns(projectData, onUserAction);
 
@@ -61,6 +67,51 @@ export function UserDataTable<TData>({
     },
   });
 
+  const selectedRows = table.getSelectedRowModel().rows;
+  useEffect(() => {
+    setHasSelectedRows(selectedRows.length > 0);
+  }, [selectedRows]);
+
+  const handleDeleteSelected = async () => {
+    setIsDeleting(true);
+    try {
+      const deletePromises = selectedRows.map(async (row) => {
+        const user = row.original as UserColumn;
+        const result = await deleteUserAction(user.id.toString());
+        if (result.success) {
+          onUserAction(user, "delete");
+          return { success: true, user };
+        } else {
+          return { success: false, user, error: result.error };
+        }
+      });
+
+      const results = await Promise.all(deletePromises);
+      const successfulDeletes = results.filter((r) => r.success).length;
+      const failedDeletes = results.filter((r) => !r.success).length;
+
+      if (successfulDeletes > 0) {
+        toast.success("Success", {
+          description: `Successfully deleted ${successfulDeletes} user${successfulDeletes > 1 ? "s" : ""}.`,
+        });
+      }
+
+      if (failedDeletes > 0) {
+        toast.error("Error", {
+          description: `Failed to delete ${failedDeletes} user${failedDeletes > 1 ? "s" : ""}.`,
+        });
+      }
+
+      table.resetRowSelection();
+    } catch (error) {
+      console.error("Error deleting users:", error);
+      toast.error("An error occurred while deleting users.");
+    } finally {
+      setIsDeleting(false);
+      setIsDeleteDialogOpen(false);
+    }
+  };
+
   // TODO: skeleton animation
   return (
     <>
@@ -73,26 +124,69 @@ export function UserDataTable<TData>({
           }}
         />
 
-        <Dialog
-          open={isAddUserDialogOpen}
-          onOpenChange={setIsAddUserDialogOpen}
-        >
-          <DialogTrigger asChild>
-            <Button>Add User</Button>
-          </DialogTrigger>
+        <div className="flex gap-2">
+          {hasSelectedRows && (
+            <Button
+              variant="destructive"
+              onClick={() => setIsDeleteDialogOpen(true)}
+            >
+              Delete {selectedRows.length} selected user
+              {selectedRows.length > 1 ? "s" : ""}
+            </Button>
+          )}
+          <Dialog
+            open={isAddUserDialogOpen}
+            onOpenChange={setIsAddUserDialogOpen}
+          >
+            <DialogTrigger asChild>
+              <Button>Add User</Button>
+            </DialogTrigger>
 
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add User</DialogTitle>
-              <DialogDescription>Create a new user for Juno.</DialogDescription>
-            </DialogHeader>
-            <CreateUserForm
-              onUserAdd={(user) => onUserAction?.(user, "add")}
-              onClose={() => setIsAddUserDialogOpen(false)}
-            />
-          </DialogContent>
-        </Dialog>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add User</DialogTitle>
+                <DialogDescription>
+                  Create a new user for Juno.
+                </DialogDescription>
+              </DialogHeader>
+              <CreateUserForm
+                onUserAdd={(user) => onUserAction?.(user, "add")}
+                onClose={() => setIsAddUserDialogOpen(false)}
+              />
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
+
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Selected Users</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete {selectedRows.length} selected
+              user{selectedRows.length > 1 ? "s" : ""}? This action cannot be
+              undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsDeleteDialogOpen(false)}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteSelected}
+              disabled={isDeleting}
+            >
+              {isDeleting ? "Deleting..." : "Delete"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <div className="rounded-md border">
         <Table>
           <TableHeader>

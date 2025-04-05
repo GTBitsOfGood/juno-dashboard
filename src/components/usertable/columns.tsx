@@ -40,14 +40,20 @@ export const userColumns = (
   return [
     {
       id: "select",
-      header: () => (
-        // TODO: Add check all feature
-        <Checkbox className="ms-2 align-middle mr-5" />
+      header: ({ table }) => (
+        <Checkbox
+          className="ms-2 align-middle mr-5"
+          checked={table.getIsAllPageRowsSelected()}
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        />
       ),
-      cell: () => {
-        // TODO: Add selection logic
-        return <Checkbox className="ms-2 align-middle" />;
-      },
+      cell: ({ row }) => (
+        <Checkbox
+          className="ms-2 align-middle"
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+        />
+      ),
       size: 50,
     },
     {

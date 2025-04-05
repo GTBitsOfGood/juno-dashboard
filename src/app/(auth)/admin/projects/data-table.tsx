@@ -37,7 +37,7 @@ interface DataTableProps<TData, TValue> {
   loading?: boolean;
   onProjectAction?: (
     project: ProjectColumn,
-    action: "add" | "update" | "delete"
+    action: "add" | "update" | "delete",
   ) => void;
 }
 
@@ -107,7 +107,7 @@ export function ProjectDataTable<TData, TValue>({
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                     </TableHead>
                   );
@@ -126,7 +126,7 @@ export function ProjectDataTable<TData, TValue>({
                     <TableCell key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </TableCell>
                   ))}

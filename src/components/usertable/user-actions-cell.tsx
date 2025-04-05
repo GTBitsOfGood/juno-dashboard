@@ -31,7 +31,7 @@ interface UserActionsCellProps {
   projectData: ProjectColumn[];
   onUserUpdate?: (
     user: UserColumn,
-    action: "add" | "update" | "delete"
+    action: "add" | "update" | "delete",
   ) => void;
 }
 

@@ -38,7 +38,7 @@ const CreateProjectForm = ({
   });
 
   const onSubmit = async (
-    data: Required<z.infer<typeof createProjectSchema>>
+    data: Required<z.infer<typeof createProjectSchema>>,
   ) => {
     try {
       const result = await createProjectAction(data);

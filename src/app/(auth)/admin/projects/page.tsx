@@ -33,7 +33,7 @@ export default function ProjectsPage() {
           result.projects.map((project) => ({
             id: project.id.toString(),
             name: project.name,
-          }))
+          })),
         );
       } catch (error) {
         console.error("Error fetching projects:", error);
@@ -47,7 +47,7 @@ export default function ProjectsPage() {
 
   const handleProjectAction = (
     project: ProjectColumn,
-    action: "add" | "update" | "delete"
+    action: "add" | "update" | "delete",
   ) => {
     if (action === "add") {
       setProjectData((prevProjects) => [...prevProjects, project]);
@@ -55,7 +55,7 @@ export default function ProjectsPage() {
 
     if (action === "delete") {
       setProjectData((prevProjects) =>
-        prevProjects.filter((p) => p.id !== project.id)
+        prevProjects.filter((p) => p.id !== project.id),
       );
     }
   };

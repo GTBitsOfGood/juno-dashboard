@@ -47,7 +47,7 @@ export default function UsersPage() {
 
   const handleUserAction = (
     user: UserColumn,
-    action: "add" | "update" | "delete"
+    action: "add" | "update" | "delete",
   ) => {
     if (action === "add") {
       setUserData((prevUsers) => [...prevUsers, user]);
@@ -55,7 +55,7 @@ export default function UsersPage() {
 
     if (action === "update") {
       setUserData((prevUsers) =>
-        prevUsers.map((u) => (u.id === user.id ? user : u))
+        prevUsers.map((u) => (u.id === user.id ? user : u)),
       );
     }
 

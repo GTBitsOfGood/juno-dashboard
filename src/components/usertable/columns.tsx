@@ -17,7 +17,10 @@ export type UserColumn = {
 
 export const userColumns = (
   projectData: ProjectColumn[],
-  onUserAction?: (user: UserColumn, action: "add" | "update" | "delete") => void
+  onUserAction?: (
+    user: UserColumn,
+    action: "add" | "update" | "delete",
+  ) => void,
 ): ColumnDef<UserColumn>[] => {
   return [
     {

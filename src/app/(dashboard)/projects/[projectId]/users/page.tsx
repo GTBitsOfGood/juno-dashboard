@@ -58,7 +58,7 @@ export default function ProjectUsersPage() {
 
   const handleUserAction = (
     user: UserColumn,
-    action: "add" | "update" | "delete"
+    action: "add" | "update" | "delete",
   ) => {
     if (action === "add") {
       setUsers((prevUsers) => [...prevUsers, user]);
@@ -66,7 +66,7 @@ export default function ProjectUsersPage() {
 
     if (action === "update") {
       setUsers((prevUsers) =>
-        prevUsers.map((u) => (u.id === user.id ? user : u))
+        prevUsers.map((u) => (u.id === user.id ? user : u)),
       );
     }
 
@@ -87,7 +87,7 @@ export default function ProjectUsersPage() {
             <BreadcrumbLink href={`/projects/${projectId}`}>
               {
                 projectData.find(
-                  (project) => project.id == (projectId as unknown)
+                  (project) => project.id == (projectId as unknown),
                 )?.name
               }
             </BreadcrumbLink>

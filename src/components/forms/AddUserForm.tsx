@@ -39,7 +39,7 @@ const CreateUserForm = ({ onUserAdd, onClose }: CreateUserFormProps) => {
   });
 
   const handleCreateUser = async (
-    data: Required<z.infer<typeof createUserSchema>>
+    data: Required<z.infer<typeof createUserSchema>>,
   ) => {
     try {
       const result = await createUserAction(data);

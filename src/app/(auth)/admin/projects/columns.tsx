@@ -33,7 +33,7 @@ interface ProjectActionsCellProps {
   project: ProjectColumn;
   onProjectAction?: (
     project: ProjectColumn,
-    action: "add" | "update" | "delete"
+    action: "add" | "update" | "delete",
   ) => void;
 }
 
@@ -136,8 +136,8 @@ const ProjectActionsCell = ({
 export const columns = (
   onProjectAction?: (
     project: ProjectColumn,
-    action: "add" | "update" | "delete"
-  ) => void
+    action: "add" | "update" | "delete",
+  ) => void,
 ): ColumnDef<ProjectColumn>[] => [
   {
     id: "select",

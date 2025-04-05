@@ -6,7 +6,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { SetUserTypeModel } from "juno-sdk/build/main/internal/api";
 import { ProjectColumn } from "../../app/(auth)/admin/projects/columns";
 import { UserActionsCell } from "./user-actions-cell";
-
+import Link from "next/link";
 export type UserColumn = {
   id: number;
   name: string;
@@ -17,10 +17,7 @@ export type UserColumn = {
 
 export const userColumns = (
   projectData: ProjectColumn[],
-  onUserAction?: (
-    user: UserColumn,
-    action: "add" | "update" | "delete",
-  ) => void,
+  onUserAction?: (user: UserColumn, action: "add" | "update" | "delete") => void
 ): ColumnDef<UserColumn>[] => {
   return [
     {
@@ -63,9 +60,14 @@ export const userColumns = (
         return projects.length > 0 ? (
           <div className="flex flex-wrap gap-1">
             {projects.map((projectId) => (
-              <Badge key={projectId} variant="secondary">
-                {projectId}
-              </Badge>
+              <Link
+                href={`/projects/${projectId}`}
+                key={projectId}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Badge variant="secondary">{projectId}</Badge>
+              </Link>
             ))}
           </div>
         ) : (

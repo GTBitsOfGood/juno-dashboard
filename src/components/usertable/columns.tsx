@@ -111,7 +111,7 @@ export const userColumns = (
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
                 <DropdownMenuItem onClick={(e) => e.stopPropagation()}>
-                  <DialogTrigger>Set user type</DialogTrigger>
+                  <DialogTrigger>Edit user</DialogTrigger>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
@@ -136,9 +136,9 @@ export const userColumns = (
 
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Set user type</DialogTitle>
+                <DialogTitle>Edit User</DialogTitle>
                 <DialogDescription>
-                  Change the user type of an existing user.
+                  Edit the user&apos;s email, role, and projects.
                 </DialogDescription>
               </DialogHeader>
               <EditUserForm

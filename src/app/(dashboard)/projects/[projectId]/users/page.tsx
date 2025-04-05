@@ -56,12 +56,23 @@ export default function ProjectUsersPage() {
     }
   }, [projectId]);
 
-  const handleUserUpdate = (updatedUser: UserColumn) => {
-    setUsers((prevUsers) =>
-      prevUsers.map((user) =>
-        user.id === updatedUser.id ? updatedUser : user,
-      ),
-    );
+  const handleUserAction = (
+    user: UserColumn,
+    action: "add" | "update" | "delete",
+  ) => {
+    if (action === "add") {
+      setUsers((prevUsers) => [...prevUsers, user]);
+    }
+
+    if (action === "update") {
+      setUsers((prevUsers) =>
+        prevUsers.map((u) => (u.id === user.id ? user : u)),
+      );
+    }
+
+    if (action === "delete") {
+      setUsers((prevUsers) => prevUsers.filter((u) => u.id !== user.id));
+    }
   };
 
   return (
@@ -96,7 +107,7 @@ export default function ProjectUsersPage() {
           id: project.id.toString(),
         }))}
         isLoading={loading}
-        onUserUpdate={handleUserUpdate}
+        onUserAction={handleUserAction}
       />
     </div>
   );

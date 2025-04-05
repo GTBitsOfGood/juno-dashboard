@@ -133,8 +133,8 @@ export const UserActionsCell = ({
           <DialogHeader>
             <DialogTitle>Delete User</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete user "{user.name}?" This action cannot be
-              undone.
+              Are you sure you want to delete user "{user.name}?" This action
+              cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="flex space-x-2">

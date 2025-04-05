@@ -1,7 +1,7 @@
 "use server";
 import { getJunoInstance } from "@/lib/juno";
 import { cookies } from "next/headers";
-
+import { setupJunoEmail, sendEmailNotification } from "./sdkUtils";
 import { SetUserTypeModel } from "juno-sdk/build/main/internal/api";
 
 export async function setUserTypeAction(data: {
@@ -30,6 +30,11 @@ export async function createUserAction(data: {
   email: string;
   password: string;
 }) {
+  //Garbage code, just to get it to run when user is created.
+  const SENDER_KEY = process.env.SENDGRID_API_KEY as string;
+  console.log("SENDGRID_API_KEY", SENDER_KEY);
+  setupJunoEmail(SENDER_KEY);
+  sendEmailNotification();
   const junoClient = getJunoInstance();
 
   const { name, email, password } = data;

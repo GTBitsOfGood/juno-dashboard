@@ -95,6 +95,25 @@ export async function linkUserToProject(data: {
   }
 }
 
+export async function unlinkUserFromProject(data: {
+  projectName: string;
+  userId: string;
+}) {
+  const junoClient = getJunoInstance();
+  try {
+    const jwt = await getCredentialsFromJWT();
+    await junoClient.user.unlinkFromProject({
+      credentials: jwt,
+      project: { name: data.projectName },
+      userId: data.userId,
+    });
+    return { success: true };
+  } catch (error) {
+    console.error("Error unlinking user:", error);
+    return { success: false, error: "Failed to unlink user from project" };
+  }
+}
+
 export async function getProjectUsers(projectId: string) {
   const junoClient = getJunoInstance();
 

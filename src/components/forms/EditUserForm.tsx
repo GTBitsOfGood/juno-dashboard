@@ -11,7 +11,11 @@ import {
 import { Input } from "../ui/input";
 import * as z from "zod";
 import { useForm } from "react-hook-form";
-import { linkUserToProject, setUserTypeAction } from "@/lib/actions";
+import {
+  linkUserToProject,
+  setUserTypeAction,
+  unlinkUserFromProject,
+} from "@/lib/actions";
 import { SetUserTypeModel } from "juno-sdk/build/main/internal/api";
 import {
   Select,
@@ -80,22 +84,52 @@ const EditUserForm = ({
         return;
       }
 
-      // Link selected projects to user
-      const projectLinkingPromises = selectedProjects.map((projectId) =>
-        linkUserToProject({
-          projectName: projectData.find(
-            (p) => parseInt(p.id) === parseInt(projectId),
-          )?.name,
-          userId: initialUserData.id.toString(),
-        }),
+      const initialProjectIds = initialUserData.projects
+        ? initialUserData.projects.map((id) => id.toString())
+        : [];
+
+      // Find projects to unlink (in initial but not in selected)
+      const projectsToUnlink = initialProjectIds.filter(
+        (id) => !selectedProjects.includes(id),
       );
 
-      const projectResults = await Promise.all(projectLinkingPromises);
-      const failedProjects = projectResults.filter((result) => !result.success);
+      // Find projects to link (in selected but not in initial)
+      const projectsToLink = selectedProjects.filter(
+        (id) => !initialProjectIds.includes(id),
+      );
 
-      if (failedProjects.length > 0) {
+      // Unlink projects that were removed
+      const unlinkPromises = projectsToUnlink.map((projectId) => {
+        const projectName = projectData.find(
+          (p) => parseInt(p.id) === parseInt(projectId),
+        )?.name;
+        return unlinkUserFromProject({
+          projectName,
+          userId: initialUserData.id.toString(),
+        });
+      });
+
+      // Link projects that were added
+      const linkPromises = projectsToLink.map((projectId) => {
+        const projectName = projectData.find(
+          (p) => parseInt(p.id) === parseInt(projectId),
+        )?.name;
+        return linkUserToProject({
+          projectName,
+          userId: initialUserData.id.toString(),
+        });
+      });
+
+      // Execute all project operations
+      const unlinkResults = await Promise.all(unlinkPromises);
+      const linkResults = await Promise.all(linkPromises);
+
+      const failedUnlinks = unlinkResults.filter((result) => !result.success);
+      const failedLinks = linkResults.filter((result) => !result.success);
+
+      if (failedUnlinks.length > 0 || failedLinks.length > 0) {
         toast.error("Error", {
-          description: `Failed to link some projects: ${failedProjects.map((p) => p.error).join(", ")}`,
+          description: "Failed to update some project associations",
         });
       } else {
         // Update the local state with the new user data

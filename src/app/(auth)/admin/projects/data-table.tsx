@@ -29,17 +29,26 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import CreateProjectForm from "@/components/forms/CreateProjectForm";
+import { ProjectColumn } from "./columns";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  loading?: boolean;
+  onProjectAction?: (
+    project: ProjectColumn,
+    action: "add" | "update" | "delete",
+  ) => void;
 }
 
 export function ProjectDataTable<TData, TValue>({
   columns,
   data,
+  loading,
+  onProjectAction,
 }: DataTableProps<TData, TValue>) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [isOpen, setIsOpen] = useState(false);
 
   const table = useReactTable({
     data,
@@ -64,7 +73,7 @@ export function ProjectDataTable<TData, TValue>({
           }}
         />
 
-        <Dialog>
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogTrigger asChild>
             <Button>Add Project</Button>
           </DialogTrigger>
@@ -76,7 +85,10 @@ export function ProjectDataTable<TData, TValue>({
                 Create a new project for Juno.
               </DialogDescription>
             </DialogHeader>
-            <CreateProjectForm />
+            <CreateProjectForm
+              onProjectAdd={(project) => onProjectAction?.(project, "add")}
+              onClose={() => setIsOpen(false)}
+            />
           </DialogContent>
         </Dialog>
       </div>
@@ -126,7 +138,7 @@ export function ProjectDataTable<TData, TValue>({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No results.
+                  {loading ? "Loading..." : "No results."}
                 </TableCell>
               </TableRow>
             )}

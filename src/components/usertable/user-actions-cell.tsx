@@ -29,10 +29,7 @@ import { UserColumn } from "./columns";
 interface UserActionsCellProps {
   user: UserColumn;
   projectData: ProjectColumn[];
-  onUserUpdate?: (
-    user: UserColumn,
-    action: "add" | "update" | "delete",
-  ) => void;
+  onUserUpdate: (user: UserColumn, action: "add" | "update" | "delete") => void;
 }
 
 export const UserActionsCell = ({

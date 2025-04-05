@@ -36,10 +36,7 @@ interface DataTableProps<TData> {
   data: TData[];
   projectData: ProjectColumn[];
   isLoading: boolean;
-  onUserAction?: (
-    user: UserColumn,
-    action: "add" | "update" | "delete",
-  ) => void;
+  onUserAction: (user: UserColumn, action: "add" | "update" | "delete") => void;
 }
 
 export function UserDataTable<TData>({

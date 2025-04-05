@@ -45,16 +45,23 @@ export default function UsersPage() {
     fetchData();
   }, []);
 
-  const handleUserUpdate = (updatedUser: UserColumn) => {
-    setUserData((prevUsers) =>
-      prevUsers.map((user) =>
-        user.id === updatedUser.id ? updatedUser : user,
-      ),
-    );
-  };
+  const handleUserAction = (
+    user: UserColumn,
+    action: "add" | "update" | "delete"
+  ) => {
+    if (action === "add") {
+      setUserData((prevUsers) => [...prevUsers, user]);
+    }
 
-  const handleUserAdd = (newUser: UserColumn) => {
-    setUserData((prevUsers) => [...prevUsers, newUser]);
+    if (action === "update") {
+      setUserData((prevUsers) =>
+        prevUsers.map((u) => (u.id === user.id ? user : u))
+      );
+    }
+
+    if (action === "delete") {
+      setUserData((prevUsers) => prevUsers.filter((u) => u.id !== user.id));
+    }
   };
 
   return (
@@ -78,8 +85,7 @@ export default function UsersPage() {
           id: project.id.toString(),
         }))}
         isLoading={isLoading}
-        onUserUpdate={handleUserUpdate}
-        onUserAdd={handleUserAdd}
+        onUserAction={handleUserAction}
       />
     </div>
   );

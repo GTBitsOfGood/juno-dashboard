@@ -36,20 +36,22 @@ interface DataTableProps<TData> {
   data: TData[];
   projectData: ProjectColumn[];
   isLoading: boolean;
-  onUserUpdate?: (updatedUser: TData) => void;
-  onUserAdd?: (newUser: UserColumn) => void;
+  onUserAction?: (
+    user: UserColumn,
+    action: "add" | "update" | "delete"
+  ) => void;
 }
 
 export function UserDataTable<TData>({
   data,
   projectData,
   isLoading,
-  onUserUpdate,
-  onUserAdd,
+  onUserAction,
 }: DataTableProps<TData>) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [isAddUserDialogOpen, setIsAddUserDialogOpen] = useState(false);
 
-  const columns = userColumns(projectData, onUserUpdate);
+  const columns = userColumns(projectData, onUserAction);
 
   const table = useReactTable({
     data,
@@ -74,7 +76,10 @@ export function UserDataTable<TData>({
           }}
         />
 
-        <Dialog>
+        <Dialog
+          open={isAddUserDialogOpen}
+          onOpenChange={setIsAddUserDialogOpen}
+        >
           <DialogTrigger asChild>
             <Button>Add User</Button>
           </DialogTrigger>
@@ -84,7 +89,10 @@ export function UserDataTable<TData>({
               <DialogTitle>Add User</DialogTitle>
               <DialogDescription>Create a new user for Juno.</DialogDescription>
             </DialogHeader>
-            <CreateUserForm onUserAdd={onUserAdd} />
+            <CreateUserForm
+              onUserAdd={(user) => onUserAction?.(user, "add")}
+              onClose={() => setIsAddUserDialogOpen(false)}
+            />
           </DialogContent>
         </Dialog>
       </div>
@@ -103,7 +111,7 @@ export function UserDataTable<TData>({
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext(),
+                            header.getContext()
                           )}
                     </TableHead>
                   );
@@ -122,7 +130,7 @@ export function UserDataTable<TData>({
                     <TableCell key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext(),
+                        cell.getContext()
                       )}
                     </TableCell>
                   ))}

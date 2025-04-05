@@ -65,11 +65,17 @@ export async function createProjectAction(data: { projectName: string }) {
   const junoClient = getJunoInstance();
   try {
     const jwt = await getCredentialsFromJWT();
-    await junoClient.project.createProject({
+    const project = await junoClient.project.createProject({
       projectName,
       credentials: jwt,
     });
-    return { success: true };
+    return {
+      success: true,
+      project: {
+        id: project.id,
+        name: project.name,
+      },
+    };
   } catch (error) {
     console.error("Error creating project:", error);
     return { success: false, error: "Failed to create project." };
@@ -162,4 +168,34 @@ export async function deleteJWT() {
   const junoClient = getJunoInstance();
   junoClient.auth.revokeKey({ apiKey: cookie.value });
   cookieStore.delete("jwt-token");
+}
+
+export async function deleteUserAction(userId: string) {
+  const junoClient = getJunoInstance();
+  try {
+    const jwt = await getCredentialsFromJWT();
+    await junoClient.user.deleteUser({
+      userId,
+      credentials: jwt,
+    });
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    return { success: false, error: "Failed to delete user." };
+  }
+}
+
+export async function deleteProjectAction(projectId: string) {
+  const junoClient = getJunoInstance();
+  try {
+    const jwt = await getCredentialsFromJWT();
+    await junoClient.project.deleteProject({
+      project: { id: Number(projectId) },
+      credentials: jwt,
+    });
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting project:", error);
+    return { success: false, error: "Failed to delete project." };
+  }
 }

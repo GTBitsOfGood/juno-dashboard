@@ -1,4 +1,5 @@
-import { getJunoInstance } from "@/lib/juno";
+"use client";
+
 import { ProjectColumn, columns } from "./columns";
 import { ProjectDataTable } from "./data-table";
 import {
@@ -9,23 +10,55 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { getCredentialsFromJWT } from "@/lib/actions";
+import { getProjects } from "@/lib/sdkActions";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
-async function getData(): Promise<ProjectColumn[]> {
-  const client = getJunoInstance();
+export default function ProjectsPage() {
+  const [projectData, setProjectData] = useState<ProjectColumn[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const jwt = await getCredentialsFromJWT();
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const result = await getProjects();
 
-  const { projects } = await client.project.getProjects(jwt);
+        if (!result.success) {
+          console.error(`Failed to fetch projects: ${result.error}`);
+          toast.error("Failed to fetch projects");
+          return;
+        }
 
-  return projects.map((project) => ({
-    id: project.id.toString(),
-    name: project.name,
-  }));
-}
+        setProjectData(
+          result.projects.map((project) => ({
+            id: project.id.toString(),
+            name: project.name,
+          }))
+        );
+      } catch (error) {
+        console.error("Error fetching projects:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
 
-export default async function DemoPage() {
-  const data = await getData();
+    fetchData();
+  }, []);
+
+  const handleProjectAction = (
+    project: ProjectColumn,
+    action: "add" | "update" | "delete"
+  ) => {
+    if (action === "add") {
+      setProjectData((prevProjects) => [...prevProjects, project]);
+    }
+
+    if (action === "delete") {
+      setProjectData((prevProjects) =>
+        prevProjects.filter((p) => p.id !== project.id)
+      );
+    }
+  };
 
   return (
     <div className="container mx-auto px-10 py-10">
@@ -43,7 +76,12 @@ export default async function DemoPage() {
 
       <h1>Projects</h1>
 
-      <ProjectDataTable columns={columns} data={data} />
+      <ProjectDataTable<ProjectColumn, unknown>
+        columns={columns(handleProjectAction)}
+        data={projectData}
+        loading={isLoading}
+        onProjectAction={handleProjectAction}
+      />
     </div>
   );
 }

@@ -228,18 +228,14 @@ export function UserDataTable<TData>({
                   ))}
                 </TableRow>
               ))
+            ) : isLoading ? (
+              <SkeletonRows numRows={10} numCells={columns.length} />
             ) : (
-              isLoading ?
-                <SkeletonRows numRows={10} numCells={columns.length} />
-                :
-                <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="text-center"
-                  >
-                    No results.
-                  </TableCell>
-                </TableRow>
+              <TableRow>
+                <TableCell colSpan={columns.length} className="text-center">
+                  No results.
+                </TableCell>
+              </TableRow>
             )}
           </TableBody>
         </Table>

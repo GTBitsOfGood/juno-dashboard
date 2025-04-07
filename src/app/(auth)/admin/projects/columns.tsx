@@ -139,43 +139,43 @@ export const columns = (
     action: "add" | "update" | "delete",
   ) => void,
 ): ColumnDef<ProjectColumn>[] => [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        className="ms-2 align-middle mr-5"
-        checked={table.getIsAllPageRowsSelected()}
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        className="ms-2 align-middle"
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-      />
-    ),
-    size: 50,
-  },
-  {
-    accessorKey: "id",
-    header: "ID",
-  },
-  {
-    accessorKey: "name",
-    header: "Name",
-    size: 400,
-  },
-  {
-    id: "actions",
-    cell: ({ row }) => {
-      const project = row.original;
-      return (
-        <ProjectActionsCell
-          project={project}
-          onProjectAction={onProjectAction}
+    {
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          className="ms-2 align-middle mr-5"
+          checked={table.getIsAllPageRowsSelected()}
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         />
-      );
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          className="ms-2 align-middle"
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+        />
+      ),
+      size: 50,
     },
-  },
-];
+    {
+      accessorKey: "id",
+      header: "ID",
+    },
+    {
+      accessorKey: "name",
+      header: "Name",
+      size: 1300,
+    },
+    {
+      id: "actions",
+      cell: ({ row }) => {
+        const project = row.original;
+        return (
+          <ProjectActionsCell
+            project={project}
+            onProjectAction={onProjectAction}
+          />
+        );
+      },
+    },
+  ];

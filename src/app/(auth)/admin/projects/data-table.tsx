@@ -33,6 +33,8 @@ import CreateProjectForm from "@/components/forms/CreateProjectForm";
 import { ProjectColumn } from "./columns";
 import { deleteProjectAction } from "@/lib/actions";
 import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
+import SkeletonRows from "@/components/table/SkeletonRows";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -201,9 +203,9 @@ export function ProjectDataTable<TData, TValue>({
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
                     </TableHead>
                   );
                 })}
@@ -228,18 +230,22 @@ export function ProjectDataTable<TData, TValue>({
                 </TableRow>
               ))
             ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  {loading ? "Loading..." : "No results."}
-                </TableCell>
-              </TableRow>
+
+              loading ?
+                <SkeletonRows numRows={10} numCells={columns.length} />
+                :
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="text-center"
+                  >
+                    No results.
+                  </TableCell>
+                </TableRow>
             )}
           </TableBody>
         </Table>
-      </div>
+      </div >
     </>
   );
 }

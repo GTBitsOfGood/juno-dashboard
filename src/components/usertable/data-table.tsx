@@ -34,6 +34,7 @@ import { ProjectColumn } from "../../app/(auth)/admin/projects/columns";
 import { userColumns, UserColumn } from "./columns";
 import { deleteUserAction } from "@/lib/actions";
 import { toast } from "sonner";
+import SkeletonRows from "../table/SkeletonRows";
 
 interface DataTableProps<TData> {
   data: TData[];
@@ -201,9 +202,9 @@ export function UserDataTable<TData>({
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
                     </TableHead>
                   );
                 })}
@@ -228,14 +229,17 @@ export function UserDataTable<TData>({
                 </TableRow>
               ))
             ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  {isLoading ? "Loading..." : "No results."}
-                </TableCell>
-              </TableRow>
+              isLoading ?
+                <SkeletonRows numRows={10} numCells={columns.length} />
+                :
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="text-center"
+                  >
+                    No results.
+                  </TableCell>
+                </TableRow>
             )}
           </TableBody>
         </Table>

@@ -123,7 +123,7 @@ const ProjectSettingsPage = () => {
                   sendgridKey: config.sendgridKey,
                   domainNames: config.domains?.map((domain) => domain.domain),
                   senderUsernames: config.senders?.map(
-                    (sender) => sender.username
+                    (sender) => sender.username,
                   ),
                 }))
               : []

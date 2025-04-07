@@ -26,9 +26,10 @@ const createUserSchema = z.object({
 
 type CreateUserFormProps = {
   onUserAdd: (newUser: UserColumn) => void;
+  onClose?: () => void;
 };
 
-const CreateUserForm = ({ onUserAdd }: CreateUserFormProps) => {
+const CreateUserForm = ({ onUserAdd, onClose }: CreateUserFormProps) => {
   /** Form to create a user */
   const createUserForm = useForm({
     resolver: zodResolver(createUserSchema),
@@ -58,6 +59,9 @@ const CreateUserForm = ({ onUserAdd }: CreateUserFormProps) => {
         };
         if (onUserAdd) {
           onUserAdd(newUser);
+        }
+        if (onClose) {
+          onClose();
         }
       } else {
         setError("Invalid email or password.");

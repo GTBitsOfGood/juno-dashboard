@@ -101,23 +101,33 @@ const ProjectSettingsPage = () => {
       <div className="flex flex-col gap-4">
         <h1>File Configurations</h1>
         <BaseTable
-          data={[fileConfig].map((config) => ({
-            bucketNames: config?.buckets?.map((bucket) => bucket.name),
-            id: config?.id?.low,
-            environment: config?.environment,
-          }))}
+          data={
+            fileConfig
+              ? [fileConfig].map((config) => ({
+                  bucketNames: config.buckets?.map((bucket) => bucket.name),
+                  id: config.id.low,
+                  environment: config.environment,
+                }))
+              : []
+          }
           columns={fileConfigColumns}
           isLoading={loading}
         />
         <h1>Email Configurations</h1>
         <BaseTable
-          data={[emailConfig].map((config) => ({
-            id: config?.id?.low,
-            environment: config?.environment,
-            sendgridKey: config?.sendgridKey,
-            domainNames: config?.domains?.map((domain) => domain.domain),
-            senderUsernames: config?.senders?.map((sender) => sender.username),
-          }))}
+          data={
+            emailConfig
+              ? [emailConfig].map((config) => ({
+                  id: config.id.low,
+                  environment: config.environment,
+                  sendgridKey: config.sendgridKey,
+                  domainNames: config.domains?.map((domain) => domain.domain),
+                  senderUsernames: config.senders?.map(
+                    (sender) => sender.username
+                  ),
+                }))
+              : []
+          }
           columns={emailConfigColumns}
           isLoading={loading}
         />

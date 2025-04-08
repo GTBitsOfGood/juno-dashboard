@@ -30,17 +30,58 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
+import { decodeJwt } from "jose";
+import { useEffect, useState } from "react";
+import { getProjects } from "@/lib/sdkActions";
 
 type ProjectSidebarProps = {
   projectId: number;
 };
 
 export function ProjectSidebar({ projectId }: ProjectSidebarProps) {
+  const [projectIds, setProjectIds] = useState<string[]>([]);
+
+  // Get current user through jwt token to create list of project IDs they can access
+  useEffect(() => {
+    const getAllProjectIds = async () => {
+      try {
+        const result = await getProjects();
+        const projectIdsList =
+          result.projects?.map((project) => String(project.id)) || [];
+        setProjectIds(projectIdsList);
+      } catch (err) {
+        console.error("Error fetching all project IDs:", err);
+      }
+    };
+
+    const token = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("jwt-token="))
+      ?.split("=")[1];
+
+    if (token) {
+      try {
+        const decoded = decodeJwt(token);
+        if ((decoded as any)?.user?.type == 2) {
+          // regular users can only access their linked projects
+          const projectIdsList =
+            (decoded as any)?.user?.projectIds?.map((id) => id.low) || [];
+          setProjectIds(projectIdsList);
+        } else {
+          // admin and superadmin can access all projects
+          getAllProjectIds();
+        }
+      } catch (err) {
+        console.error("Error decoding JWT:", err);
+      }
+    }
+  }, []);
+
   // Menu items.
   const items = [
     {
       title: "Dashboard",
-      url: "/projects",
+      url: `/projects/${projectId}`,
       icon: LayoutDashboard,
     },
     {
@@ -86,12 +127,19 @@ export function ProjectSidebar({ projectId }: ProjectSidebarProps) {
                 defaultValue={"Acme Inc"}
                 className="w-[--radix-popper-anchor-width]"
               >
-                <DropdownMenuItem>
-                  <span>Acme Inc</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <span>Acme Corp.</span>
-                </DropdownMenuItem>
+                {projectIds.length > 0 ? (
+                  projectIds.map((id) => (
+                    <DropdownMenuItem asChild key={id}>
+                      <a href={`/projects/${id}`}>
+                        <span>{`Project ${id}`}</span>
+                      </a>
+                    </DropdownMenuItem>
+                  ))
+                ) : (
+                  <DropdownMenuItem>
+                    <span>No available projects</span>
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </SidebarMenuItem>

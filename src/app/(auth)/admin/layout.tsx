@@ -1,4 +1,4 @@
-import { AdminSidebar } from "@/components/admin/admin-sidebar";
+import { AdminSidebar } from "@/components/sidebar/admin-sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import "../../globals.css";
 

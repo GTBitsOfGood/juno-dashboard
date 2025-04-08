@@ -5,11 +5,13 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import EmailAnalyticsChart from "@/components/charts/EmailAnalyticsChart";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const ProjectPage = () => {
   const { projectId } = useParams();
 
   const [projectName, setProjectName] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const displayProjectName = async () => {
@@ -18,6 +20,7 @@ const ProjectPage = () => {
         if (res.success) {
           const name = res.projectName;
           setProjectName(name);
+          setLoading(false);
         } else {
           toast.error("Error", {
             description: "Failed to get project",
@@ -33,9 +36,9 @@ const ProjectPage = () => {
 
   return (
     <div className="p-6">
-      <h1 className="mb-6 text-xl">{projectName}</h1>
-      <div className="grid flex-1">
-        <div className="flex grid grid-cols-3 flex-1 items-start gap-10">
+      <h1 className="mb-6 text-xl">{loading ? <Skeleton className="w-32 h-6"/> : projectName}</h1>
+      <div className="w-100">
+        <div className="flex grid grid-cols-2 flex-1 items-start gap-10">
           <EmailAnalyticsChart />
           <EmailAnalyticsChart />
           <EmailAnalyticsChart />

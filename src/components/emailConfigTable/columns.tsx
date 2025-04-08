@@ -20,10 +20,6 @@ export const columns: ColumnDef<EmailConfig>[] = [
     header: "Environment",
   },
   {
-    accessorKey: "sendgridKey",
-    header: "Sendgrid Key",
-  },
-  {
     accessorKey: "domainNames",
     header: "Domains",
   },

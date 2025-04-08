@@ -6,6 +6,7 @@ import {
   Settings,
   User,
   LogOut,
+  KeyRound,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -45,6 +46,11 @@ const items = [
     title: "Projects",
     url: "/admin/projects",
     icon: ListTodo,
+  },
+  {
+    title: "API Keys",
+    url: "/admin/keys",
+    icon: KeyRound,
   },
   {
     title: "Settings",

@@ -38,6 +38,13 @@ type ProjectSidebarProps = {
   projectId: number;
 };
 
+interface JWTPayload {
+  user: {
+    type: number;
+    projectIds: { low: number }[];
+  };
+}
+
 export function ProjectSidebar({ projectId }: ProjectSidebarProps) {
   const [projectIds, setProjectIds] = useState<string[]>([]);
 
@@ -61,11 +68,11 @@ export function ProjectSidebar({ projectId }: ProjectSidebarProps) {
 
     if (token) {
       try {
-        const decoded = decodeJwt(token);
-        if ((decoded as any)?.user?.type == 2) {
+        const decoded = decodeJwt(token) as JWTPayload;
+        if (decoded.user?.type == 2) {
           // regular users can only access their linked projects
           const projectIdsList =
-            (decoded as any)?.user?.projectIds?.map((id) => id.low) || [];
+            decoded.user?.projectIds?.map((id) => String(id.low)) || [];
           setProjectIds(projectIdsList);
         } else {
           // admin and superadmin can access all projects

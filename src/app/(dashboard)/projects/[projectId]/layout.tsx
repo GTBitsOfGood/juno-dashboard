@@ -14,7 +14,7 @@ export default function AdminLayout({
 
   return (
     <SidebarProvider>
-      <ProjectSidebar projectId={ Number(projectId) }/>
+      <ProjectSidebar projectId={Number(projectId)} />
       <main>{children}</main>
     </SidebarProvider>
   );

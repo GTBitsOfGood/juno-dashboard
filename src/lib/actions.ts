@@ -3,6 +3,7 @@ import { getJunoInstance } from "@/lib/juno";
 import { cookies } from "next/headers";
 
 import { SetUserTypeModel } from "juno-sdk/build/main/internal/api";
+import { APIKey } from "@/components/forms/CreateAPIKeyForm";
 
 export async function setUserTypeAction(data: {
   email: string;
@@ -57,6 +58,11 @@ export async function createUserAction(data: {
     console.error("Error creating user:", error);
     return { success: false, error: error.body };
   }
+}
+
+export async function createKeyAction(data: APIKey) {
+  // TODO: Create key requires JWT credential changes to the SDK. These should be done as soon as possible.
+  return data;
 }
 
 export async function createProjectAction(data: { projectName: string }) {

@@ -1,127 +1,252 @@
-"use client";
-import { linkUserToProject } from "@/lib/actions";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { toast } from "sonner";
 
-const linkUserToProjectSchema = z.object({
-  userId: z.string(),
-  projectName: z.string().min(1, "Project Name is required"),
-  adminEmail: z.string().email("Invalid admin email"),
-  adminPassword: z.string().min(6, "Invalid admin password"),
-});
+"use client";
+
+import { useEffect, useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  Bar,
+  BarChart,
+} from "recharts";
+import { getJunoCounts } from "@/lib/sdkActions";
+import { HeartPulse, Layers, Users } from "lucide-react";
+import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+
+// TODO: this needs to be pulled from juno db
+const projectServiceData = [
+  { service: "Email Service", onboardedProjects: 1 },
+  { service: "File Service", onboardedProjects: 3 },
+  { service: "Analytics Service", onboardedProjects: 4 },
+];
+
+// TODO: this needs to be pulled from bog-analytics
+const dummyData = [
+  { name: "Jan", emailService: 186, fileService: 80, analyticsService: 1823 },
+  { name: "Feb", emailService: 305, fileService: 20, analyticsService: 1823 },
+  { name: "Mar", emailService: 237, fileService: 12, analyticsService: 1235 },
+  { name: "Apr", emailService: 73, fileService: 19, analyticsService: 1103 },
+  { name: "May", emailService: 209, fileService: 13, analyticsService: 1934 },
+  { name: "Jun", emailService: 214, fileService: 14, analyticsService: 1238 }
+];
+
+const barChartConfig = {
+  onboardedProjects: {
+    label: "Onboarded Projects",
+  }
+}
+
+const chartConfig = {
+  emailService: {
+    label: "Email Service",
+    color: "var(--chart-1)",
+  },
+  fileService: {
+    label: "File Service",
+    color: "var(--chart-2)",
+  },
+  analyticsService: {
+    label: "Analytics Service",
+    color: "var(--chart-3)",
+  },
+} satisfies ChartConfig
 
 const AdminPage = () => {
-  /** Form to link user to a project */
-  const linkUserToProjectForm = useForm({
-    resolver: zodResolver(linkUserToProjectSchema),
-    defaultValues: {
-      userId: "",
-      projectName: "",
-      adminEmail: "",
-      adminPassword: "",
-    },
-  });
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [counts] = await Promise.all([
+          getJunoCounts()
+        ])
 
-  const handleLinkUserToProject = async (
-    data: Required<z.infer<typeof linkUserToProjectSchema>>,
-  ) => {
-    try {
-      const result = await linkUserToProject(data);
-      if (result.success) {
-        toast.success("Success", {
-          description: "Operation completed successfully",
-        });
-      } else {
-        toast.error("Error", {
-          description: "User not linked to project",
-        });
+        if (!counts.success) {
+          console.error(`Failed to fetch project count: ${counts.error}`);
+        }
+
+        setProjectCount(counts.projectCount);
+        setUserCount(counts.userCount);
+      } catch (error) {
+        console.log("Error fetching data:", error);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Error linking user to project:", error);
     }
-  };
+
+    fetchData();
+  }, []);
+
+  const [projectCount, setProjectCount] = useState<number | null>(0);
+  const [userCount, setUserCount] = useState<number | null>(0);
+  const [loading, setLoading] = useState(true); // TODO: add skeleton load animations instead of loading
 
   return (
-    <div className="max-w-2xl mx-auto p-6 space-y-8">
-      <h1 className="text-2xl font-bold">Admin Page</h1>
+    <div className="space-x-8 space-y-8">
+      <h1 className="ml-8 mt-8 text-2xl font-bold">Admin Overview</h1>
 
-      {/* Set User Type Form */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Active Projects
+            </CardTitle>
+            <Layers className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <div className="text-2xl font-bold">Loading...</div>
+            ) : (
+              <>
+                <div className="text-2xl font-bold">{projectCount ?? "N/A"}</div>
+                <p className="text-xs text-muted-foreground">
+                  Total projects on Juno
+                </p>
+              </>
+            )}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Users</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <div className="text-2xl font-bold">Loading...</div>
+            ) : (
+              <>
+                <div className="text-2xl font-bold">{userCount ?? "N/A"}</div>
+                <p className="text-xs text-muted-foreground">
+                  Total users on Juno
+                </p>
+              </>
+            )}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">API Requests</CardTitle>
+            <HeartPulse className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">N/A</div>
+            <p className="text-xs text-muted-foreground">
+              Requests in the last hour
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Service Health
+            </CardTitle>
+            <HeartPulse className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">N/A</div>
+            <p className="text-xs text-muted-foreground">
+              Percent uptime
+            </p>
+          </CardContent>
+        </Card>
+      </div>
 
-      {/* Link User to Project Form */}
-      <Form {...linkUserToProjectForm}>
-        <form
-          onSubmit={linkUserToProjectForm.handleSubmit(handleLinkUserToProject)}
-          className="space-y-4 border p-4 rounded-lg"
-        >
-          <h2 className="text-lg font-semibold">Link User to Project</h2>
-          <FormField
-            control={linkUserToProjectForm.control}
-            name="userId"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>User ID</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={linkUserToProjectForm.control}
-            name="adminEmail"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Admin Email</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={linkUserToProjectForm.control}
-            name="adminPassword"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Admin Password</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+        <Card className="col-span-7">
+          <CardHeader>
+            <CardTitle>API Requests</CardTitle>
+            <CardDescription>API requests over time.</CardDescription>
+          </CardHeader>
+          <CardContent className="pl-2">
+            <ChartContainer config={chartConfig}>
+              <LineChart
+                data={dummyData}
+                margin={{
+                  left: 12,
+                  right: 12,
+                }}
+                accessibilityLayer
+              >
 
-          <FormField
-            control={linkUserToProjectForm.control}
-            name="projectName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Project Name</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <Button type="submit">Link User</Button>
-        </form>
-      </Form>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <ChartTooltip />
+                <Legend />
+                <Line
+                  type="monotone"
+                  dataKey="analyticsService"
+                  activeDot={{ r: 8 }}
+                />
+
+                <Line
+                  type="monotone"
+                  dataKey="fileService"
+                  activeDot={{ r: 8 }}
+                />
+
+                <Line
+                  type="monotone"
+                  dataKey="emailService"
+                  activeDot={{ r: 8 }}
+                />
+              </LineChart>
+            </ChartContainer>
+          </CardContent>
+        </Card>
+
+        <Card className="col-span-7">
+          <CardHeader>
+            <CardTitle>Recent Activity</CardTitle>
+            <CardDescription>
+              Recent juno events.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-sm text-muted-foreground">
+              placeholder
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="col-span-7">
+          <CardHeader>
+            <CardTitle>Projects Onboarded</CardTitle>
+            <CardDescription>
+              Number of projects using each service.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pl-2">
+            <ChartContainer config={barChartConfig}>
+              <BarChart accessibilityLayer data={projectServiceData}>
+                <CartesianGrid vertical={false} />
+                <XAxis
+                  dataKey="service"
+                  tickLine={false}
+                  tickMargin={10}
+                  axisLine={false}
+                />
+                <ChartTooltip
+                  cursor={false}
+                  content={<ChartTooltipContent hideLabel />}
+                />
+                <Bar dataKey="onboardedProjects" fill="#cdcdcd" radius={8} />
+              </BarChart>
+            </ChartContainer>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };

@@ -72,6 +72,29 @@ export async function getProjects() {
   }
 }
 
+export async function getJunoCounts() {
+  try {
+    const client = getJunoInstance();
+
+    const jwt = await getCredentialsFromJWT();
+
+    const { projects } = await client.project.getProjects(jwt);
+    const { users } = await client.user.getUsers(jwt);
+
+    return {
+      success: true,
+      projectCount: projects.length,
+      userCount: users.length,
+    };
+  } catch (error) {
+    console.error("Error fetching projects:", error);
+    return {
+      success: false,
+      error: `Error fetching projects: ${error}`,
+    };
+  }
+}
+
 export async function getJunoProject(input: projectInputType) {
   try {
     const juno = getJunoInstance();

@@ -15,7 +15,7 @@ export function middleware(req: NextRequest) {
     if (token && value.user.type != 2) {
       return NextResponse.next();
     } else {
-      return NextResponse.redirect(new URL("/", req.url));
+      return NextResponse.redirect(new URL("/dashboard", req.url));
     }
   } catch {
     return NextResponse.redirect(new URL("/login", req.url));
@@ -23,5 +23,5 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/", "/admin/:path*"],
 };

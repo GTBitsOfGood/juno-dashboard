@@ -1,3 +1,4 @@
+import { UserSessionProvider } from "@/components/providers/SessionProvider";
 import { ReactNode } from "react";
 
 interface ProjectsLayoutProps {
@@ -5,7 +6,7 @@ interface ProjectsLayoutProps {
 }
 
 const ProjectsLayout = async ({ children }: ProjectsLayoutProps) => {
-  return <>{children}</>;
+  return <UserSessionProvider>{children}</UserSessionProvider>;
 };
 
 export default ProjectsLayout;

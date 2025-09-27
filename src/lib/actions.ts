@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 
 import { SetUserTypeModel } from "juno-sdk/build/main/internal/api";
 import { APIKey } from "@/components/forms/CreateAPIKeyForm";
+import { getSession } from "./session";
 
 export async function setUserTypeAction(data: {
   email: string;
@@ -12,7 +13,7 @@ export async function setUserTypeAction(data: {
   const junoClient = getJunoInstance();
 
   try {
-    const jwt = await getCredentialsFromJWT();
+    const { jwt } = await getSession();
     await junoClient.user.setUserType({
       input: { email: data.email, type: data.type },
       credentials: jwt,
@@ -36,7 +37,7 @@ export async function createUserAction(data: {
   const { name, email, password } = data;
 
   try {
-    const jwt = await getCredentialsFromJWT();
+    const { jwt } = await getSession();
     const user = await junoClient.user.createUser({
       name,
       email,
@@ -70,7 +71,7 @@ export async function createProjectAction(data: { projectName: string }) {
 
   const junoClient = getJunoInstance();
   try {
-    const jwt = await getCredentialsFromJWT();
+    const { jwt } = await getSession();
     const project = await junoClient.project.createProject({
       projectName,
       credentials: jwt,
@@ -94,7 +95,7 @@ export async function linkUserToProject(data: {
 }) {
   const junoClient = getJunoInstance();
   try {
-    const jwt = await getCredentialsFromJWT();
+    const { jwt } = await getSession();
     await junoClient.user.linkToProject({
       credentials: jwt,
       project: { name: data.projectName },
@@ -113,7 +114,7 @@ export async function unlinkUserFromProject(data: {
 }) {
   const junoClient = getJunoInstance();
   try {
-    const jwt = await getCredentialsFromJWT();
+    const { jwt } = await getSession();
     await junoClient.user.unlinkFromProject({
       credentials: jwt,
       project: { name: data.projectName },
@@ -130,7 +131,7 @@ export async function getProjectUsers(projectId: string) {
   const junoClient = getJunoInstance();
 
   try {
-    const jwt = await getCredentialsFromJWT();
+    const { jwt } = await getSession();
 
     const users = await junoClient.project.getProjectUsersById(projectId, jwt);
 
@@ -180,12 +181,6 @@ export async function createJWTAuthentication(data: {
   }
 }
 
-export async function getCredentialsFromJWT() {
-  const cookieStore = await cookies();
-  const cookie = cookieStore.get("jwt-token");
-  return cookie.value; //Pass in as Authorization header for it to be recognized by middleware.
-}
-
 export async function deleteJWT() {
   const cookieStore = await cookies();
   const cookie = cookieStore.get("jwt-token");
@@ -198,7 +193,7 @@ export async function deleteJWT() {
 export async function deleteUserAction(userId: string) {
   const junoClient = getJunoInstance();
   try {
-    const jwt = await getCredentialsFromJWT();
+    const { jwt } = await getSession();
     await junoClient.user.deleteUser({
       userId,
       credentials: jwt,
@@ -213,7 +208,7 @@ export async function deleteUserAction(userId: string) {
 export async function deleteProjectAction(projectId: string) {
   const junoClient = getJunoInstance();
   try {
-    const jwt = await getCredentialsFromJWT();
+    const { jwt } = await getSession();
     await junoClient.project.deleteProject({
       project: { id: Number(projectId) },
       credentials: jwt,

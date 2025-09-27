@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -15,15 +14,18 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
   Legend,
-  ResponsiveContainer,
   Bar,
   BarChart,
 } from "recharts";
 import { getJunoCounts } from "@/lib/sdkActions";
 import { HeartPulse, Layers, Users } from "lucide-react";
-import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
 
 // TODO: this needs to be pulled from juno db
 const projectServiceData = [
@@ -39,14 +41,14 @@ const dummyData = [
   { name: "Mar", emailService: 237, fileService: 12, analyticsService: 1235 },
   { name: "Apr", emailService: 73, fileService: 19, analyticsService: 1103 },
   { name: "May", emailService: 209, fileService: 13, analyticsService: 1934 },
-  { name: "Jun", emailService: 214, fileService: 14, analyticsService: 1238 }
+  { name: "Jun", emailService: 214, fileService: 14, analyticsService: 1238 },
 ];
 
 const barChartConfig = {
   onboardedProjects: {
     label: "Onboarded Projects",
-  }
-}
+  },
+};
 
 const chartConfig = {
   emailService: {
@@ -61,15 +63,13 @@ const chartConfig = {
     label: "Analytics Service",
     color: "var(--chart-3)",
   },
-} satisfies ChartConfig
+} satisfies ChartConfig;
 
 const AdminPage = () => {
   useEffect(() => {
     async function fetchData() {
       try {
-        const [counts] = await Promise.all([
-          getJunoCounts()
-        ])
+        const [counts] = await Promise.all([getJunoCounts()]);
 
         if (!counts.success) {
           console.error(`Failed to fetch project count: ${counts.error}`);
@@ -108,7 +108,9 @@ const AdminPage = () => {
               <div className="text-2xl font-bold">Loading...</div>
             ) : (
               <>
-                <div className="text-2xl font-bold">{projectCount ?? "N/A"}</div>
+                <div className="text-2xl font-bold">
+                  {projectCount ?? "N/A"}
+                </div>
                 <p className="text-xs text-muted-foreground">
                   Total projects on Juno
                 </p>
@@ -155,9 +157,7 @@ const AdminPage = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">N/A</div>
-            <p className="text-xs text-muted-foreground">
-              Percent uptime
-            </p>
+            <p className="text-xs text-muted-foreground">Percent uptime</p>
           </CardContent>
         </Card>
       </div>
@@ -178,11 +178,13 @@ const AdminPage = () => {
                 }}
                 accessibilityLayer
               >
-
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
                 <YAxis />
-                <ChartTooltip />
+                <ChartTooltip
+                  cursor={false}
+                  content={<ChartTooltipContent hideLabel />}
+                />
                 <Legend />
                 <Line
                   type="monotone"
@@ -209,14 +211,10 @@ const AdminPage = () => {
         <Card className="col-span-7">
           <CardHeader>
             <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>
-              Recent Juno events.
-            </CardDescription>
+            <CardDescription>Recent Juno events.</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-sm text-muted-foreground">
-              placeholder
-            </div>
+            <div className="text-sm text-muted-foreground">placeholder</div>
           </CardContent>
         </Card>
 

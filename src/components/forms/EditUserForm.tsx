@@ -30,7 +30,7 @@ import { useState } from "react";
 import { ProjectColumn } from "@/app/(auth)/admin/projects/columns";
 import { UserColumn } from "@/components/usertable/columns";
 
-const userTypeMap = {
+export const userTypeMap = {
   SUPERADMIN: 0,
   ADMIN: 1,
   USER: 2,

@@ -37,7 +37,7 @@ const ProjectPage = () => {
   return (
     <div className="p-6">
       <h1 className="mb-6 text-xl">
-        {loading ? <Skeleton className="w-32 h-6" /> : projectName}
+        {loading ? <Skeleton className="w-32 h-7" /> : projectName}
       </h1>
       <div className="w-100">
         <div className="flex grid grid-cols-2 flex-1 items-start gap-10">

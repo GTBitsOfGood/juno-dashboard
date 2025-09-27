@@ -41,7 +41,7 @@ export const UserSessionProvider = ({
 
       try {
         if (response.ok) {
-          setUser(await response.json());
+          setUser((await response.json()).user);
         }
       } catch (err) {
         // TODO: sentry integration

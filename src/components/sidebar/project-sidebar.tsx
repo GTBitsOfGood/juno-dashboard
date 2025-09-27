@@ -65,7 +65,6 @@ export function ProjectSidebar({
         if (user.type == UserType.USER) {
           // TODO: this filtering needs to be done on Juno's side
           // regular users can only access their linked projects
-
           const projectIdsList =
             user.projectIds.map((id) => String(id.low)) || [];
           setProjectIds(projectIdsList);
@@ -117,6 +116,7 @@ export function ProjectSidebar({
     await deleteJWT();
     router.push("/admin");
   }
+
   return (
     <Sidebar>
       <SidebarHeader>
@@ -133,6 +133,13 @@ export function ProjectSidebar({
                 defaultValue={"Acme Inc"}
                 className="w-[--radix-popper-anchor-width]"
               >
+                {(user !== null && (user.type === UserType.ADMIN || user.type === UserType.SUPERADMIN)) ? <DropdownMenuItem asChild key={"admin"}>
+                  <a href={'/admin'}>
+                    <span>{`Admin Dashboard`}</span>
+                  </a>
+                </DropdownMenuItem>
+                  : <></>
+                }
                 {projectIds.length > 0 ? (
                   projectIds.map((id) => (
                     <DropdownMenuItem asChild key={id}>

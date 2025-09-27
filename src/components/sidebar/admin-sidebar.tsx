@@ -29,6 +29,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
+import { useUserSession } from "../providers/SessionProvider";
+import { useEffect, useState } from "react";
+import { getProjects } from "@/lib/sdkActions";
 
 // Menu items.
 const items = [
@@ -60,6 +63,27 @@ const items = [
 ];
 
 export function AdminSidebar() {
+  const { user } = useUserSession();
+
+  const [projectIds, setProjectIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const result = await getProjects();
+        const projectIdsList =
+          result.projects?.map((project) => String(project.id)) || [];
+
+        setProjectIds(projectIdsList);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    fetchProjects();
+
+  }, [user])
+
   const router = useRouter();
   async function logOut() {
     await deleteJWT();
@@ -73,7 +97,7 @@ export function AdminSidebar() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton>
-                  Select Workspace
+                  {"Admin Dashboard"}
                   <ChevronDown className="ml-auto" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
@@ -81,12 +105,21 @@ export function AdminSidebar() {
                 defaultValue={"Acme Inc"}
                 className="w-[--radix-popper-anchor-width]"
               >
-                <DropdownMenuItem>
-                  <span>Acme Inc</span>
+                <DropdownMenuItem asChild key={"admin"}>
+                  <a href={'/admin'}>
+                    <span>{`Admin Dashboard`}</span>
+                  </a>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <span>Acme Corp.</span>
-                </DropdownMenuItem>
+
+                {
+                  projectIds.map((id) => (
+                    <DropdownMenuItem asChild key={id}>
+                      <a href={`/projects/${id}`}>
+                        <span>{`Project ${id}`}</span>
+                      </a>
+                    </DropdownMenuItem>
+                  ))
+                }
               </DropdownMenuContent>
             </DropdownMenu>
           </SidebarMenuItem>

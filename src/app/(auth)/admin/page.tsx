@@ -210,7 +210,7 @@ const AdminPage = () => {
           <CardHeader>
             <CardTitle>Recent Activity</CardTitle>
             <CardDescription>
-              Recent juno events.
+              Recent Juno events.
             </CardDescription>
           </CardHeader>
           <CardContent>

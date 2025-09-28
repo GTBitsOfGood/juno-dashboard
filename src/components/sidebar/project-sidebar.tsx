@@ -129,17 +129,18 @@ export function ProjectSidebar({
                   <ChevronDown className="ml-auto" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
-              <DropdownMenuContent
-                defaultValue={"Acme Inc"}
-                className="w-[--radix-popper-anchor-width]"
-              >
-                {(user !== null && (user.type === UserType.ADMIN || user.type === UserType.SUPERADMIN)) ? <DropdownMenuItem asChild key={"admin"}>
-                  <a href={'/admin'}>
-                    <span>{`Admin Dashboard`}</span>
-                  </a>
-                </DropdownMenuItem>
-                  : <></>
-                }
+              <DropdownMenuContent className="w-[--radix-popper-anchor-width]">
+                {user !== null &&
+                (user.type === UserType.ADMIN ||
+                  user.type === UserType.SUPERADMIN) ? (
+                  <DropdownMenuItem asChild key={"admin"}>
+                    <a href={"/admin"}>
+                      <span>{`Admin Dashboard`}</span>
+                    </a>
+                  </DropdownMenuItem>
+                ) : (
+                  <></>
+                )}
                 {projectIds.length > 0 ? (
                   projectIds.map((id) => (
                     <DropdownMenuItem asChild key={id}>

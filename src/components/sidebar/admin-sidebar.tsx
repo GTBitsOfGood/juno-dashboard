@@ -78,11 +78,10 @@ export function AdminSidebar() {
       } catch (err) {
         console.error(err);
       }
-    }
+    };
 
     fetchProjects();
-
-  }, [user])
+  }, [user]);
 
   const router = useRouter();
   async function logOut() {
@@ -101,25 +100,20 @@ export function AdminSidebar() {
                   <ChevronDown className="ml-auto" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
-              <DropdownMenuContent
-                defaultValue={"Acme Inc"}
-                className="w-[--radix-popper-anchor-width]"
-              >
+              <DropdownMenuContent className="w-[--radix-popper-anchor-width]">
                 <DropdownMenuItem asChild key={"admin"}>
-                  <a href={'/admin'}>
+                  <a href={"/admin"}>
                     <span>{`Admin Dashboard`}</span>
                   </a>
                 </DropdownMenuItem>
 
-                {
-                  projectIds.map((id) => (
-                    <DropdownMenuItem asChild key={id}>
-                      <a href={`/projects/${id}`}>
-                        <span>{`Project ${id}`}</span>
-                      </a>
-                    </DropdownMenuItem>
-                  ))
-                }
+                {projectIds.map((id) => (
+                  <DropdownMenuItem asChild key={id}>
+                    <a href={`/projects/${id}`}>
+                      <span>{`Project ${id}`}</span>
+                    </a>
+                  </DropdownMenuItem>
+                ))}
               </DropdownMenuContent>
             </DropdownMenu>
           </SidebarMenuItem>

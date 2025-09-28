@@ -176,8 +176,11 @@ export async function createJWTAuthentication(data: {
     });
     return { success: true };
   } catch (error) {
-    console.error("Error generating JWT:", error);
-    return { success: false, error: "Failed to login." };
+    if (error.code === "ECONNREFUSED") {
+      return { success: false, error: "Failed to connect to Juno instance." };
+    }
+
+    return { success: false, error: "Invalid user credentials provided." };
   }
 }
 

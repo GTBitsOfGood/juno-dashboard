@@ -47,6 +47,11 @@ export const columns: ColumnDef<FileConfig>[] = [
   {
     accessorKey: "fileNames",
     header: "Files",
-    cell: ({ row }) => <ItemListCell itemNames={row.original.fileNames} />,
+    cell: ({ row }) => (
+      <ItemListCell
+        itemNames={row.original.fileNames}
+        badgeVariant="secondary"
+      />
+    ),
   },
 ];

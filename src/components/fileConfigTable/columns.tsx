@@ -2,11 +2,13 @@
 
 import { Checkbox } from "@/components/ui/checkbox";
 import { ColumnDef } from "@tanstack/react-table";
+import { ItemListCell } from "./item-list-cell";
 
 export type FileConfig = {
   id: number;
   environment: string;
   bucketNames: string[];
+  fileNames: string[];
 };
 
 export const columns: ColumnDef<FileConfig>[] = [
@@ -31,6 +33,7 @@ export const columns: ColumnDef<FileConfig>[] = [
   {
     accessorKey: "id",
     header: "ID",
+    size: 50,
   },
   {
     accessorKey: "environment",
@@ -39,9 +42,11 @@ export const columns: ColumnDef<FileConfig>[] = [
   {
     accessorKey: "bucketNames",
     header: "Buckets",
+    cell: ({ row }) => <ItemListCell itemNames={row.original.bucketNames} />,
   },
   {
     accessorKey: "fileNames",
     header: "Files",
+    cell: ({ row }) => <ItemListCell itemNames={row.original.fileNames} />,
   },
 ];

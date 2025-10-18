@@ -33,6 +33,7 @@ export const columns: ColumnDef<EmailConfig>[] = [
   {
     accessorKey: "id",
     header: "ID",
+    size: 50,
   },
   {
     accessorKey: "environment",

@@ -104,9 +104,14 @@ const ProjectSettingsPage = () => {
           data={
             fileConfig
               ? [fileConfig].map((config) => ({
-                  bucketNames: config.buckets?.map((bucket) => bucket.name),
                   id: config.id.low,
                   environment: config.environment,
+                  bucketNames:
+                    config.buckets?.map((bucket) => bucket.name) ?? [],
+                  fileNames:
+                    config.files?.map(
+                      (file) => file?.fileId?.path ?? "Unknown file"
+                    ) ?? [],
                 }))
               : []
           }
@@ -123,7 +128,7 @@ const ProjectSettingsPage = () => {
                   sendgridKey: config.sendgridKey,
                   domainNames: config.domains?.map((domain) => domain.domain),
                   senderUsernames: config.senders?.map(
-                    (sender) => sender.username,
+                    (sender) => sender.username
                   ),
                 }))
               : []

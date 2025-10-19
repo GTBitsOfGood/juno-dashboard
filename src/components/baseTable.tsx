@@ -18,8 +18,9 @@ import {
   getFilteredRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
+import { Button } from "./ui/button";
 
 interface BaseTableProps<TData, TValue> {
   className?: string;
@@ -30,6 +31,8 @@ interface BaseTableProps<TData, TValue> {
     placeholder: string;
     filterColumn: string;
   };
+  onAddNewRow?: () => void;
+  onDeleteRow?: () => void;
 }
 
 export function BaseTable<TData, TValue>({
@@ -38,8 +41,11 @@ export function BaseTable<TData, TValue>({
   data,
   isLoading = true,
   filterParams,
+  onAddNewRow,
+  onDeleteRow,
 }: BaseTableProps<TData, TValue>) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [hasSelectedRows, setHasSelectedRows] = useState(false);
 
   const table = useReactTable({
     data,
@@ -52,6 +58,11 @@ export function BaseTable<TData, TValue>({
     },
   });
 
+  const selectedRows = table.getSelectedRowModel().rows;
+  useEffect(() => {
+    setHasSelectedRows(selectedRows.length > 0);
+  }, [selectedRows]);
+
   if (isLoading) {
     return (
       <div className="flex flex-col gap-2">
@@ -63,21 +74,30 @@ export function BaseTable<TData, TValue>({
 
   return (
     <div className={twMerge(className, "flex flex-col gap-3")}>
-      {filterParams && (
-        <Input
-          placeholder={filterParams.placeholder}
-          value={
-            (table
-              .getColumn(filterParams.filterColumn)
-              ?.getFilterValue() as string) ?? ""
-          }
-          onChange={(event) => {
-            table
-              .getColumn(filterParams.filterColumn)
-              ?.setFilterValue(event.target.value);
-          }}
-        />
-      )}
+      <div className="flex gap-3">
+        {filterParams && (
+          <Input
+            placeholder={filterParams.placeholder}
+            value={
+              (table
+                .getColumn(filterParams.filterColumn)
+                ?.getFilterValue() as string) ?? ""
+            }
+            onChange={(event) => {
+              table
+                .getColumn(filterParams.filterColumn)
+                ?.setFilterValue(event.target.value);
+            }}
+          />
+        )}
+        {hasSelectedRows && onDeleteRow && (
+          <Button variant="destructive" onClick={onDeleteRow}>
+            Delete {selectedRows.length} selected config
+            {selectedRows.length > 1 ? "s" : ""}
+          </Button>
+        )}
+        {onAddNewRow && <Button onClick={onAddNewRow}>Add New</Button>}
+      </div>
       <div className="rounded-md border">
         <Table>
           <TableHeader>

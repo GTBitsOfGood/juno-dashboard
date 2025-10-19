@@ -32,8 +32,7 @@ interface BaseTableProps<TData, TValue> {
     filterColumn: string;
   };
   onAddNewRow?: () => void;
-  onDeleteRow?: () => void;
-  onSelectRow?: (rows: Row<TData>[]) => void;
+  onDeleteRow?: (rows: Row<TData>[]) => void;
 }
 
 export function BaseTable<TData, TValue>({
@@ -44,7 +43,6 @@ export function BaseTable<TData, TValue>({
   filterParams,
   onAddNewRow,
   onDeleteRow,
-  onSelectRow,
 }: BaseTableProps<TData, TValue>) {
   const [hasSelectedRows, setHasSelectedRows] = useState(false);
 
@@ -88,7 +86,10 @@ export function BaseTable<TData, TValue>({
           />
         )}
         {hasSelectedRows && onDeleteRow && (
-          <Button variant="destructive" onClick={onDeleteRow}>
+          <Button
+            variant="destructive"
+            onClick={() => onDeleteRow(selectedRows)}
+          >
             Delete {selectedRows.length} selected config
             {selectedRows.length > 1 ? "s" : ""}
           </Button>

@@ -2,6 +2,7 @@
 
 import { columns as fileConfigColumns } from "@/components/fileConfigTable/columns";
 import { FileConfigResponse } from "juno-sdk/build/main/internal/api";
+import { useState } from "react";
 import { BaseTable } from "../baseTable";
 
 interface FileConfigTableProps {
@@ -13,6 +14,11 @@ export function FileConfigTable({
   fileConfig,
   isLoading,
 }: FileConfigTableProps) {
+  const [isAddConfigDialogOpen, setIsAddConfigDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [selectedRows, setSelectedRows] = useState([]);
+
   const fileConfigRowData = [fileConfig]
     .filter((config) => config)
     .map((config) => ({
@@ -33,8 +39,11 @@ export function FileConfigTable({
           placeholder: "Filter by environment...",
           filterColumn: "environment",
         }}
-        onAddNewRow={() => console.log("Click")}
-        onDeleteRow={() => console.log("Click")}
+        onAddNewRow={() => setIsAddConfigDialogOpen(true)}
+        onDeleteRow={(rows) => {
+          setSelectedRows(rows);
+          setIsDeleteDialogOpen(true);
+        }}
       />
     </div>
   );

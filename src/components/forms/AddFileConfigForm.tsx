@@ -22,7 +22,7 @@ const addFileConfigSchema = z.object({
 
 type AddFileConfigFormProps = {
   projectId: number;
-  onConfigAdd: () => void;
+  onConfigAdd?: () => void;
   onClose?: () => void;
 };
 

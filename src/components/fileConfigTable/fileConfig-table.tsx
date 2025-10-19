@@ -8,7 +8,8 @@ import {
   DialogFooter,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { FileConfigResponse } from "juno-sdk/build/main/internal/api";
+import { getFileConfig } from "@/lib/settings";
+import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 import { BaseTable } from "../baseTable";
@@ -18,23 +19,20 @@ import { DialogHeader } from "../ui/dialog";
 
 interface FileConfigTableProps {
   projectId: string;
-  fileConfig: FileConfigResponse;
-  isLoading: boolean;
-  onConfigMutate: () => void;
 }
 
-export function FileConfigTable({
-  projectId,
-  fileConfig,
-  isLoading,
-  onConfigMutate,
-}: FileConfigTableProps) {
+export function FileConfigTable({ projectId }: FileConfigTableProps) {
   const [isAddConfigDialogOpen, setIsAddConfigDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [selectedRows, setSelectedRows] = useState([]);
 
-  const fileConfigRowData = [fileConfig]
+  const { isLoading, isError, data, error } = useQuery({
+    queryKey: ["fileConfig", projectId],
+    queryFn: () => getFileConfig(projectId),
+  });
+
+  const fileConfigRowData = [data]
     .filter((config) => config)
     .map((config) => ({
       id: config.id.low,
@@ -43,6 +41,12 @@ export function FileConfigTable({
       fileNames:
         config.files?.map((file) => file?.fileId?.path ?? "Unknown file") ?? [],
     }));
+
+  if (isError) {
+    toast.error("Error", {
+      description: `Failed to fetch file configs: ${JSON.stringify(error)}`,
+    });
+  }
 
   const handleDeleteSelected = async () => {
     setIsDeleting(true);
@@ -61,7 +65,6 @@ export function FileConfigTable({
       const failedDeletes = results.filter((r) => !r.success).length;
 
       if (successfulDeletes > 0) {
-        onConfigMutate();
         toast.success("Success", {
           description: `Successfully deleted ${successfulDeletes} config${successfulDeletes > 1 ? "s" : ""}.`,
         });
@@ -94,7 +97,6 @@ export function FileConfigTable({
           </DialogHeader>
           <AddFileConfigForm
             projectId={Number(projectId)}
-            onConfigAdd={onConfigMutate}
             onClose={() => setIsAddConfigDialogOpen(false)}
           />
         </DialogContent>

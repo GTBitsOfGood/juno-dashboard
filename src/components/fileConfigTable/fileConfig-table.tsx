@@ -11,14 +11,17 @@ import { FileConfigResponse } from "juno-sdk/build/main/internal/api";
 import { useState } from "react";
 import { toast } from "sonner";
 import { BaseTable } from "../baseTable";
+import AddFileConfigForm from "../forms/AddFileConfigForm";
 import { DialogHeader } from "../ui/dialog";
 
 interface FileConfigTableProps {
+  projectId: string;
   fileConfig: FileConfigResponse;
   isLoading: boolean;
 }
 
 export function FileConfigTable({
+  projectId,
   fileConfig,
   isLoading,
 }: FileConfigTableProps) {
@@ -45,8 +48,13 @@ export function FileConfigTable({
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Add File Configuration</DialogTitle>
-            <DialogDescription>Create a new file config.</DialogDescription>
+            <DialogDescription>No manual input required.</DialogDescription>
           </DialogHeader>
+          <AddFileConfigForm
+            projectId={Number(projectId)}
+            onConfigAdd={() => console.log("Created")}
+            onClose={() => setIsAddConfigDialogOpen(false)}
+          />
         </DialogContent>
       </Dialog>
 

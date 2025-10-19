@@ -98,8 +98,16 @@ const ProjectSettingsPage = () => {
       </Breadcrumb>
 
       <div className="flex flex-col gap-8">
-        <FileConfigTable fileConfig={fileConfig} isLoading={loading} />
-        <EmailConfigTable emailConfig={emailConfig} isLoading={loading} />
+        <FileConfigTable
+          projectId={projectId}
+          fileConfig={fileConfig}
+          isLoading={loading}
+        />
+        <EmailConfigTable
+          projectId={projectId}
+          emailConfig={emailConfig}
+          isLoading={loading}
+        />
       </div>
     </div>
   );

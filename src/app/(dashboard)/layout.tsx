@@ -1,3 +1,4 @@
+import { ReactQueryProvider } from "@/components/providers/ReactQueryProvider";
 import { UserSessionProvider } from "@/components/providers/SessionProvider";
 
 export const metadata = {
@@ -10,5 +11,9 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <UserSessionProvider>{children}</UserSessionProvider>;
+  return (
+    <ReactQueryProvider>
+      <UserSessionProvider>{children}</UserSessionProvider>
+    </ReactQueryProvider>
+  );
 }

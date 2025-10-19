@@ -94,12 +94,12 @@ const ProjectSettingsPage = () => {
       id: config.id.low,
       environment: config.environment,
       sendgridKey: config.sendgridKey,
-      domainNames: config.domains?.map((domain) => domain.domain),
-      senderUsernames: config.senders?.map((sender) => sender.username),
+      domainNames: config.domains?.map((domain) => domain.domain) ?? [],
+      senderUsernames: config.senders?.map((sender) => sender.username) ?? [],
     }));
 
   return (
-    <div className="container mx-auto px-10 py-10">
+    <div className="container mx-auto px-10 py-10 md:w-[85vw] sm:w-full">
       <Breadcrumb className="mb-4">
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -129,6 +129,8 @@ const ProjectSettingsPage = () => {
             placeholder: "Filter by environment...",
             filterColumn: "environment",
           }}
+          onAddNewRow={() => console.log("Click")}
+          onDeleteRow={() => console.log("Click")}
         />
         <h1>Email Configurations</h1>
         <BaseTable
@@ -139,6 +141,8 @@ const ProjectSettingsPage = () => {
             placeholder: "Filter by environment...",
             filterColumn: "environment",
           }}
+          onAddNewRow={() => console.log("Click")}
+          onDeleteRow={() => console.log("Click")}
         />
       </div>
     </div>

@@ -2,7 +2,7 @@
 
 import { Checkbox } from "@/components/ui/checkbox";
 import { ColumnDef } from "@tanstack/react-table";
-import { ItemListCell } from "./item-list-cell";
+import { ItemListCell } from "../item-list-cell";
 
 export type FileConfigColumn = {
   id: number;

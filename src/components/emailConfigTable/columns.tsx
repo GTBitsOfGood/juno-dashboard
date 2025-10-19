@@ -2,6 +2,7 @@
 
 import { Checkbox } from "@/components/ui/checkbox";
 import { ColumnDef } from "@tanstack/react-table";
+import { ItemListCell } from "../item-list-cell";
 
 export type EmailConfig = {
   id: number;
@@ -46,9 +47,16 @@ export const columns: ColumnDef<EmailConfig>[] = [
   {
     accessorKey: "domainNames",
     header: "Domains",
+    cell: ({ row }) => <ItemListCell itemNames={row.original.domainNames} />,
   },
   {
     accessorKey: "senderUsernames",
-    header: "Sender Usernames",
+    header: "Senders",
+    cell: ({ row }) => (
+      <ItemListCell
+        itemNames={row.original.senderUsernames}
+        badgeVariant="secondary"
+      />
+    ),
   },
 ];

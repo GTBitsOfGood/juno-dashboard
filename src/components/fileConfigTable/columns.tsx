@@ -4,14 +4,14 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ColumnDef } from "@tanstack/react-table";
 import { ItemListCell } from "./item-list-cell";
 
-export type FileConfig = {
+export type FileConfigColumn = {
   id: number;
   environment: string;
   bucketNames: string[];
   fileNames: string[];
 };
 
-export const columns: ColumnDef<FileConfig>[] = [
+export const columns: ColumnDef<FileConfigColumn>[] = [
   {
     id: "select",
     header: ({ table }) => (

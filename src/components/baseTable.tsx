@@ -19,6 +19,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { useState } from "react";
+import { twMerge } from "tailwind-merge";
 
 interface BaseTableProps<TData, TValue> {
   className?: string;
@@ -61,7 +62,7 @@ export function BaseTable<TData, TValue>({
   }
 
   return (
-    <div className={className}>
+    <div className={twMerge(className, "flex flex-col gap-3")}>
       {filterParams && (
         <Input
           placeholder={filterParams.placeholder}

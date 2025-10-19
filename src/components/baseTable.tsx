@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/table";
 import {
   ColumnDef,
-  ColumnFiltersState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
@@ -47,27 +46,19 @@ export function BaseTable<TData, TValue>({
   onDeleteRow,
   onSelectRow,
 }: BaseTableProps<TData, TValue>) {
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [hasSelectedRows, setHasSelectedRows] = useState(false);
 
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
-    state: {
-      columnFilters,
-    },
   });
 
   const selectedRows = table.getSelectedRowModel().rows;
   useEffect(() => {
     setHasSelectedRows(selectedRows.length > 0);
-    if (onSelectRow) {
-      onSelectRow(selectedRows);
-    }
-  }, [selectedRows, onSelectRow]);
+  }, [selectedRows]);
 
   if (isLoading) {
     return (

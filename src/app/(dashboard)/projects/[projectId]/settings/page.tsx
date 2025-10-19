@@ -1,8 +1,7 @@
 "use client";
 
-import { BaseTable } from "@/components/baseTable";
-import { columns as emailConfigColumns } from "@/components/emailConfigTable/columns";
-import { columns as fileConfigColumns } from "@/components/fileConfigTable/columns";
+import { EmailConfigTable } from "@/components/emailConfigTable/emailConfig-table";
+import { FileConfigTable } from "@/components/fileConfigTable/fileConfig-table";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -78,26 +77,6 @@ const ProjectSettingsPage = () => {
     }
   }, [projectId]);
 
-  const fileConfigRowData = [fileConfig]
-    .filter((config) => config)
-    .map((config) => ({
-      id: config.id.low,
-      environment: config.environment,
-      bucketNames: config.buckets?.map((bucket) => bucket.name) ?? [],
-      fileNames:
-        config.files?.map((file) => file?.fileId?.path ?? "Unknown file") ?? [],
-    }));
-
-  const emailConfigRowData = [emailConfig]
-    .filter((config) => config)
-    .map((config) => ({
-      id: config.id.low,
-      environment: config.environment,
-      sendgridKey: config.sendgridKey,
-      domainNames: config.domains?.map((domain) => domain.domain) ?? [],
-      senderUsernames: config.senders?.map((sender) => sender.username) ?? [],
-    }));
-
   return (
     <div className="container mx-auto px-10 py-10 md:w-[85vw] sm:w-full">
       <Breadcrumb className="mb-4">
@@ -118,32 +97,9 @@ const ProjectSettingsPage = () => {
         </BreadcrumbList>
       </Breadcrumb>
 
-      <div className="flex flex-col gap-4">
-        <h1>File Configurations</h1>
-        <BaseTable
-          className="mb-4"
-          data={fileConfigRowData}
-          columns={fileConfigColumns}
-          isLoading={loading}
-          filterParams={{
-            placeholder: "Filter by environment...",
-            filterColumn: "environment",
-          }}
-          onAddNewRow={() => console.log("Click")}
-          onDeleteRow={() => console.log("Click")}
-        />
-        <h1>Email Configurations</h1>
-        <BaseTable
-          data={emailConfigRowData}
-          columns={emailConfigColumns}
-          isLoading={loading}
-          filterParams={{
-            placeholder: "Filter by environment...",
-            filterColumn: "environment",
-          }}
-          onAddNewRow={() => console.log("Click")}
-          onDeleteRow={() => console.log("Click")}
-        />
+      <div className="flex flex-col gap-8">
+        <FileConfigTable fileConfig={fileConfig} isLoading={loading} />
+        <EmailConfigTable emailConfig={emailConfig} isLoading={loading} />
       </div>
     </div>
   );

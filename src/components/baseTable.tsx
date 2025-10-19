@@ -16,6 +16,7 @@ import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
+  Row,
   useReactTable,
 } from "@tanstack/react-table";
 import { useEffect, useState } from "react";
@@ -33,6 +34,7 @@ interface BaseTableProps<TData, TValue> {
   };
   onAddNewRow?: () => void;
   onDeleteRow?: () => void;
+  onSelectRow?: (rows: Row<TData>[]) => void;
 }
 
 export function BaseTable<TData, TValue>({
@@ -43,6 +45,7 @@ export function BaseTable<TData, TValue>({
   filterParams,
   onAddNewRow,
   onDeleteRow,
+  onSelectRow,
 }: BaseTableProps<TData, TValue>) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [hasSelectedRows, setHasSelectedRows] = useState(false);
@@ -61,7 +64,10 @@ export function BaseTable<TData, TValue>({
   const selectedRows = table.getSelectedRowModel().rows;
   useEffect(() => {
     setHasSelectedRows(selectedRows.length > 0);
-  }, [selectedRows]);
+    if (onSelectRow) {
+      onSelectRow(selectedRows);
+    }
+  }, [selectedRows, onSelectRow]);
 
   if (isLoading) {
     return (

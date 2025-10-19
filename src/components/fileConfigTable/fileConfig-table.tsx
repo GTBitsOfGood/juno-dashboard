@@ -1,9 +1,17 @@
 "use client";
 
 import { columns as fileConfigColumns } from "@/components/fileConfigTable/columns";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { FileConfigResponse } from "juno-sdk/build/main/internal/api";
 import { useState } from "react";
+import { toast } from "sonner";
 import { BaseTable } from "../baseTable";
+import { DialogHeader } from "../ui/dialog";
 
 interface FileConfigTableProps {
   fileConfig: FileConfigResponse;
@@ -30,6 +38,18 @@ export function FileConfigTable({
     }));
   return (
     <div className="flex flex-col gap-4">
+      <Dialog
+        open={isAddConfigDialogOpen}
+        onOpenChange={setIsAddConfigDialogOpen}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add File Configuration</DialogTitle>
+            <DialogDescription>Create a new file config.</DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
+
       <h1>File Configurations</h1>
       <BaseTable
         data={fileConfigRowData}
@@ -39,7 +59,15 @@ export function FileConfigTable({
           placeholder: "Filter by environment...",
           filterColumn: "environment",
         }}
-        onAddNewRow={() => setIsAddConfigDialogOpen(true)}
+        onAddNewRow={() => {
+          if (fileConfigRowData.length == 0) {
+            setIsAddConfigDialogOpen(true);
+          } else {
+            toast.error("Error", {
+              description: "Project can have at most 1 file configuration",
+            });
+          }
+        }}
         onDeleteRow={(rows) => {
           setSelectedRows(rows);
           setIsDeleteDialogOpen(true);

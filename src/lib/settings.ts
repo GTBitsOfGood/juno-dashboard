@@ -49,14 +49,6 @@ export async function getEmailAnalytics(
 ) {
   const junoClient = getJunoInstance();
   try {
-    const session = await getSession();
-    if (!session) {
-      return {
-        success: false,
-        error: "No active session found",
-      };
-    }
-
     const apiKey = process.env.JUNO_API_KEY;
     if (!apiKey) {
       console.error("Error fetching email analytics: missing JUNO_API_KEY");

@@ -86,7 +86,6 @@ const EmailAnalyticsChart = ({
   data = [],
   loading = false,
 }: EmailAnalyticsChartProps) => {
-  console.log("DATA:", data);
   if (loading) {
     return (
       <Card className="relative w-full">

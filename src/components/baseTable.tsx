@@ -16,9 +16,10 @@ import {
   getCoreRowModel,
   getFilteredRowModel,
   Row,
+  RowSelectionState,
   useReactTable,
 } from "@tanstack/react-table";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { Button } from "./ui/button";
 
@@ -44,19 +45,20 @@ export function BaseTable<TData, TValue>({
   onAddNewRow,
   onDeleteRow,
 }: BaseTableProps<TData, TValue>) {
-  const [hasSelectedRows, setHasSelectedRows] = useState(false);
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    onRowSelectionChange: setRowSelection,
+    state: {
+      rowSelection,
+    },
   });
 
   const selectedRows = table.getSelectedRowModel().rows;
-  useEffect(() => {
-    setHasSelectedRows(selectedRows.length > 0);
-  }, [selectedRows]);
 
   if (isLoading) {
     return (
@@ -85,7 +87,7 @@ export function BaseTable<TData, TValue>({
             }}
           />
         )}
-        {hasSelectedRows && onDeleteRow && (
+        {selectedRows.length > 0 && onDeleteRow && (
           <Button
             variant="destructive"
             onClick={() => {

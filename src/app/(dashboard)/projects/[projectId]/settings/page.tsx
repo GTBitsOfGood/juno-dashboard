@@ -78,6 +78,26 @@ const ProjectSettingsPage = () => {
     }
   }, [projectId]);
 
+  const fileConfigRowData = [fileConfig]
+    .filter((config) => config)
+    .map((config) => ({
+      id: config.id.low,
+      environment: config.environment,
+      bucketNames: config.buckets?.map((bucket) => bucket.name) ?? [],
+      fileNames:
+        config.files?.map((file) => file?.fileId?.path ?? "Unknown file") ?? [],
+    }));
+
+  const emailConfigRowData = [emailConfig]
+    .filter((config) => config)
+    .map((config) => ({
+      id: config.id.low,
+      environment: config.environment,
+      sendgridKey: config.sendgridKey,
+      domainNames: config.domains?.map((domain) => domain.domain),
+      senderUsernames: config.senders?.map((sender) => sender.username),
+    }));
+
   return (
     <div className="container mx-auto px-10 py-10">
       <Breadcrumb className="mb-4">
@@ -101,38 +121,13 @@ const ProjectSettingsPage = () => {
       <div className="flex flex-col gap-4">
         <h1>File Configurations</h1>
         <BaseTable
-          data={
-            fileConfig
-              ? [fileConfig].map((config) => ({
-                  id: config.id.low,
-                  environment: config.environment,
-                  bucketNames:
-                    config.buckets?.map((bucket) => bucket.name) ?? [],
-                  fileNames:
-                    config.files?.map(
-                      (file) => file?.fileId?.path ?? "Unknown file"
-                    ) ?? [],
-                }))
-              : []
-          }
+          data={fileConfigRowData}
           columns={fileConfigColumns}
           isLoading={loading}
         />
         <h1>Email Configurations</h1>
         <BaseTable
-          data={
-            emailConfig
-              ? [emailConfig].map((config) => ({
-                  id: config.id.low,
-                  environment: config.environment,
-                  sendgridKey: config.sendgridKey,
-                  domainNames: config.domains?.map((domain) => domain.domain),
-                  senderUsernames: config.senders?.map(
-                    (sender) => sender.username
-                  ),
-                }))
-              : []
-          }
+          data={emailConfigRowData}
           columns={emailConfigColumns}
           isLoading={loading}
         />

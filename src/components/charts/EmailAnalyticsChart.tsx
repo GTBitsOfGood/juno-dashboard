@@ -20,26 +20,116 @@ const chartConfig = {
     label: "Clicks",
     color: "hsl(var(--chart-1))",
   },
+  opens: {
+    label: "Opens",
+    color: "hsl(var(--chart-2))",
+  },
   delivered: {
     label: "Delivered",
-    color: "hsl(var(--chart-2))",
+    color: "hsl(var(--chart-3))",
+  },
+  bounces: {
+    label: "Bounces",
+    color: "hsl(var(--chart-4))",
+  },
+  processed: {
+    label: "Processed",
+    color: "hsl(var(--chart-5))",
+  },
+  deferred: {
+    label: "Deferred",
+    color: "hsl(var(--chart-6))",
+  },
+  spam_reports: {
+    label: "spam_reports",
+    color: "hsl(var(--chart-7))",
+  },
+  unsubscribes: {
+    label: "unsubscribes",
+    color: "hsl(var(--chart-8))",
   },
 } satisfies ChartConfig;
 
-const EmailAnalyticsChart = () => {
+interface EmailAnalyticsData {
+  blocks: number;
+  bounce_drops: number;
+  bounces: number;
+  clicks: number;
+  date: string;
+  deferred: number;
+  delivered: number;
+  invalid_emails: number;
+  opens: number;
+  processed: number;
+  requests: number;
+  spam_report_drops: number;
+  spam_reports: number;
+  unique_clicks: number;
+  unique_opens: number;
+  unsubscribe_drops: number;
+  unsubscribes: number;
+}
+
+interface EmailAnalyticsChartProps {
+  projectId: string;
+  title: string;
+  description: string;
+  metrics: string[];
+  data?: EmailAnalyticsData[];
+  loading?: boolean;
+}
+
+const EmailAnalyticsChart = ({
+  title,
+  description,
+  metrics,
+  data = [],
+  loading = false,
+}: EmailAnalyticsChartProps) => {
+  console.log("DATA:", data);
+  if (loading) {
+    return (
+      <Card className="relative w-full">
+        <CardHeader>
+          <CardTitle>{title}</CardTitle>
+          <CardDescription>{description}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="h-64 flex items-center justify-center">
+            <div className="text-muted-foreground">Loading analytics...</div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!data || data.length === 0) {
+    return (
+      <Card className="relative w-full">
+        <CardHeader>
+          <CardTitle>{title}</CardTitle>
+          <CardDescription>{description}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="h-64 flex items-center justify-center">
+            <div className="text-muted-foreground">No data available</div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card className="relative">
       <CardHeader>
-        <CardTitle>Area Chart - Stacked</CardTitle>
-        <CardDescription>
-          Showing total visitors for the last 6 months
-        </CardDescription>
+        <CardTitle>{title}</CardTitle>
+        <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig}>
+        <ChartContainer config={chartConfig} className="h-[26rem] w-full">
           <AreaChart
             accessibilityLayer
-            data={emailData.responses}
+            data={data}
             margin={{
               left: 12,
               right: 12,
@@ -51,228 +141,34 @@ const EmailAnalyticsChart = () => {
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              tickFormatter={(value) => value}
+              tickFormatter={(value) => {
+                const date = new Date(value);
+                return date.toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                });
+              }}
             />
             <ChartTooltip
               cursor={false}
               content={<ChartTooltipContent indicator="dot" />}
             />
-            <Area
-              dataKey="clicks"
-              type="natural"
-              fill="var(--color-clicks)"
-              fillOpacity={0.4}
-              stroke="var(--color-clicks)"
-              stackId="a"
-            />
-            <Area
-              dataKey="delivered"
-              type="natural"
-              fill="var(--color-delivered)"
-              fillOpacity={0.4}
-              stroke="var(--color-delivered)"
-              stackId="a"
-            />
+            {metrics.map((metric) => (
+              <Area
+                key={metric}
+                dataKey={metric}
+                type="monotone"
+                fill={`var(--color-${metric})`}
+                fillOpacity={0.4}
+                stroke={`var(--color-${metric})`}
+                stackId="a"
+              />
+            ))}
           </AreaChart>
         </ChartContainer>
       </CardContent>
     </Card>
   );
-};
-
-const emailData = {
-  responses: [
-    {
-      date: "2025-01-01",
-      clicks: 0,
-      unique_clicks: 0,
-      opens: 1,
-      unique_opens: 1,
-      blocks: 0,
-      bounce_drops: 0,
-      bounces: 0,
-      deferred: 0,
-      delivered: 1,
-      invalid_emails: 0,
-      processed: 1,
-      requests: 1,
-      spam_report_drops: 0,
-      spam_reports: 0,
-      unsubscribe_drops: 0,
-      unsubscribes: 0,
-    },
-    {
-      date: "2025-01-02",
-      clicks: 7,
-      unique_clicks: 4,
-      opens: 10,
-      unique_opens: 6,
-      blocks: 0,
-      bounce_drops: 0,
-      bounces: 0,
-      deferred: 0,
-      delivered: 6,
-      invalid_emails: 0,
-      processed: 6,
-      requests: 6,
-      spam_report_drops: 0,
-      spam_reports: 0,
-      unsubscribe_drops: 0,
-      unsubscribes: 0,
-    },
-    {
-      date: "2025-01-03",
-      clicks: 7,
-      unique_clicks: 6,
-      opens: 7,
-      unique_opens: 4,
-      blocks: 0,
-      bounce_drops: 0,
-      bounces: 0,
-      deferred: 0,
-      delivered: 8,
-      invalid_emails: 0,
-      processed: 8,
-      requests: 8,
-      spam_report_drops: 0,
-      spam_reports: 0,
-      unsubscribe_drops: 0,
-      unsubscribes: 0,
-    },
-    {
-      date: "2025-01-04",
-      clicks: 3,
-      unique_clicks: 2,
-      opens: 2,
-      unique_opens: 2,
-      blocks: 0,
-      bounce_drops: 0,
-      bounces: 0,
-      deferred: 0,
-      delivered: 7,
-      invalid_emails: 0,
-      processed: 7,
-      requests: 7,
-      spam_report_drops: 0,
-      spam_reports: 0,
-      unsubscribe_drops: 0,
-      unsubscribes: 0,
-    },
-    {
-      date: "2025-01-05",
-      clicks: 13,
-      unique_clicks: 13,
-      opens: 16,
-      unique_opens: 11,
-      blocks: 0,
-      bounce_drops: 0,
-      bounces: 0,
-      deferred: 0,
-      delivered: 33,
-      invalid_emails: 0,
-      processed: 33,
-      requests: 33,
-      spam_report_drops: 0,
-      spam_reports: 0,
-      unsubscribe_drops: 0,
-      unsubscribes: 0,
-    },
-    {
-      date: "2025-01-06",
-      clicks: 12,
-      unique_clicks: 12,
-      opens: 28,
-      unique_opens: 13,
-      blocks: 0,
-      bounce_drops: 0,
-      bounces: 0,
-      deferred: 0,
-      delivered: 26,
-      invalid_emails: 0,
-      processed: 26,
-      requests: 26,
-      spam_report_drops: 0,
-      spam_reports: 0,
-      unsubscribe_drops: 0,
-      unsubscribes: 0,
-    },
-    {
-      date: "2025-01-07",
-      clicks: 12,
-      unique_clicks: 12,
-      opens: 17,
-      unique_opens: 6,
-      blocks: 0,
-      bounce_drops: 0,
-      bounces: 0,
-      deferred: 0,
-      delivered: 16,
-      invalid_emails: 0,
-      processed: 16,
-      requests: 16,
-      spam_report_drops: 0,
-      spam_reports: 0,
-      unsubscribe_drops: 0,
-      unsubscribes: 0,
-    },
-    {
-      date: "2025-01-08",
-      clicks: 1,
-      unique_clicks: 1,
-      opens: 3,
-      unique_opens: 2,
-      blocks: 0,
-      bounce_drops: 0,
-      bounces: 0,
-      deferred: 0,
-      delivered: 5,
-      invalid_emails: 0,
-      processed: 5,
-      requests: 5,
-      spam_report_drops: 0,
-      spam_reports: 0,
-      unsubscribe_drops: 0,
-      unsubscribes: 0,
-    },
-    {
-      date: "2025-01-09",
-      clicks: 5,
-      unique_clicks: 3,
-      opens: 4,
-      unique_opens: 0,
-      blocks: 0,
-      bounce_drops: 0,
-      bounces: 0,
-      deferred: 0,
-      delivered: 3,
-      invalid_emails: 0,
-      processed: 3,
-      requests: 3,
-      spam_report_drops: 0,
-      spam_reports: 0,
-      unsubscribe_drops: 0,
-      unsubscribes: 0,
-    },
-    {
-      date: "2025-01-10",
-      clicks: 4,
-      unique_clicks: 4,
-      opens: 11,
-      unique_opens: 6,
-      blocks: 0,
-      bounce_drops: 0,
-      bounces: 0,
-      deferred: 0,
-      delivered: 5,
-      invalid_emails: 0,
-      processed: 5,
-      requests: 5,
-      spam_report_drops: 0,
-      spam_reports: 0,
-      unsubscribe_drops: 0,
-      unsubscribes: 0,
-    },
-  ],
 };
 
 export default EmailAnalyticsChart;

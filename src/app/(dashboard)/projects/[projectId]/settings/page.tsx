@@ -121,15 +121,24 @@ const ProjectSettingsPage = () => {
       <div className="flex flex-col gap-4">
         <h1>File Configurations</h1>
         <BaseTable
+          className="mb-4"
           data={fileConfigRowData}
           columns={fileConfigColumns}
           isLoading={loading}
+          filterParams={{
+            placeholder: "Filter by environment...",
+            filterColumn: "environment",
+          }}
         />
         <h1>Email Configurations</h1>
         <BaseTable
           data={emailConfigRowData}
           columns={emailConfigColumns}
           isLoading={loading}
+          filterParams={{
+            placeholder: "Filter by environment...",
+            filterColumn: "environment",
+          }}
         />
       </div>
     </div>

@@ -11,71 +11,30 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { getProjectById } from "@/lib/project";
-import { getEmailConfig, getFileConfig } from "@/lib/settings";
-import {
-  EmailConfigResponse,
-  FileConfigResponse,
-  ProjectResponse,
-} from "juno-sdk/build/main/internal/api";
+import { useQuery } from "@tanstack/react-query";
+import { ProjectResponse } from "juno-sdk/build/main/internal/api";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 const ProjectSettingsPage = () => {
   const { projectId } = useParams<{ projectId: string }>();
-  const [loading, setLoading] = useState(true);
-  const [projectData, setProjectData] = useState<ProjectResponse>(undefined);
-  const [fileConfig, setFileConfig] = useState<FileConfigResponse>(undefined);
-  const [emailConfig, setEmailConfig] =
-    useState<EmailConfigResponse>(undefined);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [fileConfigResult, emailConfigResult, projectResult] =
-          await Promise.all([
-            getFileConfig(projectId),
-            getEmailConfig(projectId),
-            getProjectById(Number(projectId)),
-          ]);
-
-        if (fileConfigResult.success) {
-          setFileConfig(fileConfigResult.fileConfig);
-        } else {
-          toast.error("Error", {
-            description: `Failed to fetch file configs: ${fileConfigResult.error}`,
-          });
-        }
-
-        if (emailConfigResult.success) {
-          setEmailConfig(emailConfigResult.emailConfig);
-        } else {
-          toast.error("Error", {
-            description: `Failed to fetch email config: ${emailConfigResult.error}`,
-          });
-        }
-
-        if (projectResult.success) {
-          setProjectData(projectResult.project);
-        } else {
-          toast.error("Error", {
-            description: `Failed to fetch project: ${projectResult.error}`,
-          });
-        }
-      } catch (error) {
-        toast.error("Error", {
-          description: `Error fetching data: ${error}`,
-        });
-        console.error("Error fetching data:", error);
-      } finally {
-        setLoading(false);
+  const { isLoading, isError, data, error } = useQuery<ProjectResponse>({
+    queryKey: ["project", projectId],
+    queryFn: async () => {
+      const result = await getProjectById(Number(projectId));
+      if (!result.success) {
+        throw new Error(result.error);
       }
-    };
+      return result.project;
+    },
+  });
 
-    if (projectId && !isNaN(Number(projectId))) {
-      fetchData();
-    }
-  }, [projectId]);
+  if (isError) {
+    toast.error("Error", {
+      description: `Failed to fetch project: ${JSON.stringify(error)}`,
+    });
+  }
 
   return (
     <div className="container mx-auto px-10 py-10 md:w-[85vw] sm:w-full">
@@ -87,7 +46,7 @@ const ProjectSettingsPage = () => {
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbLink href={`/projects/${projectId}`}>
-              {projectData?.name ?? "**Loading**"}
+              {isLoading ? "****" : data.name}
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
@@ -98,17 +57,8 @@ const ProjectSettingsPage = () => {
       </Breadcrumb>
 
       <div className="flex flex-col gap-8">
-        <FileConfigTable
-          projectId={projectId}
-          fileConfig={fileConfig}
-          isLoading={loading}
-          onConfigMutate={() => console.log("Refresh table now")}
-        />
-        <EmailConfigTable
-          projectId={projectId}
-          emailConfig={emailConfig}
-          isLoading={loading}
-        />
+        <FileConfigTable projectId={projectId} />
+        <EmailConfigTable projectId={projectId} />
       </div>
     </div>
   );

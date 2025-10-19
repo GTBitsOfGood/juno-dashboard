@@ -5,6 +5,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { FileConfigResponse } from "juno-sdk/build/main/internal/api";
@@ -12,18 +13,21 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { BaseTable } from "../baseTable";
 import AddFileConfigForm from "../forms/AddFileConfigForm";
+import { Button } from "../ui/button";
 import { DialogHeader } from "../ui/dialog";
 
 interface FileConfigTableProps {
   projectId: string;
   fileConfig: FileConfigResponse;
   isLoading: boolean;
+  onConfigMutate: () => void;
 }
 
 export function FileConfigTable({
   projectId,
   fileConfig,
   isLoading,
+  onConfigMutate,
 }: FileConfigTableProps) {
   const [isAddConfigDialogOpen, setIsAddConfigDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -39,6 +43,44 @@ export function FileConfigTable({
       fileNames:
         config.files?.map((file) => file?.fileId?.path ?? "Unknown file") ?? [],
     }));
+
+  const handleDeleteSelected = async () => {
+    setIsDeleting(true);
+    try {
+      const deletePromises = selectedRows.map(async (row) => {
+        // TODO: use SDK method to delete file config
+        // Remove this console.log when adding SDK method
+        console.log("Use SDK method to delete file config", row);
+
+        const result = { success: true, error: undefined };
+        return result;
+      });
+
+      const results = await Promise.all(deletePromises);
+      const successfulDeletes = results.filter((r) => r.success).length;
+      const failedDeletes = results.filter((r) => !r.success).length;
+
+      if (successfulDeletes > 0) {
+        onConfigMutate();
+        toast.success("Success", {
+          description: `Successfully deleted ${successfulDeletes} config${successfulDeletes > 1 ? "s" : ""}.`,
+        });
+      }
+
+      if (failedDeletes > 0) {
+        toast.error("Error", {
+          description: `Failed to delete ${failedDeletes} config${failedDeletes > 1 ? "s" : ""}.`,
+        });
+      }
+    } catch (error) {
+      console.error("Error deleting configs:", error);
+      toast.error("An error occurred while deleting configs.");
+    } finally {
+      setIsDeleting(false);
+      setIsDeleteDialogOpen(false);
+    }
+  };
+
   return (
     <div className="flex flex-col gap-4">
       <Dialog
@@ -52,9 +94,38 @@ export function FileConfigTable({
           </DialogHeader>
           <AddFileConfigForm
             projectId={Number(projectId)}
-            onConfigAdd={() => console.log("Created")}
+            onConfigAdd={onConfigMutate}
             onClose={() => setIsAddConfigDialogOpen(false)}
           />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Selected File Config</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete {selectedRows.length} selected
+              config{selectedRows.length > 1 ? "s" : ""}? This action cannot be
+              undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsDeleteDialogOpen(false)}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteSelected}
+              disabled={isDeleting}
+            >
+              {isDeleting ? "Deleting..." : "Delete"}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
@@ -72,7 +143,8 @@ export function FileConfigTable({
             setIsAddConfigDialogOpen(true);
           } else {
             toast.error("Error", {
-              description: "Project can have at most 1 file configuration",
+              description:
+                "Project can have at most 1 file configuration per environment",
             });
           }
         }}

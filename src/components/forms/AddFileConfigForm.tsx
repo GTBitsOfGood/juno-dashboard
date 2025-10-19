@@ -48,8 +48,11 @@ const AddFileConfigForm = ({
     setLoading(true);
     try {
       // TODO: use file service setup SDK method here
-      const result = true;
-      if (result) {
+      // Remove this console.log when adding SDK method
+      console.log("Use SDK method to add file config", data);
+
+      const result = { success: true };
+      if (result.success) {
         if (onConfigAdd) {
           onConfigAdd();
         }

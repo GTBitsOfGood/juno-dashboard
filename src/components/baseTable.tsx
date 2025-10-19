@@ -88,7 +88,10 @@ export function BaseTable<TData, TValue>({
         {hasSelectedRows && onDeleteRow && (
           <Button
             variant="destructive"
-            onClick={() => onDeleteRow(selectedRows)}
+            onClick={() => {
+              onDeleteRow(selectedRows);
+              table.resetRowSelection();
+            }}
           >
             Delete {selectedRows.length} selected config
             {selectedRows.length > 1 ? "s" : ""}

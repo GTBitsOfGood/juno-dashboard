@@ -102,6 +102,7 @@ const ProjectSettingsPage = () => {
           projectId={projectId}
           fileConfig={fileConfig}
           isLoading={loading}
+          onConfigMutate={() => console.log("Refresh table now")}
         />
         <EmailConfigTable
           projectId={projectId}

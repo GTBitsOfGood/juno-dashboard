@@ -73,7 +73,6 @@ export function EmailConfigTable({ projectId }: EmailConfigTableProps) {
   });
 
   const addEmailConfig = useMutation({
-    // TODO: use email service setup SDK method here
     mutationFn: async (sendgridKey: string) => {
       const result = await setupJunoEmail(sendgridKey);
       if (!result.success) {

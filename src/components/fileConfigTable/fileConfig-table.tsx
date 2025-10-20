@@ -66,7 +66,6 @@ export function FileConfigTable({ projectId }: FileConfigTableProps) {
       toast.success("Success", {
         description: `Successfully deleted file configs.`,
       });
-      // queryClient.invalidateQueries({ queryKey: ["fileConfig", projectId] });
       queryClient.setQueryData(["fileConfig", projectId], null);
     },
     onSettled: () => setIsDeleteDialogOpen(false),

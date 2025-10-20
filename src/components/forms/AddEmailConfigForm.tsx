@@ -1,8 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CircleX, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Alert } from "../ui/alert";
 import { Button } from "../ui/button";
 import {
   Form,
@@ -22,38 +21,30 @@ const addEmailConfigSchema = z.object({
 
 type AddEmailConfigFormProps = {
   projectId: number;
-  error?: string;
+  sendGridKey?: string;
   isPending: boolean;
   onAddConfig: (sendgridKey: string) => void;
+  isEditMode?: boolean;
 };
 
 const AddEmailConfigForm = ({
   projectId,
-  error,
+  sendGridKey,
   isPending,
   onAddConfig,
+  isEditMode,
 }: AddEmailConfigFormProps) => {
   /** Form to create a email config */
   const addEmailConfigForm = useForm({
     resolver: zodResolver(addEmailConfigSchema),
     defaultValues: {
       id: projectId,
-      sendgridKey: "SG",
+      sendgridKey: sendGridKey ? sendGridKey : "SG",
     },
   });
 
   return (
     <Form {...addEmailConfigForm}>
-      {error ? (
-        <Alert>
-          <div className="flex space-x-2 text-red-300 items-center align-middle">
-            <CircleX className="h-4 w-4" />
-            <div>Error: {error}</div>
-          </div>
-        </Alert>
-      ) : (
-        <></>
-      )}
       <form
         onSubmit={addEmailConfigForm.handleSubmit((data) =>
           onAddConfig(data.sendgridKey)
@@ -90,7 +81,7 @@ const AddEmailConfigForm = ({
         />
         <Button type="submit">
           {isPending ? <Loader2 className="animate-spin" /> : <></>}
-          Create Config
+          {isEditMode ? "Edit Config" : "Create Config"}
         </Button>
       </form>
     </Form>

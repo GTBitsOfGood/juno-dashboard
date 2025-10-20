@@ -1,6 +1,6 @@
 "use client";
 
-import { columns as emailConfigColumns } from "@/components/emailConfigTable/columns";
+import { emailConfigColumns } from "@/components/emailConfigTable/columns";
 import {
   Dialog,
   DialogContent,
@@ -82,7 +82,7 @@ export function EmailConfigTable({ projectId }: EmailConfigTableProps) {
     },
     onSuccess: () => {
       toast.success("Success", {
-        description: `Successfully added email configs.`,
+        description: `Successfully updated email configs.`,
       });
       queryClient.invalidateQueries({ queryKey: ["emailConfig", projectId] });
     },
@@ -107,7 +107,6 @@ export function EmailConfigTable({ projectId }: EmailConfigTableProps) {
           </DialogHeader>
           <AddEmailConfigForm
             projectId={Number(projectId)}
-            error={addEmailConfig.error?.message}
             isPending={addEmailConfig.isPending}
             onAddConfig={(sendgridKey) => addEmailConfig.mutate(sendgridKey)}
           />
@@ -145,7 +144,11 @@ export function EmailConfigTable({ projectId }: EmailConfigTableProps) {
       <h1>Email Configurations</h1>
       <BaseTable
         data={emailConfigRowData}
-        columns={emailConfigColumns}
+        columns={emailConfigColumns(
+          Number(projectId),
+          addEmailConfig.isPending,
+          (sendgridKey) => addEmailConfig.mutate(sendgridKey)
+        )}
         isLoading={isLoading}
         filterParams={{
           placeholder: "Filter by environment...",

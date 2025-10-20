@@ -154,7 +154,7 @@ export function EmailConfigTable({ projectId }: EmailConfigTableProps) {
           filterColumn: "environment",
         }}
         onAddNewRow={() => {
-          if (emailConfigRowData.length == 0) {
+          if (emailConfigRowData.length === 0) {
             setIsAddConfigDialogOpen(true);
           } else {
             toast.error("Error", {

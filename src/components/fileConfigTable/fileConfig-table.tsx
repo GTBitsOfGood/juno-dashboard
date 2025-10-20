@@ -9,7 +9,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { getFileConfig } from "@/lib/settings";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 import { BaseTable } from "../baseTable";
@@ -24,8 +24,9 @@ interface FileConfigTableProps {
 export function FileConfigTable({ projectId }: FileConfigTableProps) {
   const [isAddConfigDialogOpen, setIsAddConfigDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
   const [selectedRows, setSelectedRows] = useState([]);
+
+  const queryClient = useQueryClient();
 
   const { isLoading, isError, data, error } = useQuery({
     queryKey: ["fileConfig", projectId],
@@ -48,41 +49,43 @@ export function FileConfigTable({ projectId }: FileConfigTableProps) {
     });
   }
 
-  const handleDeleteSelected = async () => {
-    setIsDeleting(true);
-    try {
+  const deleteFileConfig = useMutation({
+    // TODO: use SDK method to delete file config
+    mutationFn: () => {
       const deletePromises = selectedRows.map(async (row) => {
-        // TODO: use SDK method to delete file config
-        // Remove this console.log when adding SDK method
+        // TODO: Remove this console.log when adding SDK method
         console.log("Use SDK method to delete file config", row);
 
         const result = { success: true, error: undefined };
         return result;
       });
 
-      const results = await Promise.all(deletePromises);
-      const successfulDeletes = results.filter((r) => r.success).length;
-      const failedDeletes = results.filter((r) => !r.success).length;
+      return Promise.all(deletePromises);
+    },
+    onSuccess: () => {
+      toast.success("Success", {
+        description: `Successfully deleted file configs.`,
+      });
+      // queryClient.invalidateQueries({ queryKey: ["fileConfig", projectId] });
+      queryClient.setQueryData(["fileConfig", projectId], null);
+    },
+    onSettled: () => setIsDeleteDialogOpen(false),
+    onError: () => toast.error("An error occurred while deleting configs."),
+  });
 
-      if (successfulDeletes > 0) {
-        toast.success("Success", {
-          description: `Successfully deleted ${successfulDeletes} config${successfulDeletes > 1 ? "s" : ""}.`,
-        });
-      }
-
-      if (failedDeletes > 0) {
-        toast.error("Error", {
-          description: `Failed to delete ${failedDeletes} config${failedDeletes > 1 ? "s" : ""}.`,
-        });
-      }
-    } catch (error) {
-      console.error("Error deleting configs:", error);
-      toast.error("An error occurred while deleting configs.");
-    } finally {
-      setIsDeleting(false);
-      setIsDeleteDialogOpen(false);
-    }
-  };
+  const addFileConfig = useMutation({
+    // TODO: use file service setup SDK method here
+    mutationFn: async () => {},
+    onSuccess: () => {
+      toast.success("Success", {
+        description: `Successfully added file configs.`,
+      });
+      queryClient.invalidateQueries({ queryKey: ["fileConfig", projectId] });
+    },
+    onSettled: () => {
+      setIsAddConfigDialogOpen(false);
+    },
+  });
 
   return (
     <div className="flex flex-col gap-4">
@@ -97,7 +100,9 @@ export function FileConfigTable({ projectId }: FileConfigTableProps) {
           </DialogHeader>
           <AddFileConfigForm
             projectId={Number(projectId)}
-            onClose={() => setIsAddConfigDialogOpen(false)}
+            error={addFileConfig.error?.message}
+            isPending={addFileConfig.isPending}
+            onAddConfig={() => addFileConfig.mutate()}
           />
         </DialogContent>
       </Dialog>
@@ -116,16 +121,16 @@ export function FileConfigTable({ projectId }: FileConfigTableProps) {
             <Button
               variant="outline"
               onClick={() => setIsDeleteDialogOpen(false)}
-              disabled={isDeleting}
+              disabled={deleteFileConfig.isPending}
             >
               Cancel
             </Button>
             <Button
               variant="destructive"
-              onClick={handleDeleteSelected}
-              disabled={isDeleting}
+              onClick={() => deleteFileConfig.mutate()}
+              disabled={deleteFileConfig.isPending}
             >
-              {isDeleting ? "Deleting..." : "Delete"}
+              {deleteFileConfig.isPending ? "Deleting..." : "Delete"}
             </Button>
           </DialogFooter>
         </DialogContent>

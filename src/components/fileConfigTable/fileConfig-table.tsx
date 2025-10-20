@@ -145,7 +145,7 @@ export function FileConfigTable({ projectId }: FileConfigTableProps) {
           filterColumn: "environment",
         }}
         onAddNewRow={() => {
-          if (fileConfigRowData.length == 0) {
+          if (fileConfigRowData.length === 0) {
             setIsAddConfigDialogOpen(true);
           } else {
             toast.error("Error", {

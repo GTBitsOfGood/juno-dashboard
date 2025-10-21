@@ -43,8 +43,9 @@ const ProjectPage = () => {
       setEmailAnalytics(null);
       try {
         const res = await getEmailConfig(String(projectId));
-        if (res.success && res.emailConfig) {
-          setHasEmailConfig(res.emailConfig);
+
+        if (res) {
+          setHasEmailConfig(true);
           const analyticsRes = await getEmailAnalytics(String(projectId));
           if (analyticsRes.success) {
             setEmailAnalytics(analyticsRes.analytics);

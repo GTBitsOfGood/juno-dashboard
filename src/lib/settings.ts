@@ -5,7 +5,6 @@ import {
   FileConfigResponse,
 } from "juno-sdk/build/main/internal/api";
 import { getJunoInstance } from "./juno";
-import { getSession } from "./session";
 
 export async function getFileConfig(
   projectId: string,
@@ -31,7 +30,7 @@ export async function getEmailAnalytics(
     limit?: number;
     offset?: number;
     aggregatedBy?: "day" | "week" | "month";
-  }
+  },
 ) {
   const junoClient = getJunoInstance();
   try {
@@ -64,14 +63,14 @@ export async function getEmailAnalytics(
           limit: String(options?.limit || 100),
           offset: String(options?.offset || 0),
           aggregatedBy: options?.aggregatedBy || "day",
-        }
+        },
       )}`,
       {
         headers: {
           Authorization: `Bearer ${apiKey}`,
           "Content-Type": "application/json",
         },
-      }
+      },
     );
 
     if (!response.ok) {

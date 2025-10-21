@@ -146,7 +146,7 @@ export function EmailConfigTable({ projectId }: EmailConfigTableProps) {
         columns={emailConfigColumns(
           Number(projectId),
           addEmailConfig.isPending,
-          (sendgridKey) => addEmailConfig.mutate(sendgridKey)
+          (sendgridKey) => addEmailConfig.mutate(sendgridKey),
         )}
         isLoading={isLoading}
         filterParams={{

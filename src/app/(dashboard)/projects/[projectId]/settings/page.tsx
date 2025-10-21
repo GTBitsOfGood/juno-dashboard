@@ -46,7 +46,7 @@ const ProjectSettingsPage = () => {
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbLink href={`/projects/${projectId}`}>
-              {isLoading ? "****" : data?.name ?? "Unknown"}
+              {isLoading ? "****" : (data?.name ?? "Unknown")}
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />

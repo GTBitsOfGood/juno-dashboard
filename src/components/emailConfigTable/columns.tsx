@@ -16,7 +16,7 @@ export type EmailConfig = {
 export const emailConfigColumns = (
   projectId: number,
   isPending: boolean,
-  onAddConfig: (sendgridKey: string) => void
+  onAddConfig: (sendgridKey: string) => void,
 ): ColumnDef<EmailConfig>[] => {
   return [
     {

@@ -7,7 +7,7 @@ import {
 import { getJunoInstance } from "./juno";
 
 export async function getFileConfig(
-  projectId: string
+  projectId: string,
 ): Promise<FileConfigResponse> {
   const junoClient = getJunoInstance();
   const fileConfig = await junoClient.settings.getFileConfig(projectId);
@@ -15,7 +15,7 @@ export async function getFileConfig(
 }
 
 export async function getEmailConfig(
-  projectId: string
+  projectId: string,
 ): Promise<EmailConfigResponse> {
   const junoClient = getJunoInstance();
   const emailConfig = await junoClient.settings.getEmailConfig(projectId);

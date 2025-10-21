@@ -47,7 +47,7 @@ const AddEmailConfigForm = ({
     <Form {...addEmailConfigForm}>
       <form
         onSubmit={addEmailConfigForm.handleSubmit((data) =>
-          onAddConfig(data.sendgridKey)
+          onAddConfig(data.sendgridKey),
         )}
         className="space-y-6 rounded-lg"
       >

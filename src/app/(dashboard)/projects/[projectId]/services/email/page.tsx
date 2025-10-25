@@ -26,11 +26,10 @@ const EmailAnalyticsPage = () => {
     const loadEmailData = async () => {
       try {
         const configRes = await getEmailConfig(String(projectId));
-        if (configRes.success && configRes.emailConfig) {
-          setHasEmailConfig(configRes.emailConfig);
+        if (configRes) {
+          setHasEmailConfig(configRes);
           setEmailConfigLoading(false);
 
-          // Fetch analytics if email config exists
           setAnalyticsLoading(true);
           const analyticsRes = await getEmailAnalytics(String(projectId));
           if (analyticsRes.success) {

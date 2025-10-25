@@ -1,13 +1,16 @@
 "use server";
 
 import {
+  AnalyticsConfigResponse,
+  CreateAnalyticsConfigModel,
   EmailConfigResponse,
   FileConfigResponse,
+  UpdateAnalyticsConfigModel,
 } from "juno-sdk/build/main/internal/api";
 import { getJunoInstance } from "./juno";
 
 export async function getFileConfig(
-  projectId: string,
+  projectId: string
 ): Promise<FileConfigResponse> {
   const junoClient = getJunoInstance();
   const fileConfig = await junoClient.settings.getFileConfig(projectId);
@@ -15,11 +18,48 @@ export async function getFileConfig(
 }
 
 export async function getEmailConfig(
-  projectId: string,
+  projectId: string
 ): Promise<EmailConfigResponse> {
   const junoClient = getJunoInstance();
   const emailConfig = await junoClient.settings.getEmailConfig(projectId);
   return JSON.parse(JSON.stringify(emailConfig));
+}
+
+export async function getAnalyticsConfig(
+  projectId: string
+): Promise<AnalyticsConfigResponse> {
+  const junoClient = getJunoInstance();
+  const analyticsConfig =
+    await junoClient.analyticsConfig.getAnalyticsConfig(projectId);
+  return JSON.parse(JSON.stringify(analyticsConfig));
+}
+
+export async function deleteAnalyticsConfig(
+  projectId: string
+): Promise<AnalyticsConfigResponse> {
+  const junoClient = getJunoInstance();
+  const analyticsConfig =
+    await junoClient.analyticsConfig.deleteAnalyticsConfig(projectId);
+  return JSON.parse(JSON.stringify(analyticsConfig));
+}
+
+export async function updateAnalyticsConfig(
+  projectId: string,
+  config: UpdateAnalyticsConfigModel
+): Promise<AnalyticsConfigResponse> {
+  const junoClient = getJunoInstance();
+  const analyticsConfig =
+    await junoClient.analyticsConfig.updateAnalyticsConfig(projectId, config);
+  return JSON.parse(JSON.stringify(analyticsConfig));
+}
+
+export async function createAnalyticsConfig(
+  config: CreateAnalyticsConfigModel
+): Promise<AnalyticsConfigResponse> {
+  const junoClient = getJunoInstance();
+  const analyticsConfig =
+    await junoClient.analyticsConfig.createAnalyticsConfig(config);
+  return JSON.parse(JSON.stringify(analyticsConfig));
 }
 
 export async function getEmailAnalytics(
@@ -30,7 +70,7 @@ export async function getEmailAnalytics(
     limit?: number;
     offset?: number;
     aggregatedBy?: "day" | "week" | "month";
-  },
+  }
 ) {
   const junoClient = getJunoInstance();
   try {
@@ -63,14 +103,14 @@ export async function getEmailAnalytics(
           limit: String(options?.limit || 100),
           offset: String(options?.offset || 0),
           aggregatedBy: options?.aggregatedBy || "day",
-        },
+        }
       )}`,
       {
         headers: {
           Authorization: `Bearer ${apiKey}`,
           "Content-Type": "application/json",
         },
-      },
+      }
     );
 
     if (!response.ok) {

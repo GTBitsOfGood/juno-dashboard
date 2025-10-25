@@ -16,6 +16,9 @@ export function middleware(req: NextRequest) {
 
   try {
     const token = req.cookies.get("jwt-token");
+    if (!token) {
+      throw new Error("No token found");
+    }
     const value: JWTPayload = decodeJwt(token.value);
     if (pathname.startsWith("/admin")) {
       if (token && value.user.type != 2) {

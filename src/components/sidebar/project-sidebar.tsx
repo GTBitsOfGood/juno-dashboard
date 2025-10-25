@@ -8,6 +8,7 @@ import {
   Mail,
   Files,
   LogOut,
+  RollerCoaster,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -98,6 +99,11 @@ export function ProjectSidebar({
       title: "Email",
       url: `/projects/${projectId}/services/email`,
       icon: Mail,
+    },
+    {
+      title: "Analytics",
+      url: `/projects/${projectId}/services/analytics`,
+      icon: RollerCoaster,
     },
     {
       title: "Files",

@@ -12,7 +12,7 @@ import {
 import { Input } from "../ui/input";
 import * as z from "zod";
 import { useForm } from "react-hook-form";
-import { createUserAction } from "@/lib/actions";
+import { createUserAction, linkUserToProjectId } from "@/lib/actions";
 import { UserColumn } from "../usertable/columns";
 import { CircleX, Loader2 } from "lucide-react";
 import { useState } from "react";
@@ -27,9 +27,14 @@ const createUserSchema = z.object({
 type CreateUserFormProps = {
   onUserAdd: (newUser: UserColumn) => void;
   onClose?: () => void;
+  projectIds?: number[];
 };
 
-const CreateUserForm = ({ onUserAdd, onClose }: CreateUserFormProps) => {
+const CreateUserForm = ({
+  onUserAdd,
+  onClose,
+  projectIds,
+}: CreateUserFormProps) => {
   /** Form to create a user */
   const createUserForm = useForm({
     resolver: zodResolver(createUserSchema),
@@ -44,7 +49,7 @@ const CreateUserForm = ({ onUserAdd, onClose }: CreateUserFormProps) => {
   const [error, setError] = useState("");
 
   const handleCreateUser = async (
-    data: Required<z.infer<typeof createUserSchema>>,
+    data: Required<z.infer<typeof createUserSchema>>
   ) => {
     setLoading(true);
     try {
@@ -57,6 +62,29 @@ const CreateUserForm = ({ onUserAdd, onClose }: CreateUserFormProps) => {
           role: result.user.type,
           projects: result.user.projectIds,
         };
+        if (projectIds) {
+          const projectPromises: Promise<{success:boolean}>[] = [];
+
+          for (const projectId of projectIds) {
+            projectPromises.push(
+              linkUserToProjectId({
+                projectId: projectId,
+                userId: String(result.user.id),
+              })
+            );
+          }
+          const linkResults = await Promise.all(projectPromises);
+          if (!newUser.projects) {
+            newUser.projects = [];
+          }
+          for (let i = 0; i < linkResults.length; i++) {
+            if (linkResults[i].success) {
+              newUser.projects.push(projectIds[i]);
+            }
+          }
+
+          newUser.projects = Array.from(new Set(newUser.projects));
+        }
         if (onUserAdd) {
           onUserAdd(newUser);
         }

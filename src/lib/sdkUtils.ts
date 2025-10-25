@@ -11,7 +11,7 @@ export async function setupJunoEmail(sendgridKey: string) {
     console.error(e);
     return {
       success: false,
-      message: `Failed to setup email: ${e}`,
+      message: `${e}`,
     };
   }
 }

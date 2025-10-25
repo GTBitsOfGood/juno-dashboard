@@ -1,20 +1,24 @@
-"use client";
-
 import { ProjectSidebar } from "@/components/sidebar/project-sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import "../../../globals.css";
-import { useParams } from "next/navigation";
+import { getProjectById } from "@/lib/project";
 
-export default function AdminLayout({
+export default async function ProjectLayout({
   children,
+  params,
 }: Readonly<{
   children: React.ReactNode;
+  params: { projectId: string };
 }>) {
-  const { projectId } = useParams();
+  const { projectId } = await params;
+  const { project } = await getProjectById(Number(projectId));
 
   return (
     <SidebarProvider>
-      <ProjectSidebar projectId={Number(projectId)} />
+      <ProjectSidebar
+        currProjName={project.name}
+        projectId={Number(projectId)}
+      />
       <main>{children}</main>
     </SidebarProvider>
   );

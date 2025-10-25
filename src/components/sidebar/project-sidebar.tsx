@@ -30,59 +30,57 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { decodeJwt } from "jose";
 import { useEffect, useState } from "react";
 import { getProjects } from "@/lib/sdkActions";
+import { UserType, useUserSession } from "../providers/SessionProvider";
 
 type ProjectSidebarProps = {
   projectId: number;
+  currProjName?: string;
 };
 
-interface JWTPayload {
-  user: {
-    type: number;
-    projectIds: { low: number }[];
-  };
-}
+export function ProjectSidebar({
+  currProjName,
+  projectId,
+}: ProjectSidebarProps) {
+  const { user } = useUserSession();
 
-export function ProjectSidebar({ projectId }: ProjectSidebarProps) {
   const [projectIds, setProjectIds] = useState<string[]>([]);
 
   // Get current user through jwt token to create list of project IDs they can access
   useEffect(() => {
-    const getAllProjectIds = async () => {
+    const fetchProjects = async () => {
       try {
-        const result = await getProjects();
-        const projectIdsList =
-          result.projects?.map((project) => String(project.id)) || [];
-        setProjectIds(projectIdsList);
-      } catch (err) {
-        console.error("Error fetching all project IDs:", err);
-      }
-    };
+        const getAllProjectIds = async () => {
+          try {
+            const result = await getProjects();
+            const projectIdsList =
+              result.projects?.map((project) => String(project.id)) || [];
+            setProjectIds(projectIdsList);
+          } catch (err) {
+            console.error(err);
+          }
+        };
 
-    const token = document.cookie
-      .split("; ")
-      .find((row) => row.startsWith("jwt-token="))
-      ?.split("=")[1];
-
-    if (token) {
-      try {
-        const decoded = decodeJwt(token) as JWTPayload;
-        if (decoded.user?.type == 2) {
+        if (user.type == UserType.USER) {
+          // TODO: this filtering needs to be done on Juno's side
           // regular users can only access their linked projects
           const projectIdsList =
-            decoded.user?.projectIds?.map((id) => String(id.low)) || [];
+            user.projectIds.map((id) => String(id.low)) || [];
           setProjectIds(projectIdsList);
         } else {
           // admin and superadmin can access all projects
           getAllProjectIds();
         }
       } catch (err) {
-        console.error("Error decoding JWT:", err);
+        console.error("Error fetching all project IDs:", err);
       }
+    };
+
+    if (user) {
+      fetchProjects();
     }
-  }, []);
+  }, [user]);
 
   // Menu items.
   const items = [
@@ -118,6 +116,7 @@ export function ProjectSidebar({ projectId }: ProjectSidebarProps) {
     await deleteJWT();
     router.push("/admin");
   }
+
   return (
     <Sidebar>
       <SidebarHeader>
@@ -126,14 +125,22 @@ export function ProjectSidebar({ projectId }: ProjectSidebarProps) {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton>
-                  Select Workspace
+                  {currProjName || "Select Project"}
                   <ChevronDown className="ml-auto" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
-              <DropdownMenuContent
-                defaultValue={"Acme Inc"}
-                className="w-[--radix-popper-anchor-width]"
-              >
+              <DropdownMenuContent className="w-[--radix-popper-anchor-width]">
+                {user !== null &&
+                (user.type === UserType.ADMIN ||
+                  user.type === UserType.SUPERADMIN) ? (
+                  <DropdownMenuItem asChild key={"admin"}>
+                    <a href={"/admin"}>
+                      <span>{`Admin Dashboard`}</span>
+                    </a>
+                  </DropdownMenuItem>
+                ) : (
+                  <></>
+                )}
                 {projectIds.length > 0 ? (
                   projectIds.map((id) => (
                     <DropdownMenuItem asChild key={id}>

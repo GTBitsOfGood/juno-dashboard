@@ -1,7 +1,7 @@
 "use server";
 
-import { getCredentialsFromJWT } from "./actions";
 import { getJunoInstance } from "./juno";
+import { getSession } from "./session";
 
 export type projectInputType =
   | {
@@ -26,7 +26,7 @@ export type userInputType =
 export async function getUsers() {
   try {
     const client = getJunoInstance();
-    const jwt = await getCredentialsFromJWT();
+    const { jwt } = await getSession();
 
     const { users } = await client.user.getUsers(jwt);
 
@@ -55,13 +55,35 @@ export async function getProjects() {
   try {
     const client = getJunoInstance();
 
-    const jwt = await getCredentialsFromJWT();
+    const { jwt } = await getSession();
 
     const { projects } = await client.project.getProjects(jwt);
 
     return {
       success: true,
       projects,
+    };
+  } catch (error) {
+    console.error("Error fetching projects:", error);
+    return {
+      success: false,
+      error: `Error fetching projects: ${error}`,
+    };
+  }
+}
+
+export async function getJunoCounts() {
+  try {
+    const client = getJunoInstance();
+
+    const { jwt } = await getSession();
+    const { projects } = await client.project.getProjects(jwt);
+    const { users } = await client.user.getUsers(jwt);
+
+    return {
+      success: true,
+      projectCount: projects.length,
+      userCount: users.length,
     };
   } catch (error) {
     console.error("Error fetching projects:", error);

@@ -51,7 +51,7 @@ const LoginPage = () => {
       //Go to admin page
       router.push("/admin");
     } else {
-      setError("Invalid email or password.");
+      setError(result.error);
       setLoading(false);
     }
   }
@@ -70,7 +70,7 @@ const LoginPage = () => {
               <Alert>
                 <div className="flex space-x-2 text-red-300 items-center align-middle">
                   <CircleX className="h-4 w-4" />
-                  <div>Invalid password.</div>
+                  <div>{error}</div>
                 </div>
               </Alert>
             ) : (

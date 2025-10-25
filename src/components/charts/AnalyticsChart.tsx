@@ -54,6 +54,15 @@ const toUtcMidnightDate = (value: string | number) => {
   return new Date(normalizedValue);
 };
 
+const formatDateLabel = (value: string | number) => {
+  const date = toUtcMidnightDate(value);
+  if (!date || Number.isNaN(date.getTime())) return "";
+  return date.toLocaleDateString("en-US", {
+    month: "numeric",
+    day: "numeric",
+  });
+};
+
 const AnalyticsChart = ({
   title,
   description,
@@ -61,7 +70,10 @@ const AnalyticsChart = ({
   data = [],
   loading = false,
 }: AnalyticsChartProps) => {
-  const seriesData: Row[] = useMemo(() => {
+  const { seriesData, axisTicks } = useMemo<{
+    seriesData: Row[];
+    axisTicks: string[];
+  }>(() => {
     const buckets = new Map<string, Row>();
 
     data.forEach((ev) => {
@@ -84,8 +96,11 @@ const AnalyticsChart = ({
     });
 
     const dateRange = getIsoDateRange(DEFAULT_CHART_WINDOW_DAYS);
+    const ticks = dateRange.filter(
+      (_, index) => index % 5 === 0 || index === dateRange.length - 1
+    );
 
-    return dateRange.map((date) => {
+    const filledRange = dateRange.map((date) => {
       const bucket = buckets.get(date);
       const row: Row = { date };
       metrics.forEach((metric) => {
@@ -94,6 +109,11 @@ const AnalyticsChart = ({
       });
       return row;
     });
+
+    return {
+      seriesData: filledRange,
+      axisTicks: ticks,
+    };
   }, [data, metrics]);
 
   if (loading) {
@@ -139,7 +159,7 @@ const AnalyticsChart = ({
             accessibilityLayer
             data={seriesData}
             margin={{
-              left: 12,
+              left: 0,
               right: 12,
             }}
           >
@@ -150,17 +170,12 @@ const AnalyticsChart = ({
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              tickFormatter={(value) => {
-                const date = toUtcMidnightDate(value);
-                if (!date || Number.isNaN(date.getTime())) return "";
-                return date.toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                });
-              }}
+              ticks={axisTicks}
+              tickFormatter={formatDateLabel}
             />
             <ChartTooltip
               cursor={false}
+              labelFormatter={formatDateLabel}
               content={<ChartTooltipContent indicator="dot" />}
             />
             {metrics.map((metric) => (
@@ -171,7 +186,7 @@ const AnalyticsChart = ({
                 fill={`var(--color-${metric})`}
                 fillOpacity={0.4}
                 stroke={`var(--color-${metric})`}
-                stackId="a"
+                stackId={metrics.length > 1 ? undefined : "a"}
               />
             ))}
           </AreaChart>

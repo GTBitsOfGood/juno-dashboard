@@ -1,18 +1,5 @@
 "use client";
 
-import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
-// import EmailAnalyticsChart from "@/components/charts/EmailAnalyticsChart";
-import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-
 import AnalyticsChart from "@/components/charts/AnalyticsChart";
 
 export interface Event {
@@ -334,47 +321,6 @@ const allEventData: Event[] = [
 ];
 
 const AnalyticsPage = () => {
-  //   const { projectId } = useParams();
-
-  //   const [hasEmailConfig, setHasEmailConfig] = useState(null);
-  //   const [emailConfigLoading, setEmailConfigLoading] = useState(true);
-  //   const [emailAnalytics, setEmailAnalytics] = useState(null);
-  //   const [analyticsLoading, setAnalyticsLoading] = useState(false);
-
-  //   useEffect(() => {
-  //     const loadEmailData = async () => {
-  //       try {
-  //         const configRes = await getEmailConfig(String(projectId));
-  //         if (configRes) {
-  //           setHasEmailConfig(configRes);
-  //           setEmailConfigLoading(false);
-
-  //           setAnalyticsLoading(true);
-  //           const analyticsRes = await getEmailAnalytics(String(projectId));
-  //           if (analyticsRes.success) {
-  //             setEmailAnalytics(analyticsRes.analytics);
-  //           } else {
-  //             console.error("Failed to fetch analytics:", analyticsRes.error);
-  //             toast.error("Failed to load email analytics", {
-  //               description: analyticsRes.error,
-  //             });
-  //           }
-  //           setAnalyticsLoading(false);
-  //         } else {
-  //           setEmailConfigLoading(false);
-  //         }
-  //       } catch (e) {
-  //         console.error("Error loading email data:", e);
-  //         setEmailConfigLoading(false);
-  //         toast.error("Error loading email data", {
-  //           description: "Please try again later",
-  //         });
-  //       }
-  //     };
-
-  //     loadEmailData();
-  //   }, [projectId]);
-
   return (
     <div className="p-6">
       <h1 className="mb-6 text-xl">

@@ -15,77 +15,107 @@ import {
   CardTitle,
 } from "../ui/card";
 
+import { Event } from "@/app/(dashboard)/projects/[projectId]/services/analytics/page";
+import { useMemo } from "react";
+
+import { DEFAULT_CHART_WINDOW_DAYS, getIsoDateRange } from "@/lib/date-range";
+
+type Row = { date: string } & Record<string, number | string>;
+
 const chartConfig = {
-  clicks: {
+  click_events: {
     label: "Clicks",
     color: "hsl(var(--chart-1))",
   },
-  opens: {
-    label: "Opens",
+  input_events: {
+    label: "Inputs",
     color: "hsl(var(--chart-2))",
   },
-  delivered: {
-    label: "Delivered",
+  visit_events: {
+    label: "Visit",
     color: "hsl(var(--chart-3))",
-  },
-  bounces: {
-    label: "Bounces",
-    color: "hsl(var(--chart-4))",
-  },
-  processed: {
-    label: "Processed",
-    color: "hsl(var(--chart-5))",
-  },
-  deferred: {
-    label: "Deferred",
-    color: "hsl(var(--chart-6))",
-  },
-  spam_reports: {
-    label: "spam_reports",
-    color: "hsl(var(--chart-7))",
-  },
-  unsubscribes: {
-    label: "unsubscribes",
-    color: "hsl(var(--chart-8))",
   },
 } satisfies ChartConfig;
 
-interface EmailAnalyticsData {
-  blocks: number;
-  bounce_drops: number;
-  bounces: number;
-  clicks: number;
-  date: string;
-  deferred: number;
-  delivered: number;
-  invalid_emails: number;
-  opens: number;
-  processed: number;
-  requests: number;
-  spam_report_drops: number;
-  spam_reports: number;
-  unique_clicks: number;
-  unique_opens: number;
-  unsubscribe_drops: number;
-  unsubscribes: number;
-}
-
-interface EmailAnalyticsChartProps {
-  projectId: string;
+interface AnalyticsChartProps {
   title: string;
   description: string;
   metrics: string[];
-  data?: EmailAnalyticsData[];
-  loading?: boolean;
+  data?: Event[];
+  loading: boolean;
 }
 
-const EmailAnalyticsChart = ({
+const toUtcMidnightDate = (value: string | number) => {
+  if (!value) return undefined;
+  const normalizedValue =
+    typeof value === "string" && value.length === 10
+      ? `${value}T00:00:00.000Z`
+      : value;
+  return new Date(normalizedValue);
+};
+
+const formatDateLabel = (value: string | number) => {
+  const date = toUtcMidnightDate(value);
+  if (!date || Number.isNaN(date.getTime())) return "";
+  return date.toLocaleDateString("en-US", {
+    month: "numeric",
+    day: "numeric",
+  });
+};
+
+const AnalyticsChart = ({
   title,
   description,
   metrics,
   data = [],
   loading = false,
-}: EmailAnalyticsChartProps) => {
+}: AnalyticsChartProps) => {
+  const { seriesData, axisTicks } = useMemo<{
+    seriesData: Row[];
+    axisTicks: string[];
+  }>(() => {
+    const buckets = new Map<string, Row>();
+
+    data.forEach((ev) => {
+      const day = new Date(ev.createdAt).toISOString().slice(0, 10);
+      if (!buckets.has(day)) buckets.set(day, { date: day });
+
+      const derivedMetric =
+        typeof ev.metricType === "string" && metrics.includes(ev.metricType)
+          ? ev.metricType
+          : null;
+
+      const targetMetrics =
+        metrics.length === 1 ? metrics : derivedMetric ? [derivedMetric] : [];
+
+      targetMetrics.forEach((metric) => {
+        const row = buckets.get(day)!;
+        const currentValue = row[metric];
+        row[metric] = (typeof currentValue === "number" ? currentValue : 0) + 1;
+      });
+    });
+
+    const dateRange = getIsoDateRange(DEFAULT_CHART_WINDOW_DAYS);
+    const ticks = dateRange.filter(
+      (_, index) => index % 5 === 0 || index === dateRange.length - 1
+    );
+
+    const filledRange = dateRange.map((date) => {
+      const bucket = buckets.get(date);
+      const row: Row = { date };
+      metrics.forEach((metric) => {
+        const value = bucket?.[metric];
+        row[metric] = typeof value === "number" ? value : 0;
+      });
+      return row;
+    });
+
+    return {
+      seriesData: filledRange,
+      axisTicks: ticks,
+    };
+  }, [data, metrics]);
+
   if (loading) {
     return (
       <Card className="relative w-full">
@@ -101,7 +131,6 @@ const EmailAnalyticsChart = ({
       </Card>
     );
   }
-
   if (!data || data.length === 0) {
     return (
       <Card className="relative w-full">
@@ -128,35 +157,25 @@ const EmailAnalyticsChart = ({
         <ChartContainer config={chartConfig} className="h-[26rem] w-full">
           <AreaChart
             accessibilityLayer
-            data={data}
+            data={seriesData}
             margin={{
               left: 0,
-              right: 0,
+              right: 12,
             }}
           >
             <CartesianGrid vertical={false} />
             <XAxis
               dataKey="date"
+              type="category"
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              tickFormatter={(value) => {
-                const date = new Date(value);
-                return date.toLocaleDateString("en-US", {
-                  month: "numeric",
-                  day: "numeric",
-                });
-              }}
+              ticks={axisTicks}
+              tickFormatter={formatDateLabel}
             />
             <ChartTooltip
               cursor={false}
-              labelFormatter={(value) => {
-                const date = new Date(value);
-                return date.toLocaleDateString("en-US", {
-                  month: "numeric",
-                  day: "numeric",
-                });
-              }}
+              labelFormatter={formatDateLabel}
               content={<ChartTooltipContent indicator="dot" />}
             />
             {metrics.map((metric) => (
@@ -177,4 +196,4 @@ const EmailAnalyticsChart = ({
   );
 };
 
-export default EmailAnalyticsChart;
+export default AnalyticsChart;

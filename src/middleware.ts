@@ -27,7 +27,7 @@ export function middleware(req: NextRequest) {
   }
 }
 
-const publicRoutes = ["/login"];
+const publicRoutes = ["/", "/login"];
 
 export const config = {
   // matcher: ["/admin/:path*", "/projects/:path*", "/settings/:path*"],

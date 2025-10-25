@@ -21,6 +21,8 @@ export default function ProjectUsersPage() {
   const { projectId } = useParams();
   const [users, setUsers] = useState<UserColumn[]>([]);
   const [projectData, setProjectData] = useState<ProjectResponse[]>([]);
+  const [projectName, setProjectName] = useState<string>("");
+  const [originatingProjectId, setOriginatingProjectId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -31,6 +33,9 @@ export default function ProjectUsersPage() {
           getProjects(),
         ]);
 
+        const projectIdNum = parseInt(projectId as string, 10);
+        setOriginatingProjectId(projectIdNum);
+
         if (usersResult.success) {
           setUsers(usersResult.users);
         } else {
@@ -39,6 +44,10 @@ export default function ProjectUsersPage() {
 
         if (projectsResult.success) {
           setProjectData(projectsResult.projects);
+
+          const projectName = projectsResult.projects.find((project) => project.id == (projectId as unknown))
+              ?.name;
+          setProjectName(projectName);
         } else {
           toast.error("Error", {
             description: `Failed to fetch projects: ${projectsResult.error}`,
@@ -58,7 +67,7 @@ export default function ProjectUsersPage() {
 
   const handleUserAction = (
     user: UserColumn,
-    action: "add" | "update" | "delete",
+    action: "add" | "update" | "delete"
   ) => {
     if (action === "add") {
       setUsers((prevUsers) => [...prevUsers, user]);
@@ -66,7 +75,7 @@ export default function ProjectUsersPage() {
 
     if (action === "update") {
       setUsers((prevUsers) =>
-        prevUsers.map((u) => (u.id === user.id ? user : u)),
+        prevUsers.map((u) => (u.id === user.id ? user : u))
       );
     }
 
@@ -85,11 +94,7 @@ export default function ProjectUsersPage() {
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbLink href={`/projects/${projectId}`}>
-              {
-                projectData.find(
-                  (project) => project.id == (projectId as unknown),
-                )?.name
-              }
+              {projectName ? projectName : "Project"}
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
@@ -108,6 +113,7 @@ export default function ProjectUsersPage() {
         }))}
         isLoading={loading}
         onUserAction={handleUserAction}
+        originatingProjectId={originatingProjectId != null ? originatingProjectId : undefined}
       />
     </div>
   );

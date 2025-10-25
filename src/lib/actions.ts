@@ -108,6 +108,25 @@ export async function linkUserToProject(data: {
   }
 }
 
+export async function linkUserToProjectId(data: {
+  projectId: number;
+  userId: string;
+}) {
+  const junoClient = getJunoInstance();
+  try {
+    const { jwt } = await getSession();
+    await junoClient.user.linkToProject({
+      credentials: jwt,
+      project: { id: data.projectId },
+      userId: data.userId,
+    });
+    return { success: true };
+  } catch (error) {
+    console.error("Error linking user:", error);
+    return { success: false, error: "Failed to link user type to project" };
+  }
+}
+
 export async function unlinkUserFromProject(data: {
   projectName: string;
   userId: string;
@@ -124,6 +143,27 @@ export async function unlinkUserFromProject(data: {
   } catch (error) {
     console.error("Error unlinking user:", error);
     return { success: false, error: "Failed to unlink user from project" };
+  }
+}
+
+export async function getProject(projectId: number) {
+  const junoClient = getJunoInstance();
+  
+  try {
+    const project = await junoClient.project.getProject({ id: projectId });
+    return {
+      success: true,
+      project: {
+        id: project.id,
+        name: project.name,
+      },
+    };
+  } catch (error) {
+    console.error("Error fetching project name:", error);
+    return {
+      success: false,
+      error: "Failed to fetch project name: " + error.message,
+    };
   }
 }
 

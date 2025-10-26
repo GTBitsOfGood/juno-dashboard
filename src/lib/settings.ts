@@ -29,9 +29,16 @@ export async function getAnalyticsConfig(
   projectId: string
 ): Promise<AnalyticsConfigResponse> {
   const junoClient = getJunoInstance();
+  try {
   const analyticsConfig =
     await junoClient.analyticsConfig.getAnalyticsConfig(projectId);
   return JSON.parse(JSON.stringify(analyticsConfig));
+} catch (e) {
+    if (e?.body.toLowerCase().includes("not_found")) {
+      throw new Error("Analytics Config does not exist");
+    }
+    throw e;
+  }
 }
 
 export async function deleteAnalyticsConfig(

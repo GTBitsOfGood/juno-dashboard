@@ -51,12 +51,15 @@ export async function deleteAnalyticsConfig(
 }
 
 export async function updateAnalyticsConfig(
-  projectId: string,
+  projectId: number,
   config: UpdateAnalyticsConfigModel
 ): Promise<AnalyticsConfigResponse> {
   const junoClient = getJunoInstance();
   const analyticsConfig =
-    await junoClient.analyticsConfig.updateAnalyticsConfig(projectId, config);
+    await junoClient.analyticsConfig.updateAnalyticsConfig(
+      projectId.toString(),
+      config
+    );
   return JSON.parse(JSON.stringify(analyticsConfig));
 }
 

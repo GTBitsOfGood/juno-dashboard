@@ -47,9 +47,10 @@ export function AnalyticsConfigTable({ projectId }: AnalyticsConfigTableProps) {
 
   const deleteAnalyticsConfigHandler = useMutation({
     mutationFn: () => {
-      const deletePromises = selectedRows.map(async (row) =>
-        deleteAnalyticsConfig(row.id)
-      );
+      const deletePromises = selectedRows.map(async (row) => {
+        const projectId = row.id;
+        return deleteAnalyticsConfig(projectId);
+      });
 
       return Promise.all(deletePromises);
     },
@@ -76,9 +77,6 @@ export function AnalyticsConfigTable({ projectId }: AnalyticsConfigTableProps) {
         queryKey: ["analyticsConfig", projectId],
       });
     },
-    onSettled: () => {
-      setIsAddConfigDialogOpen(false);
-    },
     onError: (error) => toast.error(error.message),
   });
 
@@ -102,9 +100,6 @@ export function AnalyticsConfigTable({ projectId }: AnalyticsConfigTableProps) {
         queryKey: ["analyticsConfig", projectId],
       });
     },
-    onSettled: () => {
-      setIsAddConfigDialogOpen(false);
-    },
     onError: (error) => toast.error(error.message),
   });
 
@@ -127,7 +122,10 @@ export function AnalyticsConfigTable({ projectId }: AnalyticsConfigTableProps) {
             onAddConfig={(keys: {
               serverAnalyticsKey: string;
               clientAnalyticsKey: string;
-            }) => addAnalyticsConfigHandler.mutate(keys)}
+            }) => {
+              addAnalyticsConfigHandler.mutate(keys);
+              setIsAddConfigDialogOpen(false);
+            }}
           />
         </DialogContent>
       </Dialog>
@@ -181,6 +179,7 @@ export function AnalyticsConfigTable({ projectId }: AnalyticsConfigTableProps) {
               serverAnalyticsKey,
               clientAnalyticsKey,
             });
+            setIsAddConfigDialogOpen(false);
           }
         )}
         isLoading={isLoading}

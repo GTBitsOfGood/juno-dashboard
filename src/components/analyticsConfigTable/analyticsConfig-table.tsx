@@ -171,7 +171,7 @@ export function AnalyticsConfigTable({ projectId }: AnalyticsConfigTableProps) {
             keys: {
               serverAnalyticsKey: string;
               clientAnalyticsKey: string;
-            }
+            },
           ) => {
             const { serverAnalyticsKey, clientAnalyticsKey } = keys;
             updateAnalyticsConfigHandler.mutate({
@@ -180,7 +180,7 @@ export function AnalyticsConfigTable({ projectId }: AnalyticsConfigTableProps) {
               clientAnalyticsKey,
             });
             setIsAddConfigDialogOpen(false);
-          }
+          },
         )}
         isLoading={isLoading}
         filterParams={{

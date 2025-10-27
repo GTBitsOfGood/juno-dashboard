@@ -19,8 +19,8 @@ export const analyticsConfigColumns = (
     keys: {
       serverAnalyticsKey: string;
       clientAnalyticsKey: string;
-    }
-  ) => void
+    },
+  ) => void,
 ): ColumnDef<AnalyticsConfig>[] => {
   return [
     {

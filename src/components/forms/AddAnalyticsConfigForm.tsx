@@ -34,7 +34,7 @@ type AddAnalyticsConfigFormProps = {
     keys: {
       serverAnalyticsKey: string;
       clientAnalyticsKey: string;
-    }
+    },
   ) => void;
   isEditMode?: boolean;
 };

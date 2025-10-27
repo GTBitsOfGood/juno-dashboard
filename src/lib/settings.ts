@@ -1,8 +1,11 @@
 "use server";
 
 import {
+  AnalyticsConfigResponse,
+  CreateAnalyticsConfigModel,
   EmailConfigResponse,
   FileConfigResponse,
+  UpdateAnalyticsConfigModel,
 } from "juno-sdk/build/main/internal/api";
 import { getJunoInstance } from "./juno";
 
@@ -10,16 +13,87 @@ export async function getFileConfig(
   projectId: string,
 ): Promise<FileConfigResponse> {
   const junoClient = getJunoInstance();
-  const fileConfig = await junoClient.settings.getFileConfig(projectId);
-  return JSON.parse(JSON.stringify(fileConfig));
+
+  try {
+    const fileConfig = await junoClient.settings.getFileConfig(projectId);
+
+    return JSON.parse(JSON.stringify(fileConfig));
+  } catch (e: any) {
+    if (e.response.statusCode === 404) {
+      // config doesn't exist, this is fine
+      return null;
+    }
+
+    // otherwise, rethrow error
+    throw e;
+  }
 }
 
 export async function getEmailConfig(
   projectId: string,
 ): Promise<EmailConfigResponse> {
   const junoClient = getJunoInstance();
-  const emailConfig = await junoClient.settings.getEmailConfig(projectId);
-  return JSON.parse(JSON.stringify(emailConfig));
+
+  try {
+    const emailConfig = await junoClient.settings.getEmailConfig(projectId);
+
+    return JSON.parse(JSON.stringify(emailConfig));
+  } catch (e) {
+    if (e.response.statusCode === 404) {
+      // config doesn't exist, this is fine
+      return null;
+    }
+
+    // otherwise, rethrow error
+    throw e;
+  }
+}
+
+export async function getAnalyticsConfig(
+  projectId: string,
+): Promise<AnalyticsConfigResponse> {
+  const junoClient = getJunoInstance();
+  try {
+    const analyticsConfig =
+      await junoClient.analyticsConfig.getAnalyticsConfig(projectId);
+    return JSON.parse(JSON.stringify(analyticsConfig));
+  } catch (e) {
+    if (e.response.statusCode === 404) {
+      return null;
+    }
+    throw e;
+  }
+}
+
+export async function deleteAnalyticsConfig(
+  projectId: string,
+): Promise<AnalyticsConfigResponse> {
+  const junoClient = getJunoInstance();
+  const analyticsConfig =
+    await junoClient.analyticsConfig.deleteAnalyticsConfig(projectId);
+  return JSON.parse(JSON.stringify(analyticsConfig));
+}
+
+export async function updateAnalyticsConfig(
+  projectId: number,
+  config: UpdateAnalyticsConfigModel,
+): Promise<AnalyticsConfigResponse> {
+  const junoClient = getJunoInstance();
+  const analyticsConfig =
+    await junoClient.analyticsConfig.updateAnalyticsConfig(
+      projectId.toString(),
+      config,
+    );
+  return JSON.parse(JSON.stringify(analyticsConfig));
+}
+
+export async function createAnalyticsConfig(
+  config: CreateAnalyticsConfigModel,
+): Promise<AnalyticsConfigResponse> {
+  const junoClient = getJunoInstance();
+  const analyticsConfig =
+    await junoClient.analyticsConfig.createAnalyticsConfig(config);
+  return JSON.parse(JSON.stringify(analyticsConfig));
 }
 
 export async function getEmailAnalytics(

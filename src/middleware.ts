@@ -9,11 +9,6 @@ interface JWTPayload {
 }
 
 export function middleware(req: NextRequest) {
-  const { pathname } = req.nextUrl;
-  if (publicRoutes.includes(pathname)) {
-    return NextResponse.next();
-  }
-
   try {
     const token = req.cookies.get("jwt-token");
     const value: JWTPayload = decodeJwt(token.value);
@@ -27,9 +22,6 @@ export function middleware(req: NextRequest) {
   }
 }
 
-const publicRoutes = ["/login"];
-
 export const config = {
-  // matcher: ["/admin/:path*", "/projects/:path*", "/settings/:path*"],
-  matcher: ["/((?!api|_next|static|[.].*|favicon.ico).*)"], // Matches ALL routes besides API, _next, and static
+  matcher: ["/", "/admin/:path*"],
 };

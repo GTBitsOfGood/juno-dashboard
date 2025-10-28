@@ -30,7 +30,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import CreateUserForm from "@/components/forms/AddUserForm";
-import { ProjectColumn } from "../../app/(auth)/admin/projects/columns";
+import { ProjectColumn } from "../../app/(dashboard)/admin/projects/columns";
 import { userColumns, UserColumn } from "./columns";
 import { deleteUserAction } from "@/lib/actions";
 import { toast } from "sonner";

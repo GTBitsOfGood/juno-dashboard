@@ -20,7 +20,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal } from "lucide-react";
-import { ProjectColumn } from "../../app/(auth)/admin/projects/columns";
+import { ProjectColumn } from "../../app/(dashboard)/admin/projects/columns";
 import { deleteUserAction } from "@/lib/actions";
 import { useState } from "react";
 import { toast } from "sonner";

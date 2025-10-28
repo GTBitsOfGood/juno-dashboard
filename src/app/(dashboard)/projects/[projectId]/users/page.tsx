@@ -45,7 +45,7 @@ export default function ProjectUsersPage() {
         if (projectsResult.success) {
           setProjectData(projectsResult.projects);
 
-          const projectName = projectsResult.projects.find((project) => project.id == (projectId as unknown))
+          const projectName = projectsResult.projects.find((project) => project.id === projectIdNum)
               ?.name;
           setProjectName(projectName);
         } else {

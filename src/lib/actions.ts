@@ -146,27 +146,6 @@ export async function unlinkUserFromProject(data: {
   }
 }
 
-export async function getProject(projectId: number) {
-  const junoClient = getJunoInstance();
-  
-  try {
-    const project = await junoClient.project.getProject({ id: projectId });
-    return {
-      success: true,
-      project: {
-        id: project.id,
-        name: project.name,
-      },
-    };
-  } catch (error) {
-    console.error("Error fetching project name:", error);
-    return {
-      success: false,
-      error: "Failed to fetch project name: " + error.message,
-    };
-  }
-}
-
 export async function getProjectUsers(projectId: string) {
   const junoClient = getJunoInstance();
 

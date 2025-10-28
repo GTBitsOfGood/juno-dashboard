@@ -21,10 +21,10 @@ export function middleware(req: NextRequest) {
     }
     const value: JWTPayload = decodeJwt(token.value);
     if (pathname.startsWith("/admin")) {
-      if (token && value.user.type != 2) {
+      if (value.user.type != 2) {
         return NextResponse.next();
       } else {
-        return NextResponse.redirect(new URL("/dashboard", req.url));
+        return NextResponse.redirect(new URL("/projects", req.url));
       }
     } else {
       return NextResponse.next();

@@ -161,6 +161,8 @@ const AnalyticsChart = ({
             margin={{
               left: 0,
               right: 12,
+              top: 12,
+              bottom: 0,
             }}
           >
             <CartesianGrid vertical={false} />

@@ -1,6 +1,19 @@
 "use client";
 
 import AnalyticsChart from "@/components/charts/AnalyticsChart";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { getProjectById } from "@/lib/project";
+import { useQuery } from "@tanstack/react-query";
+import { ProjectResponse } from "juno-sdk/build/main/internal/api";
+import { useParams } from "next/navigation";
+import { toast } from "sonner";
 
 export interface Event {
   id: string;
@@ -321,8 +334,43 @@ const allEventData: Event[] = [
 ];
 
 const AnalyticsPage = () => {
+  const { projectId } = useParams<{ projectId: string }>();
+  const { isLoading, isError, data, error } = useQuery<ProjectResponse>({
+    queryKey: ["project", projectId],
+    queryFn: async () => {
+      const result = await getProjectById(Number(projectId));
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+      return result.project;
+    },
+  });
+
+  if (isError) {
+    toast.error("Error", {
+      description: `Failed to fetch project: ${JSON.stringify(error)}`,
+    });
+  }
+
   return (
     <div className="p-6">
+      <Breadcrumb className="mb-4">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/projects">Projects</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href={`/projects/${projectId}`}>
+              {isLoading ? "****" : (data?.name ?? "Unknown")}
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Analytics</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
       <h1 className="mb-6 text-xl">
         Analytics{" "}
         <span className="text-sm text-gray-400">from the past 30 days</span>

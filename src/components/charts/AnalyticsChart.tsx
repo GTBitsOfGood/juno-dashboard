@@ -15,7 +15,7 @@ import {
   CardTitle,
 } from "../ui/card";
 
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 
 import { DEFAULT_CHART_WINDOW_DAYS, getIsoDateRange } from "@/lib/date-range";
 
@@ -52,6 +52,7 @@ interface AnalyticsChartProps {
   data?: AnalyticsChartPoint[];
   loading: boolean;
   windowDays?: number;
+  endDate?: Date;
 }
 
 const toUtcMidnightDate = (value: string | number) => {
@@ -63,13 +64,12 @@ const toUtcMidnightDate = (value: string | number) => {
   return new Date(normalizedValue);
 };
 
-const formatDateLabel = (value: string | number) => {
-  const date = toUtcMidnightDate(value);
-  if (!date || Number.isNaN(date.getTime())) return "";
-  return date.toLocaleDateString("en-US", {
-    month: "numeric",
-    day: "numeric",
-  });
+const chooseTickStep = (windowDays: number) => {
+  const targetTickCount = 7;
+  const approx = Math.max(1, Math.ceil(windowDays / targetTickCount));
+  const candidates = [1, 2, 3, 5, 7, 10, 14, 21, 28, 30, 45, 60, 90];
+  const candidateStep = candidates.find((step) => step >= approx);
+  return candidateStep ?? Math.max(approx, 30);
 };
 
 const AnalyticsChart = ({
@@ -79,6 +79,7 @@ const AnalyticsChart = ({
   data = [],
   loading = false,
   windowDays = DEFAULT_CHART_WINDOW_DAYS,
+  endDate,
 }: AnalyticsChartProps) => {
   const { seriesData, axisTicks } = useMemo<{
     seriesData: Row[];
@@ -110,9 +111,11 @@ const AnalyticsChart = ({
         ? windowDays
         : DEFAULT_CHART_WINDOW_DAYS;
 
-    const dateRange = getIsoDateRange(windowSize);
+    const safeEndDate = endDate ?? new Date();
+    const dateRange = getIsoDateRange(windowSize, safeEndDate);
+    const tickStep = chooseTickStep(windowSize);
     const ticks = dateRange.filter(
-      (_, index) => index % 5 === 0 || index === dateRange.length - 1
+      (_, index) => index % tickStep === 0 || index === dateRange.length - 1
     );
 
     const filledRange = dateRange.map((date) => {
@@ -129,7 +132,57 @@ const AnalyticsChart = ({
       seriesData: filledRange,
       axisTicks: ticks,
     };
-  }, [data, metrics, windowDays]);
+  }, [data, metrics, windowDays, endDate]);
+
+  const axisLabelFormatter = useCallback(
+    (value: string | number) => {
+      const date = toUtcMidnightDate(value);
+      if (!date || Number.isNaN(date.getTime())) return "";
+
+      if (windowDays <= 10) {
+        return date.toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          timeZone: "UTC",
+        });
+      }
+
+      if (windowDays <= 31) {
+        return date.toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          timeZone: "UTC",
+        });
+      }
+
+      if (windowDays <= 90) {
+        return date.toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          timeZone: "UTC",
+        });
+      }
+
+      return date.toLocaleDateString("en-US", {
+        month: "short",
+        year: "numeric",
+        timeZone: "UTC",
+      });
+    },
+    [windowDays]
+  );
+
+  const tooltipLabelFormatter = useCallback((value: string | number) => {
+    const date = toUtcMidnightDate(value);
+    if (!date || Number.isNaN(date.getTime())) return "";
+    return date.toLocaleDateString("en-US", {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      timeZone: "UTC",
+    });
+  }, []);
 
   if (loading) {
     return (
@@ -138,10 +191,8 @@ const AnalyticsChart = ({
           <CardTitle>{title}</CardTitle>
           <CardDescription>{description}</CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="h-64 flex items-center justify-center">
-            <div className="text-muted-foreground">Loading analytics...</div>
-          </div>
+        <CardContent className="flex h-[20rem] w-full items-center justify-center">
+          <div className="text-muted-foreground">Loading analytics...</div>
         </CardContent>
       </Card>
     );
@@ -154,27 +205,32 @@ const AnalyticsChart = ({
           <CardDescription>{description}</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="h-64 flex items-center justify-center">
-            <div className="text-muted-foreground">No data available</div>
-          </div>
+          <ChartContainer
+            config={chartConfig}
+            className="relative h-[20rem] w-full"
+          >
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-muted-foreground">No data available</div>
+            </div>
+          </ChartContainer>
         </CardContent>
       </Card>
     );
   }
 
   return (
-    <Card className="relative">
+    <Card className="relative w-full">
       <CardHeader>
         <CardTitle>{title}</CardTitle>
         <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig} className="h-[26rem] w-full">
+        <ChartContainer config={chartConfig} className="h-[20rem] w-full">
           <AreaChart
             accessibilityLayer
             data={seriesData}
             margin={{
-              left: 0,
+              left: 12,
               right: 12,
               top: 12,
               bottom: 0,
@@ -188,11 +244,11 @@ const AnalyticsChart = ({
               axisLine={false}
               tickMargin={8}
               ticks={axisTicks}
-              tickFormatter={formatDateLabel}
+              tickFormatter={axisLabelFormatter}
             />
             <ChartTooltip
               cursor={false}
-              labelFormatter={formatDateLabel}
+              labelFormatter={tooltipLabelFormatter}
               content={<ChartTooltipContent indicator="dot" />}
             />
             {metrics.map((metric) => (

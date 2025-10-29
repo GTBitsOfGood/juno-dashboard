@@ -9,6 +9,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -17,9 +18,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { getProjectById } from "@/lib/project";
+import { DEFAULT_CHART_WINDOW_DAYS } from "@/lib/date-range";
 import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { ProjectResponse } from "juno-sdk/build/main/internal/api";
 import { useParams } from "next/navigation";
 import { toast } from "sonner";
@@ -69,7 +77,74 @@ export interface CustomEvent {
   properties: Record<string, string>;
 }
 
+// Window Logic
+const TIME_WINDOW_OPTIONS = [7, 14, 30, 60, 90] as const;
+
+type HasCreatedAt = { createdAt: string };
+
+type TimeBounds = {
+  start: Date;
+  end: Date;
+};
+
+const clampWindowDays = (value: number) =>
+  Number.isFinite(value) && value > 0
+    ? Math.floor(value)
+    : DEFAULT_CHART_WINDOW_DAYS;
+
+const offsetDateByDays = (date: Date, offsetDays: number) => {
+  const result = new Date(date);
+  result.setUTCDate(result.getUTCDate() + offsetDays);
+  return result;
+};
+
+const getWindowBounds = (endDate: Date, windowDays: number): TimeBounds => {
+  const safeDays = clampWindowDays(windowDays);
+  const normalizedEnd = new Date(endDate);
+  normalizedEnd.setUTCHours(0, 0, 0, 0);
+
+  const windowStart = new Date(normalizedEnd);
+  windowStart.setUTCDate(windowStart.getUTCDate() - (safeDays - 1));
+
+  const windowEnd = new Date(normalizedEnd);
+  windowEnd.setUTCHours(23, 59, 59, 999);
+
+  return {
+    start: windowStart,
+    end: windowEnd,
+  };
+};
+
+const filterEventsByWindow = <T extends HasCreatedAt>(
+  events: T[],
+  bounds: TimeBounds
+) =>
+  events.filter((event) => {
+    const createdAt = new Date(event.createdAt).getTime();
+    return (
+      !Number.isNaN(createdAt) &&
+      createdAt >= bounds.start.getTime() &&
+      createdAt <= bounds.end.getTime()
+    );
+  });
+
+const formatWindowRange = ({ start, end }: TimeBounds) => {
+  const startLabel = start.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+  const endLabel = end.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+
+  return startLabel === endLabel ? startLabel : `${startLabel} – ${endLabel}`;
+};
+
 const AnalyticsPage = () => {
+  //breadcrumb logic
   const { projectId } = useParams<{ projectId: string }>();
   // data.name is the project name upon successful fetch
   const { isLoading, isError, data, error } = useQuery<ProjectResponse>({
@@ -89,6 +164,9 @@ const AnalyticsPage = () => {
     });
   }
 
+  // When fetching/getting all events for simple or custom events, prob have to discuss what is the aftertime and the limit to return.
+
+  // Replace mock click events with results from the API.
   const clickData: Event[] = [
     {
       id: "8c1a6f5b-4b7e-4a98-9d7c-7b0f8d2db2a1",
@@ -248,6 +326,7 @@ const AnalyticsPage = () => {
     },
   ];
 
+  // Replace mock input events with results from the API.
   const inputData: Event[] = [
     {
       id: "8c1a6f5b-4b7e-4a98-9d7c-7b0f8d2db2a1",
@@ -341,6 +420,7 @@ const AnalyticsPage = () => {
       },
     },
   ];
+  // Replace mock visit events with results from the API.
   const visitData: Event[] = [
     {
       id: "8c1a6f5b-4b7e-4a98-9d7c-7b0f8d2db2a1",
@@ -362,6 +442,19 @@ const AnalyticsPage = () => {
       projectId: "proj_analytics_web",
       environment: "developer",
       createdAt: "2025-10-24T14:06:02.009Z",
+      updatedAt: "2025-10-24T14:06:05.187Z",
+      eventProperties: {
+        objectId: "sess_Q4p7K0nL",
+        userId: "user_7789",
+      },
+    },
+    {
+      id: "5f2c7f88-0b9c-4a61-88e8-3a7f5a2c1d92",
+      category: "auth",
+      subcategory: "login_failed",
+      projectId: "proj_analytics_web",
+      environment: "developer",
+      createdAt: "2024-10-24T14:06:02.009Z",
       updatedAt: "2025-10-24T14:06:05.187Z",
       eventProperties: {
         objectId: "sess_Q4p7K0nL",
@@ -401,7 +494,7 @@ const AnalyticsPage = () => {
       projectId: "proj_billing_api",
     },
   ];
-  // Second, need to fetch all custom events for each category - subcategory pair and put into one array
+  // Second, need to fetch all custom events for each category - subcategory pair and put into one array.
   const customEvents: CustomEvent[] = [
     {
       id: "evt-usage-001",
@@ -583,35 +676,154 @@ const AnalyticsPage = () => {
     useState<string>(defaultCategory);
   const [selectedSubcategory, setSelectedSubcategory] =
     useState<string>(defaultSubcategory);
-
   const subcategoryOptions = customEventSubcategoryMap[selectedCategory] ?? [];
+
+  const [simpleWindowDays, setSimpleWindowDays] = useState<number>(
+    DEFAULT_CHART_WINDOW_DAYS
+  );
+  const [simplePageIndex, setSimplePageIndex] = useState(0);
+
+  const baseSimpleEndDate = new Date();
+
+  const simpleEndDate = offsetDateByDays(
+    baseSimpleEndDate,
+    -simplePageIndex * clampWindowDays(simpleWindowDays)
+  );
+
+  const simpleWindowBounds = getWindowBounds(simpleEndDate, simpleWindowDays);
+
+  const filteredSimpleAllEvents = filterEventsByWindow(
+    allEventData,
+    simpleWindowBounds
+  );
+  const filteredClickEvents = filterEventsByWindow(
+    clickData,
+    simpleWindowBounds
+  );
+  const filteredInputEvents = filterEventsByWindow(
+    inputData,
+    simpleWindowBounds
+  );
+  const filteredVisitEvents = filterEventsByWindow(
+    visitData,
+    simpleWindowBounds
+  );
+
+  useEffect(() => {
+    if (!selectedCategory && defaultCategory) {
+      setSelectedCategory(defaultCategory);
+    }
+  }, [defaultCategory, selectedCategory]);
+
+  useEffect(() => {
+    const options = customEventSubcategoryMap[selectedCategory] ?? [];
+    if (options.length === 0) {
+      if (selectedSubcategory) {
+        setSelectedSubcategory("");
+      }
+      return;
+    }
+    if (!selectedSubcategory || !options.includes(selectedSubcategory)) {
+      setSelectedSubcategory(options[0]);
+    }
+  }, [customEventSubcategoryMap, selectedCategory, selectedSubcategory]);
+
+  // Window logic
+
+  const [customWindowDays, setCustomWindowDays] = useState<number>(
+    DEFAULT_CHART_WINDOW_DAYS
+  );
+  const [customPageIndex, setCustomPageIndex] = useState(0);
+
+  const hasOlderSimple = allEventData.some(
+    (event) =>
+      new Date(event.createdAt).getTime() < simpleWindowBounds.start.getTime()
+  );
+  const canPageNewerSimple = simplePageIndex > 0;
+
+  const simpleRangeLabel = formatWindowRange(simpleWindowBounds);
+
+  const customEventsForSelection = customEventsWithMetric.filter(
+    (event) =>
+      (!selectedCategory || event.category === selectedCategory) &&
+      (!selectedSubcategory || event.subcategory === selectedSubcategory)
+  );
+
+  const baseCustomEndDate = new Date();
+
+  const customEndDate = offsetDateByDays(
+    baseCustomEndDate,
+    -customPageIndex * clampWindowDays(customWindowDays)
+  );
+
+  const customWindowBounds = getWindowBounds(customEndDate, customWindowDays);
+
+  const filteredCustomEvents = filterEventsByWindow(
+    customEventsForSelection,
+    customWindowBounds
+  );
+
+  const hasOlderCustom = customEventsForSelection.some(
+    (event) =>
+      new Date(event.createdAt).getTime() < customWindowBounds.start.getTime()
+  );
+  const canPageNewerCustom = customPageIndex > 0;
+
+  useEffect(() => {
+    setCustomPageIndex(0);
+  }, [selectedCategory, selectedSubcategory]);
 
   const handleCategoryChange = (value: string) => {
     setSelectedCategory(value);
     const options = customEventSubcategoryMap[value] ?? [];
     setSelectedSubcategory(options[0] ?? "");
+    setCustomPageIndex(0);
   };
 
-  const filteredCustomEvents = useMemo(
-    () =>
-      customEventsWithMetric.filter(
-        (event) =>
-          event.category === selectedCategory &&
-          event.subcategory === selectedSubcategory
-      ),
-    [customEventsWithMetric, selectedCategory, selectedSubcategory]
-  );
+  const handleSimpleWindowChange = (value: string) => {
+    const parsed = Number(value);
+    setSimpleWindowDays(clampWindowDays(parsed));
+    setSimplePageIndex(0);
+  };
+
+  const handleCustomWindowChange = (value: string) => {
+    const parsed = Number(value);
+    setCustomWindowDays(clampWindowDays(parsed));
+    setCustomPageIndex(0);
+  };
+
+  const goToOlderSimple = () => {
+    if (hasOlderSimple) {
+      setSimplePageIndex((previous) => previous + 1);
+    }
+  };
+
+  const goToNewerSimple = () => {
+    setSimplePageIndex((previous) => (previous > 0 ? previous - 1 : 0));
+  };
+
+  const goToOlderCustom = () => {
+    if (hasOlderCustom) {
+      setCustomPageIndex((previous) => previous + 1);
+    }
+  };
+
+  const goToNewerCustom = () => {
+    setCustomPageIndex((previous) => (previous > 0 ? previous - 1 : 0));
+  };
+
+  const customRangeLabel = formatWindowRange(customWindowBounds);
 
   const customChartDescription =
     selectedCategory && selectedSubcategory
-      ? `Custom events captured for ${selectedCategory} / ${selectedSubcategory}`
-      : "Custom events over time";
+      ? `Custom events captured for ${selectedCategory} / ${selectedSubcategory} · ${customRangeLabel}`
+      : `Custom events over time · ${customRangeLabel}`;
 
   const hasCustomOptions = customEventCategoryOptions.length > 0;
 
-  //need to make a loading state and fill into all analyticschart when hookinh up API calls for click, input, visit, and custom event data
+  //need to make a loading state and fill into all analyticschart when hooking up API calls for click, input, visit, and custom event data
   return (
-    <div className="p-6">
+    <div className="p-6 max-w-[70%]">
       <Breadcrumb className="mb-4">
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -629,41 +841,126 @@ const AnalyticsPage = () => {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <h1 className="mb-6 text-xl">
-        Analytics{" "}
-        <span className="text-sm text-gray-400">from the past 30 days</span>
-      </h1>
-      <div className="space-y-6">
-        <AnalyticsChart
-          title="All Simple Event Types"
-          description="Click, input, and visit events over time"
-          metrics={aggregateEventMetrics}
-          data={allEventData}
-          loading={false}
-        />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <AnalyticsChart
-            title="Click Events"
-            description="Click events over time"
-            metrics={["click_events"]}
-            data={clickData}
-            loading={false}
-          />
-          <AnalyticsChart
-            title="Input Events"
-            description="Input events over time"
-            metrics={["input_events"]}
-            data={inputData}
-            loading={false}
-          />
-          <AnalyticsChart
-            title="Visit Events"
-            description="Visit events over time"
-            metrics={["visit_events"]}
-            data={visitData}
-            loading={false}
-          />
+      <h1 className="mb-6 text-xl">Analytics </h1>
+
+      {/* Simple Events Window */}
+      <div className="space-y-6 w-full">
+        <div className="flex flex-col gap-3 rounded-lg border border-border/60 bg-muted/40 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-muted-foreground">
+            Simple events window · {simpleRangeLabel}
+          </p>
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-2">
+              <Label
+                htmlFor="simple-event-window"
+                className="text-xs font-medium uppercase tracking-wide text-muted-foreground"
+              >
+                Window
+              </Label>
+              <Select
+                value={simpleWindowDays.toString()}
+                onValueChange={handleSimpleWindowChange}
+              >
+                <SelectTrigger id="simple-event-window" className="w-[120px]">
+                  <SelectValue placeholder="Window" />
+                </SelectTrigger>
+                <SelectContent>
+                  {TIME_WINDOW_OPTIONS.map((option) => (
+                    <SelectItem key={option} value={option.toString()}>
+                      {option} days
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <TooltipProvider>
+              <div className="flex items-center gap-2">
+                <Tooltip delayDuration={200}>
+                  <TooltipTrigger asChild>
+                    <span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={!hasOlderSimple}
+                        onClick={goToOlderSimple}
+                      >
+                        Older
+                      </Button>
+                    </span>
+                  </TooltipTrigger>
+                  {!hasOlderSimple && (
+                    <TooltipContent side="top">
+                      No older data available
+                    </TooltipContent>
+                  )}
+                </Tooltip>
+                <Tooltip delayDuration={200}>
+                  <TooltipTrigger asChild>
+                    <span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={!canPageNewerSimple}
+                        onClick={goToNewerSimple}
+                      >
+                        Newer
+                      </Button>
+                    </span>
+                  </TooltipTrigger>
+                  {!canPageNewerSimple && (
+                    <TooltipContent side="top">
+                      No newer data available
+                    </TooltipContent>
+                  )}
+                </Tooltip>
+              </div>
+            </TooltipProvider>
+          </div>
         </div>
+
+        {/* Simple Events */}
+        <div className="space-y-6">
+          <AnalyticsChart
+            title="All Simple Event Types"
+            description={`Click, input, and visit events over time · ${simpleRangeLabel}`}
+            metrics={aggregateEventMetrics}
+            data={filteredSimpleAllEvents}
+            loading={false}
+            windowDays={simpleWindowDays}
+            endDate={simpleEndDate}
+          />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <AnalyticsChart
+              title="Click Events"
+              description="Click events over time"
+              metrics={["click_events"]}
+              data={filteredClickEvents}
+              loading={false}
+              windowDays={simpleWindowDays}
+              endDate={simpleEndDate}
+            />
+            <AnalyticsChart
+              title="Input Events"
+              description="Input events over time"
+              metrics={["input_events"]}
+              data={filteredInputEvents}
+              loading={false}
+              windowDays={simpleWindowDays}
+              endDate={simpleEndDate}
+            />
+            <AnalyticsChart
+              title="Visit Events"
+              description="Visit events over time"
+              metrics={["visit_events"]}
+              data={filteredVisitEvents}
+              loading={false}
+              windowDays={simpleWindowDays}
+              endDate={simpleEndDate}
+            />
+          </div>
+        </div>
+
+        {/* Custom Events Window */}
         <div className="space-y-4">
           <div className="grid gap-4 min-[420px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             <div className="space-y-2">
@@ -717,12 +1014,89 @@ const AnalyticsPage = () => {
               </Select>
             </div>
           </div>
+
+          {/* Custom Events */}
+          <div className="flex flex-col gap-3 rounded-lg border border-border/60 bg-muted/40 p-4 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-muted-foreground">
+              Custom events window · {customRangeLabel}
+            </p>
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="flex items-center gap-2">
+                <Label
+                  htmlFor="custom-event-window"
+                  className="text-xs font-medium uppercase tracking-wide text-muted-foreground"
+                >
+                  Window
+                </Label>
+                <Select
+                  value={customWindowDays.toString()}
+                  onValueChange={handleCustomWindowChange}
+                  disabled={!hasCustomOptions}
+                >
+                  <SelectTrigger id="custom-event-window" className="w-[120px]">
+                    <SelectValue placeholder="Window" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {TIME_WINDOW_OPTIONS.map((option) => (
+                      <SelectItem key={option} value={option.toString()}>
+                        {option} days
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <TooltipProvider>
+                <div className="flex items-center gap-2">
+                  <Tooltip delayDuration={200}>
+                    <TooltipTrigger asChild>
+                      <span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          disabled={!hasOlderCustom}
+                          onClick={goToOlderCustom}
+                        >
+                          Older
+                        </Button>
+                      </span>
+                    </TooltipTrigger>
+                    {!hasOlderCustom && (
+                      <TooltipContent side="top">
+                        No older data available
+                      </TooltipContent>
+                    )}
+                  </Tooltip>
+                  <Tooltip delayDuration={200}>
+                    <TooltipTrigger asChild>
+                      <span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          disabled={!canPageNewerCustom}
+                          onClick={goToNewerCustom}
+                        >
+                          Newer
+                        </Button>
+                      </span>
+                    </TooltipTrigger>
+                    {!canPageNewerCustom && (
+                      <TooltipContent side="top">
+                        No newer data available
+                      </TooltipContent>
+                    )}
+                  </Tooltip>
+                </div>
+              </TooltipProvider>
+            </div>
+          </div>
           <AnalyticsChart
             title="Custom Events"
             description={customChartDescription}
             metrics={["custom_events"]}
             data={filteredCustomEvents}
             loading={false}
+            windowDays={customWindowDays}
+            endDate={customEndDate}
           />
         </div>
       </div>

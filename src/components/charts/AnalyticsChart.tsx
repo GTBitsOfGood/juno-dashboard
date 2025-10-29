@@ -15,7 +15,6 @@ import {
   CardTitle,
 } from "../ui/card";
 
-import { Event } from "@/app/(dashboard)/projects/[projectId]/services/analytics/page";
 import { useMemo } from "react";
 
 import { DEFAULT_CHART_WINDOW_DAYS, getIsoDateRange } from "@/lib/date-range";
@@ -35,14 +34,24 @@ const chartConfig = {
     label: "Visit",
     color: "hsl(var(--chart-3))",
   },
+  custom_events: {
+    label: "Custom",
+    color: "hsl(var(--chart-4))",
+  },
 } satisfies ChartConfig;
+
+type AnalyticsChartPoint = {
+  createdAt: string;
+  metricType?: string;
+};
 
 interface AnalyticsChartProps {
   title: string;
   description: string;
   metrics: string[];
-  data?: Event[];
+  data?: AnalyticsChartPoint[];
   loading: boolean;
+  windowDays?: number;
 }
 
 const toUtcMidnightDate = (value: string | number) => {
@@ -69,6 +78,7 @@ const AnalyticsChart = ({
   metrics,
   data = [],
   loading = false,
+  windowDays = DEFAULT_CHART_WINDOW_DAYS,
 }: AnalyticsChartProps) => {
   const { seriesData, axisTicks } = useMemo<{
     seriesData: Row[];
@@ -95,7 +105,12 @@ const AnalyticsChart = ({
       });
     });
 
-    const dateRange = getIsoDateRange(DEFAULT_CHART_WINDOW_DAYS);
+    const windowSize =
+      typeof windowDays === "number" && windowDays > 0
+        ? windowDays
+        : DEFAULT_CHART_WINDOW_DAYS;
+
+    const dateRange = getIsoDateRange(windowSize);
     const ticks = dateRange.filter(
       (_, index) => index % 5 === 0 || index === dateRange.length - 1
     );
@@ -114,7 +129,7 @@ const AnalyticsChart = ({
       seriesData: filledRange,
       axisTicks: ticks,
     };
-  }, [data, metrics]);
+  }, [data, metrics, windowDays]);
 
   if (loading) {
     return (

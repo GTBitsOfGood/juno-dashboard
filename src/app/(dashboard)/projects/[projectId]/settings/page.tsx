@@ -1,5 +1,6 @@
 "use client";
 
+import { AnalyticsConfigTable } from "@/components/analyticsConfigTable/analyticsConfig-table";
 import { EmailConfigTable } from "@/components/emailConfigTable/emailConfig-table";
 import { FileConfigTable } from "@/components/fileConfigTable/fileConfig-table";
 import {
@@ -59,6 +60,7 @@ const ProjectSettingsPage = () => {
       <div className="flex flex-col gap-8">
         <FileConfigTable projectId={projectId} />
         <EmailConfigTable projectId={projectId} />
+        <AnalyticsConfigTable projectId={projectId} />
       </div>
     </div>
   );

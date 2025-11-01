@@ -18,6 +18,7 @@ import {
 import { useCallback, useMemo } from "react";
 
 import { DEFAULT_CHART_WINDOW_DAYS, getIsoDateRange } from "@/lib/date-range";
+import { Skeleton } from "../ui/skeleton";
 
 type Row = { date: string } & Record<string, number | string>;
 
@@ -191,8 +192,31 @@ const AnalyticsChart = ({
           <CardTitle>{title}</CardTitle>
           <CardDescription>{description}</CardDescription>
         </CardHeader>
-        <CardContent className="flex h-[20rem] w-full items-center justify-center">
-          <div className="text-muted-foreground">Loading analytics...</div>
+        <CardContent className="flex w-full items-center justify-center h-[20rem] w-full items-center justify-center">
+          <ChartContainer config={chartConfig} className="h-[20rem] w-full">
+            <div
+              className="absolute flex flex-col"
+              style={{
+                left: "12px",
+                right: "12px",
+                top: "12px",
+                bottom: "0px",
+              }}
+            >
+              <div className="flex items-end justify-between gap-2 flex-1 pb-8">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <Skeleton
+                    key={i}
+                    className="flex-1 rounded-t"
+                    style={{
+                      height: `${Math.random() * 30 + 10}%`,
+                      animationDelay: `${i * 0.15}s`,
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+          </ChartContainer>
         </CardContent>
       </Card>
     );

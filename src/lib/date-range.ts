@@ -6,7 +6,7 @@ export const DEFAULT_CHART_WINDOW_DAYS = 30;
  */
 export const getIsoDateRange = (
   days = DEFAULT_CHART_WINDOW_DAYS,
-  endDate: Date = new Date()
+  endDate: Date = new Date(),
 ): string[] => {
   if (days <= 0) {
     return [];

@@ -115,7 +115,7 @@ const AnalyticsChart = ({
     const dateRange = getIsoDateRange(windowSize, safeEndDate);
     const tickStep = chooseTickStep(windowSize);
     const ticks = dateRange.filter(
-      (_, index) => index % tickStep === 0 || index === dateRange.length - 1
+      (_, index) => index % tickStep === 0 || index === dateRange.length - 1,
     );
 
     const filledRange = dateRange.map((date) => {
@@ -169,7 +169,7 @@ const AnalyticsChart = ({
         timeZone: "UTC",
       });
     },
-    [windowDays]
+    [windowDays],
   );
 
   const tooltipLabelFormatter = useCallback((value: string | number) => {

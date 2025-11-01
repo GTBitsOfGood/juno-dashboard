@@ -24,7 +24,7 @@ export function middleware(req: NextRequest) {
       if (value.user.type != 2) {
         return NextResponse.next();
       } else {
-        return NextResponse.redirect(new URL("/projects", req.url));
+        return NextResponse.redirect(new URL("/projects", req.url)); // Replace with /dashboard when it exists
       }
     } else {
       return NextResponse.next();

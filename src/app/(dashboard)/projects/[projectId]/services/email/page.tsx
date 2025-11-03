@@ -13,6 +13,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { useQuery } from "@tanstack/react-query";
+import { getProjectById } from "@/lib/project";
+import { ProjectResponse } from "juno-sdk/build/main/internal/api";
 
 const EmailAnalyticsPage = () => {
   const { projectId } = useParams();
@@ -22,15 +33,31 @@ const EmailAnalyticsPage = () => {
   const [emailAnalytics, setEmailAnalytics] = useState(null);
   const [analyticsLoading, setAnalyticsLoading] = useState(false);
 
+  const { isLoading, isError, data, error } = useQuery<ProjectResponse>({
+    queryKey: ["project", projectId],
+    queryFn: async () => {
+      const result = await getProjectById(Number(projectId));
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+      return result.project;
+    },
+  });
+
+  if (isError) {
+    toast.error("Error", {
+      description: `Failed to fetch project: ${JSON.stringify(error)}`,
+    });
+  }
+
   useEffect(() => {
     const loadEmailData = async () => {
       try {
         const configRes = await getEmailConfig(String(projectId));
-        if (configRes.success && configRes.emailConfig) {
-          setHasEmailConfig(configRes.emailConfig);
+        if (configRes) {
+          setHasEmailConfig(configRes);
           setEmailConfigLoading(false);
 
-          // Fetch analytics if email config exists
           setAnalyticsLoading(true);
           const analyticsRes = await getEmailAnalytics(String(projectId));
           if (analyticsRes.success) {
@@ -93,6 +120,23 @@ const EmailAnalyticsPage = () => {
 
   return (
     <div className="p-6">
+      <Breadcrumb className="mb-4">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/projects">Projects</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href={`/projects/${projectId}`}>
+              {isLoading ? "****" : (data?.name ?? "Unknown")}
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Email Analytics</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
       <h1 className="mb-6 text-xl">
         Email Analytics{" "}
         <span className="text-sm text-gray-400">from the past 30 days</span>

@@ -73,13 +73,13 @@ const EditUserForm = ({
     try {
       // Update user type
       const result = await setUserTypeAction({
-        type: data.userType as unknown as SetUserTypeModel.TypeEnum, //May not be good
+        type: data.userType as any,
         email: data.userEmail,
       });
 
       if (!result.success) {
         toast.error("Error", {
-          description: "Failed to edit user type",
+          description: result.error,
         });
         return;
       }

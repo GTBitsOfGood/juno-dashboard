@@ -164,3 +164,138 @@ export async function getEmailAnalytics(
     };
   }
 }
+
+export async function getAllClickEvents(
+  projectName: string,
+  options?: {
+    afterTime?: string;
+    limit?: number;
+  },
+) {
+  const junoClient = getJunoInstance();
+  try {
+    const events = await junoClient.analytics.getAllClickEvents({
+      projectName,
+      afterTime: options?.afterTime,
+      limit: options?.limit,
+    });
+    return {
+      success: true,
+      events: JSON.parse(JSON.stringify(events)),
+    };
+  } catch (error) {
+    console.error("Error fetching click events:", error);
+    return {
+      success: false,
+      error: "Failed to fetch click events",
+      events: [],
+    };
+  }
+}
+
+export async function getAllInputEvents(
+  projectName: string,
+  options?: {
+    afterTime?: string;
+    limit?: number;
+  },
+) {
+  const junoClient = getJunoInstance();
+  try {
+    const events = await junoClient.analytics.getAllInputEvents({
+      projectName,
+      afterTime: options?.afterTime,
+      limit: options?.limit,
+    });
+    return {
+      success: true,
+      events: JSON.parse(JSON.stringify(events)),
+    };
+  } catch (error) {
+    console.error("Error fetching input events:", error);
+    return {
+      success: false,
+      error: "Failed to fetch input events",
+      events: [],
+    };
+  }
+}
+
+export async function getAllVisitEvents(
+  projectName: string,
+  options?: {
+    afterTime?: string;
+    limit?: number;
+  },
+) {
+  const junoClient = getJunoInstance();
+  try {
+    const events = await junoClient.analytics.getAllVisitEvents({
+      projectName,
+      afterTime: options?.afterTime,
+      limit: options?.limit,
+    });
+    return {
+      success: true,
+      events: JSON.parse(JSON.stringify(events)),
+    };
+  } catch (error) {
+    console.error("Error fetching visit events:", error);
+    return {
+      success: false,
+      error: "Failed to fetch visit events",
+      events: [],
+    };
+  }
+}
+
+export async function getCustomEventTypes(projectName: string) {
+  const junoClient = getJunoInstance();
+  try {
+    const eventTypes =
+      await junoClient.analytics.getCustomEventTypesByProject(projectName);
+    return {
+      success: true,
+      eventTypes: JSON.parse(JSON.stringify(eventTypes)),
+    };
+  } catch (error) {
+    console.error("Error fetching custom event types:", error);
+    return {
+      success: false,
+      error: "Failed to fetch custom event types",
+      eventTypes: [],
+    };
+  }
+}
+
+export async function getAllCustomEvents(
+  projectName: string,
+  category: string,
+  subcategory: string,
+  options?: {
+    afterTime?: string;
+    limit?: number;
+  },
+) {
+  const junoClient = getJunoInstance();
+  try {
+    const events = await junoClient.analytics.getAllCustomEvents({
+      projectName,
+      category,
+      subcategory,
+      afterTime: options?.afterTime,
+      limit: options?.limit,
+    });
+    return {
+      success: true,
+      events: JSON.parse(JSON.stringify(events)),
+    };
+  } catch (error) {
+    console.error("Error fetching custom events:", error);
+    return {
+      success: false,
+      error: "Failed to fetch custom events",
+      events: [],
+    };
+  }
+}

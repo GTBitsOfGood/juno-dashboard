@@ -19,7 +19,14 @@ export async function setUserTypeAction(data: {
       credentials: jwt,
     });
     return { success: true };
-  } catch {
+  } catch (err) {
+    if (err.body) {
+      return {
+        success: false,
+        error: `Failed to update user type: ${JSON.stringify(err.body.message)}`,
+      };
+    }
+
     return {
       success: false,
       error: `Failed to update user type: ${data.type}`,

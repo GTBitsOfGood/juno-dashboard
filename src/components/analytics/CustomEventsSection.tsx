@@ -192,10 +192,6 @@ const CustomEventsSection = ({
 
               {filteredCustomEvents.length > 0 && (
                 <div>
-                  <h3 className="text-sm font-semibold mb-3">
-                    Recent Events ({Math.min(filteredCustomEvents.length, 20)}{" "}
-                    most recent)
-                  </h3>
                   <div className="rounded-md border">
                     <Table>
                       <TableHeader>

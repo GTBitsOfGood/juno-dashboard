@@ -156,4 +156,3 @@ const SimpleEventsSection = ({
 };
 
 export default SimpleEventsSection;
-

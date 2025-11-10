@@ -41,4 +41,3 @@ export interface CustomEvent {
   updatedAt: string;
   properties: Record<string, string>;
 }
-

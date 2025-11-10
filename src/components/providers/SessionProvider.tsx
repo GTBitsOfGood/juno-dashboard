@@ -17,10 +17,11 @@ interface UserSessionContextType {
 // TODO: this should be aligned with UserColumn, but for now is temporarily separate
 // until everything is renamed
 interface User {
+  id: number;
   name: string;
   email: string;
   type: UserType;
-  projectIds: { low: number }[];
+  projectIds: number[];
 }
 
 const UserSessionContext = createContext<UserSessionContextType | undefined>(

@@ -120,8 +120,7 @@ const AnalyticsPage = () => {
     });
   }
 
-  // const projectName = data?.name;
-  const projectName = "Infra Testing Project";
+  const projectName = data?.name;
 
   const {
     data: clickEventsResponse,

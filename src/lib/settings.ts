@@ -231,7 +231,6 @@ export async function getAllClickEvents(
   },
 ) {
   const session = await getSession();
-  console.log(session);
   if (!session) {
     return {
       success: false,

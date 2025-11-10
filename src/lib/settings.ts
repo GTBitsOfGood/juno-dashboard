@@ -246,7 +246,6 @@ export async function getAllClickEvents(
       afterTime: options?.afterTime,
       limit: options?.limit,
     });
-    console.log("EVENTs", projectName, events);
     return {
       success: true,
       events: JSON.parse(JSON.stringify(events)),

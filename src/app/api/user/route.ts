@@ -8,5 +8,5 @@ export const GET = async () => {
     return NextResponse.json(null, { status: 401 });
   }
 
-  return NextResponse.json(session.user);
+  return NextResponse.json({ user: session.user });
 };

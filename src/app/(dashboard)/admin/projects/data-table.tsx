@@ -116,7 +116,6 @@ export function ProjectDataTable<TData, TValue>({
     }
   };
 
-  // TODO: skeleton animation
   return (
     <>
       <div className="items-center flex justify-between py-4 gap-3">

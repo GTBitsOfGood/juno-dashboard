@@ -66,8 +66,7 @@ export function ProjectSidebar({
         if (user.type == UserType.USER) {
           // TODO: this filtering needs to be done on Juno's side
           // regular users can only access their linked projects
-          const projectIdsList =
-            user.projectIds.map((id) => String(id.low)) || [];
+          const projectIdsList = user.projectIds.map((id) => String(id)) || [];
           setProjectIds(projectIdsList);
         } else {
           // admin and superadmin can access all projects

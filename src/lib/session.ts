@@ -1,14 +1,10 @@
 import { cookies } from "next/headers";
-import { decodeJwt } from "jose";
+import { verifyJWT, VerifiedUser } from "./auth";
 
-interface JWTPayload {
-  user: {
-    type: number;
-    projectIds: { low: number }[];
-  };
-}
-
-export async function getSession() {
+export async function getSession(): Promise<{
+  jwt: string;
+  user: VerifiedUser;
+} | null> {
   const cookie = await cookies();
 
   const token = cookie.get("jwt-token")?.value;
@@ -17,11 +13,11 @@ export async function getSession() {
     return null;
   }
 
-  try {
-    const decoded = decodeJwt(token) as JWTPayload;
+  const verifiedUser = await verifyJWT(token);
 
-    return { jwt: token, user: decoded };
-  } catch {
+  if (!verifiedUser) {
     return null;
   }
+
+  return { jwt: token, user: verifiedUser };
 }

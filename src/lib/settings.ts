@@ -8,10 +8,21 @@ import {
   UpdateAnalyticsConfigModel,
 } from "juno-sdk/build/main/internal/api";
 import { getJunoInstance } from "./juno";
+import { getSession } from "./session";
+import { hasProjectAccess, requireAdmin } from "./auth";
 
 export async function getFileConfig(
   projectId: string,
 ): Promise<FileConfigResponse> {
+  const session = await getSession();
+  if (!session) {
+    throw new Error("Unauthorized");
+  }
+
+  if (!hasProjectAccess(session.user, Number(projectId))) {
+    throw new Error("You don't have access to this project");
+  }
+
   const junoClient = getJunoInstance();
 
   try {
@@ -19,12 +30,10 @@ export async function getFileConfig(
 
     return JSON.parse(JSON.stringify(fileConfig));
   } catch (e: any) {
-    if (e.response.statusCode === 404) {
-      // config doesn't exist, this is fine
+    if (e.response?.statusCode === 404) {
       return null;
     }
 
-    // otherwise, rethrow error
     throw e;
   }
 }
@@ -32,19 +41,26 @@ export async function getFileConfig(
 export async function getEmailConfig(
   projectId: string,
 ): Promise<EmailConfigResponse> {
+  const session = await getSession();
+  if (!session) {
+    throw new Error("Unauthorized");
+  }
+
+  if (!hasProjectAccess(session.user, Number(projectId))) {
+    throw new Error("You don't have access to this project");
+  }
+
   const junoClient = getJunoInstance();
 
   try {
     const emailConfig = await junoClient.settings.getEmailConfig(projectId);
 
     return JSON.parse(JSON.stringify(emailConfig));
-  } catch (e) {
-    if (e.response.statusCode === 404) {
-      // config doesn't exist, this is fine
+  } catch (e: any) {
+    if (e.response?.statusCode === 404) {
       return null;
     }
 
-    // otherwise, rethrow error
     throw e;
   }
 }
@@ -52,13 +68,22 @@ export async function getEmailConfig(
 export async function getAnalyticsConfig(
   projectId: string,
 ): Promise<AnalyticsConfigResponse> {
+  const session = await getSession();
+  if (!session) {
+    throw new Error("Unauthorized");
+  }
+
+  if (!hasProjectAccess(session.user, Number(projectId))) {
+    throw new Error("You don't have access to this project");
+  }
+
   const junoClient = getJunoInstance();
   try {
     const analyticsConfig =
       await junoClient.analyticsConfig.getAnalyticsConfig(projectId);
     return JSON.parse(JSON.stringify(analyticsConfig));
-  } catch (e) {
-    if (e.response.statusCode === 404) {
+  } catch (e: any) {
+    if (e.response?.statusCode === 404) {
       return null;
     }
     throw e;
@@ -68,6 +93,15 @@ export async function getAnalyticsConfig(
 export async function deleteAnalyticsConfig(
   projectId: string,
 ): Promise<AnalyticsConfigResponse> {
+  const session = await getSession();
+  if (!session) {
+    throw new Error("Unauthorized");
+  }
+
+  if (!hasProjectAccess(session.user, Number(projectId))) {
+    throw new Error("You don't have access to this project");
+  }
+
   const junoClient = getJunoInstance();
   const analyticsConfig =
     await junoClient.analyticsConfig.deleteAnalyticsConfig(projectId);
@@ -78,6 +112,15 @@ export async function updateAnalyticsConfig(
   projectId: number,
   config: UpdateAnalyticsConfigModel,
 ): Promise<AnalyticsConfigResponse> {
+  const session = await getSession();
+  if (!session) {
+    throw new Error("Unauthorized");
+  }
+
+  if (!hasProjectAccess(session.user, projectId)) {
+    throw new Error("You don't have access to this project");
+  }
+
   const junoClient = getJunoInstance();
   const analyticsConfig =
     await junoClient.analyticsConfig.updateAnalyticsConfig(
@@ -106,6 +149,21 @@ export async function getEmailAnalytics(
     aggregatedBy?: "day" | "week" | "month";
   },
 ) {
+  const session = await getSession();
+  if (!session) {
+    return {
+      success: false,
+      error: "Unauthorized",
+    };
+  }
+
+  if (!hasProjectAccess(session.user, Number(projectId))) {
+    return {
+      success: false,
+      error: "You don't have access to this project",
+    };
+  }
+
   const junoClient = getJunoInstance();
   try {
     const apiKey = process.env.JUNO_API_KEY;
@@ -132,8 +190,8 @@ export async function getEmailAnalytics(
             options?.startDate ||
             new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
               .toISOString()
-              .split("T")[0], // Default to 30 days ago
-          endDate: options?.endDate || new Date().toISOString().split("T")[0], // Default to today
+              .split("T")[0],
+          endDate: options?.endDate || new Date().toISOString().split("T")[0],
           limit: String(options?.limit || 100),
           offset: String(options?.offset || 0),
           aggregatedBy: options?.aggregatedBy || "day",
@@ -148,7 +206,7 @@ export async function getEmailAnalytics(
     );
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(`Error: ${response.status}`);
     }
 
     const data = await response.json();
@@ -172,6 +230,15 @@ export async function getAllClickEvents(
     limit?: number;
   },
 ) {
+  const session = await getSession();
+  if (!session) {
+    return {
+      success: false,
+      error: "Unauthorized",
+      events: [],
+    };
+  }
+
   const junoClient = getJunoInstance();
   try {
     const events = await junoClient.analytics.getAllClickEvents({
@@ -200,6 +267,15 @@ export async function getAllInputEvents(
     limit?: number;
   },
 ) {
+  const session = await getSession();
+  if (!session) {
+    return {
+      success: false,
+      error: "Unauthorized",
+      events: [],
+    };
+  }
+
   const junoClient = getJunoInstance();
   try {
     const events = await junoClient.analytics.getAllInputEvents({
@@ -228,6 +304,15 @@ export async function getAllVisitEvents(
     limit?: number;
   },
 ) {
+  const session = await getSession();
+  if (!session) {
+    return {
+      success: false,
+      error: "Unauthorized",
+      events: [],
+    };
+  }
+
   const junoClient = getJunoInstance();
   try {
     const events = await junoClient.analytics.getAllVisitEvents({
@@ -250,13 +335,23 @@ export async function getAllVisitEvents(
 }
 
 export async function getCustomEventTypes(projectName: string) {
+  const session = await getSession();
+  if (!session) {
+    return {
+      success: false,
+      error: "Unauthorized",
+      eventTypes: [],
+    };
+  }
+
   const junoClient = getJunoInstance();
   try {
     const eventTypes =
       await junoClient.analytics.getCustomEventTypesByProject(projectName);
+
     return {
       success: true,
-      eventTypes: JSON.parse(JSON.stringify(eventTypes)),
+      eventTypes: JSON.parse(JSON.stringify(eventTypes.eventTypes)),
     };
   } catch (error) {
     console.error("Error fetching custom event types:", error);
@@ -277,6 +372,15 @@ export async function getAllCustomEvents(
     limit?: number;
   },
 ) {
+  const session = await getSession();
+  if (!session) {
+    return {
+      success: false,
+      error: "Unauthorized",
+      events: [],
+    };
+  }
+
   const junoClient = getJunoInstance();
   try {
     const events = await junoClient.analytics.getAllCustomEvents({

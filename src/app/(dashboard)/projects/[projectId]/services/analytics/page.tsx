@@ -1,6 +1,5 @@
 "use client";
 
-import AnalyticsChart from "@/components/charts/AnalyticsChart";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -9,21 +8,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { getProjectById } from "@/lib/project";
 import { DEFAULT_CHART_WINDOW_DAYS } from "@/lib/date-range";
 import { useQuery } from "@tanstack/react-query";
@@ -38,51 +22,14 @@ import {
   getCustomEventTypes,
   getAllCustomEvents,
 } from "@/lib/settings";
-
-// simple event types
-export interface Event {
-  id: string;
-  category: string;
-  subcategory: string;
-  projectId: string;
-  environment: string;
-  createdAt: string;
-  updatedAt: string;
-  eventProperties?: EventProperties;
-  metricType?: EventMetric;
-  eventTypeId?: string;
-  properties?: Record<string, string>;
-}
-
-export type EventMetric =
-  | "click_events"
-  | "input_events"
-  | "visit_events"
-  | "custom_events";
-
-export interface EventProperties {
-  objectId?: string;
-  userId?: string;
-  textValue?: string;
-}
-
-// custom event types
-export interface CustomEventType {
-  id: string;
-  category: string;
-  subcategory: string;
-  properties: string[];
-  projectId: string;
-}
-export interface CustomEvent {
-  id: string;
-  eventTypeId: string;
-  projectId: string;
-  environment: string;
-  createdAt: string;
-  updatedAt: string;
-  properties: Record<string, string>;
-}
+import SimpleEventsSection from "@/components/analytics/SimpleEventsSection";
+import CustomEventsSection from "@/components/analytics/CustomEventsSection";
+import {
+  Event,
+  EventMetric,
+  CustomEventType,
+  CustomEvent,
+} from "@/components/analytics/types";
 
 // Window Logic
 const TIME_WINDOW_OPTIONS = [7, 14, 30, 60, 90] as const;
@@ -379,12 +326,6 @@ const AnalyticsPage = () => {
     [customEventsBase],
   );
 
-  const aggregateEventMetrics: EventMetric[] = [
-    "click_events",
-    "input_events",
-    "visit_events",
-  ];
-
   const allEventData = useMemo(
     () => [
       ...tagEventsWithMetric(clickData, "click_events"),
@@ -542,12 +483,15 @@ const AnalyticsPage = () => {
 
   const customRangeLabel = formatWindowRange(customWindowBounds);
 
-  const customChartDescription =
-    selectedCategory && selectedSubcategory
-      ? `Custom events captured for ${selectedCategory} / ${selectedSubcategory} · ${customRangeLabel}`
-      : `Custom events over time · ${customRangeLabel}`;
-
   const hasCustomOptions = customEventCategoryOptions.length > 0;
+
+  const currentEventType = useMemo(() => {
+    return customEventTypes.find(
+      (type) =>
+        type.category === selectedCategory &&
+        type.subcategory === selectedSubcategory,
+    );
+  }, [customEventTypes, selectedCategory, selectedSubcategory]);
 
   return (
     <div className="p-6 max-w-[70%]">
@@ -570,212 +514,45 @@ const AnalyticsPage = () => {
       </Breadcrumb>
       <h1 className="mb-6 text-xl">Analytics </h1>
 
-      {/* Simple Events Window */}
       <div className="space-y-6 w-full">
-        <div className="flex flex-col gap-3 rounded-lg border border-border/60 bg-muted/40 p-4 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-sm text-muted-foreground">
-            Showing {filteredSimpleAllEvents.length} simple events
-          </p>
-          <div className="flex gap-2 flex-wrap">
-            <Select
-              value={String(simpleWindowDays)}
-              onValueChange={handleSimpleWindowChange}
-            >
-              <SelectTrigger className="w-[140px]">
-                <SelectValue placeholder="Time window" />
-              </SelectTrigger>
-              <SelectContent>
-                {TIME_WINDOW_OPTIONS.map((days) => (
-                  <SelectItem key={days} value={String(days)}>
-                    {days} days
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <div className="flex gap-1">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={goToNewerSimple}
-                      disabled={!canPageNewerSimple}
-                    >
-                      Newer
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Show more recent events</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={goToOlderSimple}
-                      disabled={!hasOlderSimple}
-                    >
-                      Older
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Show older events</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-          </div>
-        </div>
+        <SimpleEventsSection
+          filteredAllEvents={filteredSimpleAllEvents}
+          filteredClickEvents={filteredClickEvents}
+          filteredInputEvents={filteredInputEvents}
+          filteredVisitEvents={filteredVisitEvents}
+          eventsLoading={eventsLoading}
+          windowDays={simpleWindowDays}
+          endDate={simpleEndDate}
+          rangeLabel={simpleRangeLabel}
+          onWindowChange={handleSimpleWindowChange}
+          onGoOlder={goToOlderSimple}
+          onGoNewer={goToNewerSimple}
+          canGoOlder={hasOlderSimple}
+          canGoNewer={canPageNewerSimple}
+          timeWindowOptions={TIME_WINDOW_OPTIONS}
+        />
 
-        {/* Simple Events */}
-        <div className="space-y-6">
-          <AnalyticsChart
-            title="All Simple Event Types"
-            description={`Click, input, and visit events over time · ${simpleRangeLabel}`}
-            metrics={aggregateEventMetrics}
-            data={filteredSimpleAllEvents}
-            loading={eventsLoading}
-            windowDays={simpleWindowDays}
-            endDate={simpleEndDate}
-          />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <AnalyticsChart
-              title="Click Events"
-              description="Click events over time"
-              metrics={["click_events"]}
-              data={filteredClickEvents}
-              loading={eventsLoading}
-              windowDays={simpleWindowDays}
-              endDate={simpleEndDate}
-            />
-            <AnalyticsChart
-              title="Input Events"
-              description="Input events over time"
-              metrics={["input_events"]}
-              data={filteredInputEvents}
-              loading={eventsLoading}
-              windowDays={simpleWindowDays}
-              endDate={simpleEndDate}
-            />
-            <AnalyticsChart
-              title="Visit Events"
-              description="Visit events over time"
-              metrics={["visit_events"]}
-              data={filteredVisitEvents}
-              loading={eventsLoading}
-              windowDays={simpleWindowDays}
-              endDate={simpleEndDate}
-            />
-          </div>
-        </div>
-
-        {/* Custom Events Window */}
-        <div className="space-y-4">
-          <div className="flex flex-col gap-3 rounded-lg border border-border/60 bg-muted/40 p-4 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-sm text-muted-foreground">
-              {hasCustomOptions
-                ? `Showing ${filteredCustomEvents.length} custom events`
-                : "No custom event types configured"}
-            </p>
-            {hasCustomOptions && selectedCategory && (
-              <div className="flex gap-2 flex-wrap">
-                <Select
-                  value={selectedCategory}
-                  onValueChange={handleCategoryChange}
-                >
-                  <SelectTrigger className="w-[160px]">
-                    <SelectValue placeholder="Category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {customEventCategoryOptions
-                      .filter((cat) => cat !== "")
-                      .map((cat) => (
-                        <SelectItem key={cat} value={cat}>
-                          {cat}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
-                <Select
-                  value={selectedSubcategory}
-                  onValueChange={setSelectedSubcategory}
-                >
-                  <SelectTrigger className="w-[160px]">
-                    <SelectValue placeholder="Subcategory" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {subcategoryOptions
-                      .filter((sub) => sub !== "")
-                      .map((sub) => (
-                        <SelectItem key={sub} value={sub}>
-                          {sub}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
-                <Select
-                  value={String(customWindowDays)}
-                  onValueChange={handleCustomWindowChange}
-                >
-                  <SelectTrigger className="w-[140px]">
-                    <SelectValue placeholder="Time window" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {TIME_WINDOW_OPTIONS.map((days) => (
-                      <SelectItem key={days} value={String(days)}>
-                        {days} days
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <div className="flex gap-1">
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={goToNewerCustom}
-                          disabled={!canPageNewerCustom}
-                        >
-                          Newer
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>Show more recent events</TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={goToOlderCustom}
-                          disabled={!hasOlderCustom}
-                        >
-                          Older
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>Show older events</TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {hasCustomOptions && (
-            <AnalyticsChart
-              title={`${selectedCategory} / ${selectedSubcategory}`}
-              description={customChartDescription}
-              metrics={["custom_events"]}
-              data={filteredCustomEvents}
-              loading={customEventsLoading}
-              windowDays={customWindowDays}
-              endDate={customEndDate}
-            />
-          )}
-        </div>
+        <CustomEventsSection
+          filteredCustomEvents={filteredCustomEvents}
+          customEventsLoading={customEventsLoading}
+          windowDays={customWindowDays}
+          endDate={customEndDate}
+          rangeLabel={customRangeLabel}
+          selectedCategory={selectedCategory}
+          selectedSubcategory={selectedSubcategory}
+          categoryOptions={customEventCategoryOptions}
+          subcategoryOptions={subcategoryOptions}
+          currentEventType={currentEventType}
+          onCategoryChange={handleCategoryChange}
+          onSubcategoryChange={setSelectedSubcategory}
+          onWindowChange={handleCustomWindowChange}
+          onGoOlder={goToOlderCustom}
+          onGoNewer={goToNewerCustom}
+          canGoOlder={hasOlderCustom}
+          canGoNewer={canPageNewerCustom}
+          timeWindowOptions={TIME_WINDOW_OPTIONS}
+          hasCustomOptions={hasCustomOptions}
+        />
       </div>
     </div>
   );

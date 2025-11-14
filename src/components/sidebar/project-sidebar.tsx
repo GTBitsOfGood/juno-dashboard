@@ -8,7 +8,8 @@ import {
   Mail,
   Files,
   LogOut,
-  RollerCoaster,
+  Shield,
+  FolderKanban,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -30,6 +31,8 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
 } from "../ui/dropdown-menu";
 import { useEffect, useState } from "react";
 import { getProjects } from "@/lib/sdkActions";
@@ -46,34 +49,51 @@ export function ProjectSidebar({
 }: ProjectSidebarProps) {
   const { user } = useUserSession();
 
-  const [projectIds, setProjectIds] = useState<string[]>([]);
+  const [projects, setProjects] = useState<Array<{ id: number; name: string }>>(
+    [],
+  );
 
-  // Get current user through jwt token to create list of project IDs they can access
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const getAllProjectIds = async () => {
+        const getAllProjects = async () => {
           try {
             const result = await getProjects();
-            const projectIdsList =
-              result.projects?.map((project) => String(project.id)) || [];
-            setProjectIds(projectIdsList);
+            const projectsList =
+              result.projects?.map((project) => ({
+                id: project.id,
+                name: project.name,
+              })) || [];
+            setProjects(projectsList);
           } catch (err) {
             console.error(err);
           }
         };
 
         if (user.type == UserType.USER) {
-          // TODO: this filtering needs to be done on Juno's side
-          // regular users can only access their linked projects
-          const projectIdsList = user.projectIds.map((id) => String(id)) || [];
-          setProjectIds(projectIdsList);
+          const getAllProjectsForUser = async () => {
+            try {
+              const result = await getProjects();
+              const userProjectIds = new Set(user.projectIds);
+              const projectsList =
+                result.projects
+                  ?.filter((project) => userProjectIds.has(project.id))
+                  .map((project) => ({
+                    id: project.id,
+                    name: project.name,
+                  })) || [];
+              setProjects(projectsList);
+            } catch (err) {
+              console.error(err);
+            }
+          };
+          getAllProjectsForUser();
         } else {
           // admin and superadmin can access all projects
-          getAllProjectIds();
+          getAllProjects();
         }
       } catch (err) {
-        console.error("Error fetching all project IDs:", err);
+        console.error("Error fetching all projects:", err);
       }
     };
 
@@ -100,11 +120,6 @@ export function ProjectSidebar({
       icon: Mail,
     },
     {
-      title: "Analytics",
-      url: `/projects/${projectId}/services/analytics`,
-      icon: RollerCoaster,
-    },
-    {
       title: "Files",
       url: `/projects/${projectId}/services/files`,
       icon: Files,
@@ -129,33 +144,44 @@ export function ProjectSidebar({
           <SidebarMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <SidebarMenuButton>
+                <SidebarMenuButton className="h-12 px-4 hover:bg-accent/50 data-[state=open]:bg-accent/50 border border-white/10 rounded-lg font-semibold">
                   {currProjName || "Select Project"}
-                  <ChevronDown className="ml-auto" />
+                  <ChevronDown className="ml-auto h-4 w-4 transition-transform data-[state=open]:rotate-180" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-[--radix-popper-anchor-width]">
                 {user !== null &&
                 (user.type === UserType.ADMIN ||
                   user.type === UserType.SUPERADMIN) ? (
-                  <DropdownMenuItem asChild key={"admin"}>
-                    <a href={"/admin"}>
-                      <span>{`Admin Dashboard`}</span>
-                    </a>
-                  </DropdownMenuItem>
+                  <>
+                    <DropdownMenuItem asChild key={"admin"}>
+                      <a href={"/admin"} className="flex items-center gap-2">
+                        <Shield className="h-4 w-4" />
+                        <span>Admin Dashboard</span>
+                      </a>
+                    </DropdownMenuItem>
+                    {projects.length > 0 && <DropdownMenuSeparator />}
+                  </>
                 ) : (
                   <></>
                 )}
-                {projectIds.length > 0 ? (
-                  projectIds.map((id) => (
-                    <DropdownMenuItem asChild key={id}>
-                      <a href={`/projects/${id}`}>
-                        <span>{`Project ${id}`}</span>
-                      </a>
-                    </DropdownMenuItem>
-                  ))
+                {projects.length > 0 ? (
+                  <>
+                    <DropdownMenuLabel>Projects</DropdownMenuLabel>
+                    {projects.map((project) => (
+                      <DropdownMenuItem asChild key={project.id}>
+                        <a
+                          href={`/projects/${project.id}`}
+                          className="flex items-center gap-2"
+                        >
+                          <FolderKanban className="h-4 w-4" />
+                          <span>{project.name}</span>
+                        </a>
+                      </DropdownMenuItem>
+                    ))}
+                  </>
                 ) : (
-                  <DropdownMenuItem>
+                  <DropdownMenuItem disabled>
                     <span>No available projects</span>
                   </DropdownMenuItem>
                 )}

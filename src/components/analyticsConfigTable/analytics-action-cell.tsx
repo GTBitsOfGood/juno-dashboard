@@ -18,6 +18,7 @@ import {
 import { MoreHorizontal } from "lucide-react";
 import AddAnalyticsConfigForm from "../forms/AddAnalyticsConfigForm";
 import { AnalyticsConfig } from "./columns";
+import { useState } from "react";
 
 interface AnalyticsActionsCellProps {
   config: AnalyticsConfig;
@@ -38,9 +39,11 @@ export const AnalyticsActionsCell = ({
   isPending,
   onUpdateConfig,
 }: AnalyticsActionsCellProps) => {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
   return (
     <>
-      <Dialog modal={false}>
+      <Dialog modal={false} open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="h-8 w-8 p-0">

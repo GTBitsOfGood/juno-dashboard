@@ -162,6 +162,25 @@ export async function linkUserToProject(data: {
   }
 }
 
+export async function linkUserToProjectId(data: {
+  projectId: number;
+  userId: string;
+}) {
+  const junoClient = getJunoInstance();
+  try {
+    const { jwt } = await getSession();
+    await junoClient.user.linkToProject({
+      credentials: jwt,
+      project: { id: data.projectId },
+      userId: data.userId,
+    });
+    return { success: true };
+  } catch (error) {
+    console.error("Error linking user:", error);
+    return { success: false, error: "Failed to link user type to project" };
+  }
+}
+
 export async function unlinkUserFromProject(data: {
   projectName: string;
   userId: string;

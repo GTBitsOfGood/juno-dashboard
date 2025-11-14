@@ -9,7 +9,7 @@ import {
 } from "juno-sdk/build/main/internal/api";
 import { getJunoInstance } from "./juno";
 import { getSession } from "./session";
-import { hasProjectAccess, requireAdmin } from "./auth";
+import { hasProjectAccess } from "./auth";
 
 export async function getFileConfig(
   projectId: string,
@@ -29,6 +29,7 @@ export async function getFileConfig(
     const fileConfig = await junoClient.settings.getFileConfig(projectId);
 
     return JSON.parse(JSON.stringify(fileConfig));
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
     if (e.response?.statusCode === 404) {
       return null;
@@ -56,6 +57,7 @@ export async function getEmailConfig(
     const emailConfig = await junoClient.settings.getEmailConfig(projectId);
 
     return JSON.parse(JSON.stringify(emailConfig));
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
     if (e.response?.statusCode === 404) {
       return null;
@@ -82,6 +84,7 @@ export async function getAnalyticsConfig(
     const analyticsConfig =
       await junoClient.analyticsConfig.getAnalyticsConfig(projectId);
     return JSON.parse(JSON.stringify(analyticsConfig));
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
     if (e.response?.statusCode === 404) {
       return null;

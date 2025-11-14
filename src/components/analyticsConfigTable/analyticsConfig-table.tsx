@@ -68,7 +68,7 @@ export function AnalyticsConfigTable({ projectId }: AnalyticsConfigTableProps) {
     mutationFn: async (keys: {
       serverAnalyticsKey: string;
       clientAnalyticsKey: string;
-    }) => createAnalyticsConfig(projectId, keys),
+    }) => createAnalyticsConfig(keys),
     onSuccess: () => {
       toast.success("Success", {
         description: `Successfully added analytics config.`,

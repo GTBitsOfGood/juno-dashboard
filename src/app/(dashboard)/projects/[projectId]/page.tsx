@@ -34,7 +34,6 @@ import {
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -214,9 +213,18 @@ const DashboardPage = () => {
     refetchOnWindowFocus: true,
   });
 
-  const clickData: Event[] = clickEventsResponse?.events?.events || [];
-  const inputData: Event[] = inputEventsResponse?.events?.events || [];
-  const visitData: Event[] = visitEventsResponse?.events?.events || [];
+  const clickData: Event[] = useMemo(
+    () => clickEventsResponse?.events?.events || [],
+    [clickEventsResponse?.events?.events],
+  );
+  const inputData: Event[] = useMemo(
+    () => inputEventsResponse?.events?.events || [],
+    [inputEventsResponse?.events?.events],
+  );
+  const visitData: Event[] = useMemo(
+    () => visitEventsResponse?.events?.events || [],
+    [visitEventsResponse?.events?.events],
+  );
 
   const customEventTypes: CustomEventType[] = (() => {
     const types = customEventTypesResponse?.eventTypes;

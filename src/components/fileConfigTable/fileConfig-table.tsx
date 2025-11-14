@@ -36,7 +36,7 @@ export function FileConfigTable({ projectId }: FileConfigTableProps) {
   const fileConfigRowData = [data]
     .filter((config) => config)
     .map((config) => ({
-      id: config.id.low,
+      id: config.id,
       environment: config.environment,
       bucketNames: config.buckets?.map((bucket) => bucket.name) ?? [],
       fileNames:

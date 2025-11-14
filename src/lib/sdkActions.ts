@@ -80,6 +80,7 @@ export async function getProjects() {
 
   try {
     const client = getJunoInstance();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const projects = (await client.project.getProjects(session.jwt)) as any;
 
     return {

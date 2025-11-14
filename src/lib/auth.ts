@@ -42,6 +42,7 @@ export async function verifyJWT(token: string): Promise<VerifiedUser | null> {
         ? Number(data.user.id.low)
         : Number(data.user.id);
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const projectIds = (data.user.projectIds || []).map((p: any) =>
       typeof p === "object" && "low" in p ? Number(p.low) : Number(p),
     );

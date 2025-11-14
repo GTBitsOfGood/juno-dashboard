@@ -36,7 +36,7 @@ export function EmailConfigTable({ projectId }: EmailConfigTableProps) {
   const emailConfigRowData = [data]
     .filter((config) => config)
     .map((config) => ({
-      id: config.id.low,
+      id: config.id,
       environment: config.environment,
       sendgridKey: config.sendgridKey,
       domainNames: config.domains?.map((domain) => domain.domain) ?? [],

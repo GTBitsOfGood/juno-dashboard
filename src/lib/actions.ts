@@ -9,7 +9,6 @@ import {
   requireSuperAdmin,
   requireAdmin,
   hasProjectAccess,
-  UserType,
 } from "./auth";
 
 export async function setUserTypeAction(data: {
@@ -33,6 +32,7 @@ export async function setUserTypeAction(data: {
       credentials: session.jwt,
     });
     return { success: true };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (err: any) {
     if (err.body) {
       return {
@@ -87,6 +87,7 @@ export async function createUserAction(data: {
         projectIds: user.projectIds,
       },
     };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.error("Error creating user:", error);
     return { success: false, error: error.body };
@@ -221,6 +222,7 @@ export async function getProjectUsers(projectId: string) {
           projects: user.projectIds,
         })) || [],
     };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.error("Error fetching project users:", error);
     return {

@@ -21,6 +21,7 @@ import {
   getAllVisitEvents,
   getCustomEventTypes,
   getAllCustomEvents,
+  getAnalyticsConfig,
 } from "@/lib/settings";
 import SimpleEventsSection from "@/components/analytics/SimpleEventsSection";
 import CustomEventsSection from "@/components/analytics/CustomEventsSection";
@@ -30,6 +31,16 @@ import {
   CustomEventType,
   CustomEvent,
 } from "@/components/analytics/types";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { BarChart3, Settings } from "lucide-react";
+import Link from "next/link";
 
 // Window Logic
 const TIME_WINDOW_OPTIONS = [7, 14, 30, 60, 90] as const;
@@ -101,6 +112,11 @@ const DashboardPage = () => {
   //breadcrumb logic
   const { projectId } = useParams<{ projectId: string }>();
 
+  const [hasAnalyticsConfig, setHasAnalyticsConfig] = useState<boolean | null>(
+    null,
+  );
+  const [analyticsConfigLoading, setAnalyticsConfigLoading] = useState(true);
+
   const { isLoading, isError, data, error } = useQuery<ProjectResponse>({
     queryKey: ["project", projectId],
     queryFn: async () => {
@@ -119,6 +135,22 @@ const DashboardPage = () => {
       description: `Failed to fetch project: ${JSON.stringify(error)}`,
     });
   }
+
+  useEffect(() => {
+    const checkAnalyticsConfig = async () => {
+      try {
+        const config = await getAnalyticsConfig(String(projectId));
+        setHasAnalyticsConfig(config !== null);
+      } catch (e) {
+        console.error("Error checking analytics config:", e);
+        setHasAnalyticsConfig(false);
+      } finally {
+        setAnalyticsConfigLoading(false);
+      }
+    };
+
+    checkAnalyticsConfig();
+  }, [projectId]);
 
   const projectName = "Infra Testing Project";
 
@@ -492,6 +524,61 @@ const DashboardPage = () => {
         type.subcategory === selectedSubcategory,
     );
   }, [customEventTypes, selectedCategory, selectedSubcategory]);
+
+  const hasAnyEventData =
+    allEventData.length > 0 || customEventsWithMetric.length > 0;
+  const eventsStillLoading =
+    eventsLoading ||
+    customEventsLoading ||
+    clickLoading ||
+    inputLoading ||
+    visitLoading ||
+    customTypesLoading;
+  const shouldShowEmptyState =
+    !analyticsConfigLoading &&
+    !eventsStillLoading &&
+    (!hasAnalyticsConfig || !hasAnyEventData);
+
+  if (shouldShowEmptyState) {
+    return (
+      <div className="p-6 max-w-[70%]">
+        <Breadcrumb className="mb-4">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/projects">Projects</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>
+                {isLoading ? "****" : (data?.name ?? "Unknown")}
+              </BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+        <h1 className="mb-6 text-xl">Dashboard</h1>
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <BarChart3 className="h-5 w-5 text-muted-foreground" />
+              <CardTitle>No Analytics Configuration</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground mb-4">
+              Configure analytics to start tracking user interactions, visits,
+              clicks, and custom events using Juno.
+            </p>
+            <Button asChild>
+              <Link href={`/projects/${projectId}/settings`}>
+                <Settings className="mr-2 h-4 w-4" />
+                Go to Settings
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 max-w-[70%]">

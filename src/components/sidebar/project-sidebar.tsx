@@ -49,7 +49,9 @@ export function ProjectSidebar({
 }: ProjectSidebarProps) {
   const { user } = useUserSession();
 
-  const [projects, setProjects] = useState<Array<{ id: number; name: string }>>([]);
+  const [projects, setProjects] = useState<Array<{ id: number; name: string }>>(
+    [],
+  );
 
   useEffect(() => {
     const fetchProjects = async () => {

@@ -69,7 +69,9 @@ const items = [
 export function AdminSidebar() {
   const { user } = useUserSession();
 
-  const [projects, setProjects] = useState<Array<{ id: number; name: string }>>([]);
+  const [projects, setProjects] = useState<Array<{ id: number; name: string }>>(
+    [],
+  );
 
   useEffect(() => {
     const fetchProjects = async () => {

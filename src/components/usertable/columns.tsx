@@ -4,9 +4,9 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ColumnDef } from "@tanstack/react-table";
 import { SetUserTypeModel } from "juno-sdk/build/main/internal/api";
-import { ProjectColumn } from "../../app/(auth)/admin/projects/columns";
 import { UserActionsCell } from "./user-actions-cell";
 import Link from "next/link";
+import { ProjectColumn } from "@/app/(dashboard)/admin/projects/columns";
 export type UserColumn = {
   id: number;
   name: string;

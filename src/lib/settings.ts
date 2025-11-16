@@ -5,11 +5,12 @@ import {
   CreateAnalyticsConfigModel,
   EmailConfigResponse,
   FileConfigResponse,
+  SetupFileServiceResponse,
   UpdateAnalyticsConfigModel,
 } from "juno-sdk/build/main/internal/api";
+import { hasProjectAccess } from "./auth";
 import { getJunoInstance } from "./juno";
 import { getSession } from "./session";
-import { hasProjectAccess } from "./auth";
 
 export async function getFileConfig(
   projectId: string,
@@ -26,7 +27,10 @@ export async function getFileConfig(
   const junoClient = getJunoInstance();
 
   try {
-    const fileConfig = await junoClient.settings.getFileConfig(projectId);
+    const fileConfig = await junoClient.file.getConfig(projectId, {
+      userJwt: session.jwt,
+      projectId: projectId,
+    });
 
     return JSON.parse(JSON.stringify(fileConfig));
   } catch (e) {
@@ -36,6 +40,46 @@ export async function getFileConfig(
 
     throw e;
   }
+}
+
+export async function createFileConfig(
+  projectId: string,
+): Promise<SetupFileServiceResponse> {
+  const session = await getSession();
+  if (!session) {
+    throw new Error("Unauthorized");
+  }
+
+  if (!hasProjectAccess(session.user, Number(projectId))) {
+    throw new Error("You don't have access to this project");
+  }
+
+  const junoClient = getJunoInstance();
+  const response = await junoClient.file.setup({
+    userJwt: session.jwt,
+    projectId: projectId,
+  });
+  return JSON.parse(JSON.stringify(response));
+}
+
+export async function deleteFileConfig(
+  projectId: string,
+): Promise<FileConfigResponse> {
+  const session = await getSession();
+  if (!session) {
+    throw new Error("Unauthorized");
+  }
+
+  if (!hasProjectAccess(session.user, Number(projectId))) {
+    throw new Error("You don't have access to this project");
+  }
+
+  const junoClient = getJunoInstance();
+  const fileConfig = await junoClient.file.deleteConfig(projectId, {
+    userJwt: session.jwt,
+    projectId: projectId,
+  });
+  return JSON.parse(JSON.stringify(fileConfig));
 }
 
 export async function getEmailConfig(
@@ -53,7 +97,10 @@ export async function getEmailConfig(
   const junoClient = getJunoInstance();
 
   try {
-    const emailConfig = await junoClient.settings.getEmailConfig(projectId);
+    const emailConfig = await junoClient.email.getEmailConfig(projectId, {
+      userJwt: session.jwt,
+      projectId: projectId,
+    });
 
     return JSON.parse(JSON.stringify(emailConfig));
   } catch (e) {

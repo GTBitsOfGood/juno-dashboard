@@ -1,8 +1,60 @@
+"use client";
+
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { getProjectById } from "@/lib/project";
+import { useQuery } from "@tanstack/react-query";
+import { ProjectResponse } from "juno-sdk/build/main/internal/api";
+import { useParams } from "next/navigation";
+import { toast } from "sonner";
+
 const FileServicePage = () => {
+  const { projectId } = useParams<{ projectId: string }>();
+
+  const { isLoading, isError, data, error } = useQuery<ProjectResponse>({
+    queryKey: ["project", projectId],
+    queryFn: async () => {
+      const result = await getProjectById(Number(projectId));
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+      return result.project;
+    },
+  });
+
+  if (isError) {
+    toast.error("Error", {
+      description: `Failed to fetch project: ${JSON.stringify(error)}`,
+    });
+  }
+
   return (
-    <div className="p-6">
-      TO BE FINISHED BY END OF SPRINT 5. This will have a place for you to
-      register file providers and buckets for your file system.
+    <div className="container mx-auto px-10 py-10 md:w-[85vw] sm:w-full">
+      <Breadcrumb className="mb-4">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/projects">Projects</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href={`/projects/${projectId}`}>
+              {isLoading ? "****" : (data?.name ?? "Unknown")}
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Files</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
+      <div className="flex flex-col gap-8"></div>
     </div>
   );
 };

@@ -80,6 +80,7 @@ export function FileConfigTable({ projectId }: FileConfigTableProps) {
     onSettled: () => {
       setIsAddConfigDialogOpen(false);
     },
+    onError: () => toast.error("An error occurred while adding configs."),
   });
 
   return (

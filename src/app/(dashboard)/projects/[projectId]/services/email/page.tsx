@@ -20,7 +20,6 @@ import { ProjectResponse } from "juno-sdk/build/main/internal/api";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";

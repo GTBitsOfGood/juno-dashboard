@@ -21,6 +21,10 @@ interface FileConfigTableProps {
   projectId: string;
 }
 
+interface ProjectId {
+  low: number
+}
+
 export function FileConfigTable({ projectId }: FileConfigTableProps) {
   const [isAddConfigDialogOpen, setIsAddConfigDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -36,7 +40,7 @@ export function FileConfigTable({ projectId }: FileConfigTableProps) {
   const fileConfigRowData = [data]
     .filter((config) => config)
     .map((config) => ({
-      id: config.id.low,
+      id: (config.id as unknown as ProjectId).low,
       environment: config.environment,
       bucketNames: config.buckets?.map((bucket) => bucket.name) ?? [],
       fileNames:

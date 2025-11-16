@@ -1,12 +1,3 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Files } from "lucide-react";
-
 const FileServicePage = () => {
   return (
     <div className="p-6">

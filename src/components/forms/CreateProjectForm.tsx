@@ -14,7 +14,7 @@ import { useForm } from "react-hook-form";
 import { createProjectAction } from "@/lib/actions";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
-import { ProjectColumn } from "@/app/(auth)/admin/projects/columns";
+import { ProjectColumn } from "@/app/(dashboard)/admin/projects/columns";
 
 const createProjectSchema = z.object({
   projectName: z.string().min(2, "Name must be at least 2 characters"),

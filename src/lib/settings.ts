@@ -9,7 +9,7 @@ import {
 } from "juno-sdk/build/main/internal/api";
 import { getJunoInstance } from "./juno";
 import { getSession } from "./session";
-import { hasProjectAccess, requireAdmin } from "./auth";
+import { hasProjectAccess } from "./auth";
 
 export async function getFileConfig(
   projectId: string,
@@ -29,7 +29,7 @@ export async function getFileConfig(
     const fileConfig = await junoClient.settings.getFileConfig(projectId);
 
     return JSON.parse(JSON.stringify(fileConfig));
-  } catch (e: any) {
+  } catch (e) {
     if (e.response?.statusCode === 404) {
       return null;
     }
@@ -56,7 +56,7 @@ export async function getEmailConfig(
     const emailConfig = await junoClient.settings.getEmailConfig(projectId);
 
     return JSON.parse(JSON.stringify(emailConfig));
-  } catch (e: any) {
+  } catch (e) {
     if (e.response?.statusCode === 404) {
       return null;
     }
@@ -79,10 +79,15 @@ export async function getAnalyticsConfig(
 
   const junoClient = getJunoInstance();
   try {
-    const analyticsConfig =
-      await junoClient.analyticsConfig.getAnalyticsConfig(projectId);
+    const analyticsConfig = await junoClient.analyticsConfig.getAnalyticsConfig(
+      projectId,
+      {
+        userJwt: session.jwt,
+        projectId: projectId,
+      },
+    );
     return JSON.parse(JSON.stringify(analyticsConfig));
-  } catch (e: any) {
+  } catch (e) {
     if (e.response?.statusCode === 404) {
       return null;
     }
@@ -131,11 +136,28 @@ export async function updateAnalyticsConfig(
 }
 
 export async function createAnalyticsConfig(
-  config: CreateAnalyticsConfigModel,
+  projectId: string,
+  keys: {
+    serverAnalyticsKey: string;
+    clientAnalyticsKey: string;
+  },
 ): Promise<AnalyticsConfigResponse> {
+  const session = await getSession();
+  if (!session) {
+    throw new Error("Unauthorized");
+  }
+
+  const config: CreateAnalyticsConfigModel = {
+    serverAnalyticsKey: keys.serverAnalyticsKey,
+    clientAnalyticsKey: keys.clientAnalyticsKey,
+  };
+
   const junoClient = getJunoInstance();
   const analyticsConfig =
-    await junoClient.analyticsConfig.createAnalyticsConfig(config);
+    await junoClient.analyticsConfig.createAnalyticsConfig(config, {
+      userJwt: session.jwt,
+      projectId: Number(projectId),
+    });
   return JSON.parse(JSON.stringify(analyticsConfig));
 }
 
@@ -175,7 +197,10 @@ export async function getEmailAnalytics(
       };
     }
 
-    const emailConfig = await junoClient.settings.getEmailConfig(projectId);
+    const emailConfig = await junoClient.settings.getEmailConfig(projectId, {
+      userJwt: session.jwt,
+      projectId: projectId,
+    });
     if (!emailConfig) {
       return {
         success: false,
@@ -183,36 +208,27 @@ export async function getEmailAnalytics(
       };
     }
 
-    const response = await fetch(
-      `${process.env.JUNO_BASE_URL || "http://localhost:8888"}/email/analytics?${new URLSearchParams(
-        {
-          startDate:
-            options?.startDate ||
-            new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
-              .toISOString()
-              .split("T")[0],
-          endDate: options?.endDate || new Date().toISOString().split("T")[0],
-          limit: String(options?.limit || 100),
-          offset: String(options?.offset || 0),
-          aggregatedBy: options?.aggregatedBy || "day",
-        },
-      )}`,
+    const analytics = await junoClient.email.getStatistics(
       {
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          "Content-Type": "application/json",
-        },
+        startDate:
+          options?.startDate ||
+          new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+            .toISOString()
+            .split("T")[0],
+        endDate: options?.endDate || new Date().toISOString().split("T")[0],
+        limit: options?.limit || 100,
+        offset: options?.offset || 0,
+        aggregatedBy: options?.aggregatedBy || "day",
+      },
+      {
+        userJwt: session.jwt,
+        projectId: projectId,
       },
     );
 
-    if (!response.ok) {
-      throw new Error(`Error: ${response.status}`);
-    }
-
-    const data = await response.json();
     return {
       success: true,
-      analytics: data.responses || [],
+      analytics: JSON.parse(JSON.stringify(analytics.responses || [])),
     };
   } catch (error) {
     console.error("Error fetching email analytics:", error);
@@ -225,6 +241,7 @@ export async function getEmailAnalytics(
 
 export async function getAllClickEvents(
   projectName: string,
+  projectId: string,
   options?: {
     afterTime?: string;
     limit?: number;
@@ -241,11 +258,17 @@ export async function getAllClickEvents(
 
   const junoClient = getJunoInstance();
   try {
-    const events = await junoClient.analytics.getAllClickEvents({
-      projectName,
-      afterTime: options?.afterTime,
-      limit: options?.limit,
-    });
+    const events = await junoClient.analytics.getAllClickEvents(
+      {
+        projectName,
+        afterTime: options?.afterTime,
+        limit: options?.limit,
+      },
+      {
+        userJwt: session.jwt,
+        projectId: Number(projectId),
+      },
+    );
     return {
       success: true,
       events: JSON.parse(JSON.stringify(events)),
@@ -262,6 +285,7 @@ export async function getAllClickEvents(
 
 export async function getAllInputEvents(
   projectName: string,
+  projectId: string,
   options?: {
     afterTime?: string;
     limit?: number;
@@ -278,11 +302,17 @@ export async function getAllInputEvents(
 
   const junoClient = getJunoInstance();
   try {
-    const events = await junoClient.analytics.getAllInputEvents({
-      projectName,
-      afterTime: options?.afterTime,
-      limit: options?.limit,
-    });
+    const events = await junoClient.analytics.getAllInputEvents(
+      {
+        projectName,
+        afterTime: options?.afterTime,
+        limit: options?.limit,
+      },
+      {
+        userJwt: session.jwt,
+        projectId: Number(projectId),
+      },
+    );
     return {
       success: true,
       events: JSON.parse(JSON.stringify(events)),
@@ -299,6 +329,7 @@ export async function getAllInputEvents(
 
 export async function getAllVisitEvents(
   projectName: string,
+  projectId: string,
   options?: {
     afterTime?: string;
     limit?: number;
@@ -315,11 +346,17 @@ export async function getAllVisitEvents(
 
   const junoClient = getJunoInstance();
   try {
-    const events = await junoClient.analytics.getAllVisitEvents({
-      projectName,
-      afterTime: options?.afterTime,
-      limit: options?.limit,
-    });
+    const events = await junoClient.analytics.getAllVisitEvents(
+      {
+        projectName,
+        afterTime: options?.afterTime,
+        limit: options?.limit,
+      },
+      {
+        userJwt: session.jwt,
+        projectId: Number(projectId),
+      },
+    );
     return {
       success: true,
       events: JSON.parse(JSON.stringify(events)),
@@ -334,7 +371,10 @@ export async function getAllVisitEvents(
   }
 }
 
-export async function getCustomEventTypes(projectName: string) {
+export async function getCustomEventTypes(
+  projectName: string,
+  projectId: string,
+) {
   const session = await getSession();
   if (!session) {
     return {
@@ -346,8 +386,13 @@ export async function getCustomEventTypes(projectName: string) {
 
   const junoClient = getJunoInstance();
   try {
-    const eventTypes =
-      await junoClient.analytics.getCustomEventTypesByProject(projectName);
+    const eventTypes = await junoClient.analytics.getCustomEventTypesByProject(
+      projectName,
+      {
+        userJwt: session.jwt,
+        projectId: Number(projectId),
+      },
+    );
 
     return {
       success: true,
@@ -365,6 +410,7 @@ export async function getCustomEventTypes(projectName: string) {
 
 export async function getAllCustomEvents(
   projectName: string,
+  projectId: string,
   category: string,
   subcategory: string,
   options?: {
@@ -383,13 +429,19 @@ export async function getAllCustomEvents(
 
   const junoClient = getJunoInstance();
   try {
-    const events = await junoClient.analytics.getAllCustomEvents({
-      projectName,
-      category,
-      subcategory,
-      afterTime: options?.afterTime,
-      limit: options?.limit,
-    });
+    const events = await junoClient.analytics.getAllCustomEvents(
+      {
+        projectName,
+        category,
+        subcategory,
+        afterTime: options?.afterTime,
+        limit: options?.limit,
+      },
+      {
+        userJwt: session.jwt,
+        projectId: Number(projectId),
+      },
+    );
     return {
       success: true,
       events: JSON.parse(JSON.stringify(events)),

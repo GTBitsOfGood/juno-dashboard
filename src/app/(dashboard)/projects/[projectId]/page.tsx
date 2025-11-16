@@ -31,13 +31,7 @@ import {
   CustomEventType,
   CustomEvent,
 } from "@/components/analytics/types";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BarChart3, Settings } from "lucide-react";
 import Link from "next/link";
@@ -159,10 +153,10 @@ const DashboardPage = () => {
     isLoading: clickLoading,
     isError: clickError,
   } = useQuery({
-    queryKey: ["clickEvents", projectName],
+    queryKey: ["clickEvents", projectName, projectId],
     queryFn: async () => {
       if (!projectName) return { success: false, events: [] };
-      return getAllClickEvents(projectName, { limit: 1000 });
+      return getAllClickEvents(projectName, projectId, { limit: 1000 });
     },
     enabled: !!projectName,
     staleTime: 1000,
@@ -174,10 +168,10 @@ const DashboardPage = () => {
     isLoading: inputLoading,
     isError: inputError,
   } = useQuery({
-    queryKey: ["inputEvents", projectName],
+    queryKey: ["inputEvents", projectName, projectId],
     queryFn: async () => {
       if (!projectName) return { success: false, events: [] };
-      return getAllInputEvents(projectName, { limit: 1000 });
+      return getAllInputEvents(projectName, projectId, { limit: 1000 });
     },
     enabled: !!projectName,
     staleTime: 1000,
@@ -189,10 +183,10 @@ const DashboardPage = () => {
     isLoading: visitLoading,
     isError: visitError,
   } = useQuery({
-    queryKey: ["visitEvents", projectName],
+    queryKey: ["visitEvents", projectName, projectId],
     queryFn: async () => {
       if (!projectName) return { success: false, events: [] };
-      return getAllVisitEvents(projectName, { limit: 1000 });
+      return getAllVisitEvents(projectName, projectId, { limit: 1000 });
     },
     enabled: !!projectName,
     staleTime: 1000,
@@ -204,10 +198,10 @@ const DashboardPage = () => {
     isLoading: customTypesLoading,
     isError: customTypesError,
   } = useQuery({
-    queryKey: ["customEventTypes", projectName],
+    queryKey: ["customEventTypes", projectName, projectId],
     queryFn: async () => {
       if (!projectName) return { success: false, eventTypes: [] };
-      return getCustomEventTypes(projectName);
+      return getCustomEventTypes(projectName, projectId);
     },
     enabled: !!projectName,
     staleTime: 1000,
@@ -272,6 +266,7 @@ const DashboardPage = () => {
         for (const eventType of types) {
           const result = await getAllCustomEvents(
             projectName,
+            projectId,
             eventType.category,
             eventType.subcategory,
             { limit: 1000 },

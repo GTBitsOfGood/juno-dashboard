@@ -22,7 +22,7 @@ interface FileConfigTableProps {
 }
 
 interface ProjectId {
-  low: number
+  low: number;
 }
 
 export function FileConfigTable({ projectId }: FileConfigTableProps) {

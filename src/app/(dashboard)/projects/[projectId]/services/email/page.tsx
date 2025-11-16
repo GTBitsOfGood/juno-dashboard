@@ -17,12 +17,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { getProjectById } from "@/lib/project";
 import { ProjectResponse } from "juno-sdk/build/main/internal/api";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Mail, Settings } from "lucide-react";
 import Link from "next/link";

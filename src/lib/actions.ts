@@ -5,11 +5,7 @@ import { cookies } from "next/headers";
 import { SetUserTypeModel } from "juno-sdk/build/main/internal/api";
 import { APIKey } from "@/components/forms/CreateAPIKeyForm";
 import { getSession } from "./session";
-import {
-  requireSuperAdmin,
-  requireAdmin,
-  hasProjectAccess,
-} from "./auth";
+import { requireSuperAdmin, requireAdmin, hasProjectAccess } from "./auth";
 
 export async function setUserTypeAction(data: {
   email: string;

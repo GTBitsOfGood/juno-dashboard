@@ -23,7 +23,7 @@ interface EmailConfigTableProps {
 
 // dumb int64 being moved to high and low
 interface ProjectId {
-  low: number
+  low: number;
 }
 
 export function EmailConfigTable({ projectId }: EmailConfigTableProps) {

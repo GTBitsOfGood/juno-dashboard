@@ -8,9 +8,9 @@ export default async function ProjectLayout({
   params,
 }: Readonly<{
   children: React.ReactNode;
-  params: { projectId: string };
+  params: Promise<{ projectId: string }>;
 }>) {
-  const { projectId } = params;
+  const { projectId } = await params;
   const { project } = await getProjectById(Number(projectId));
 
   return (

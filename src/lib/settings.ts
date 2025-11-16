@@ -79,11 +79,13 @@ export async function getAnalyticsConfig(
 
   const junoClient = getJunoInstance();
   try {
-    const analyticsConfig =
-      await junoClient.analyticsConfig.getAnalyticsConfig(projectId, {
+    const analyticsConfig = await junoClient.analyticsConfig.getAnalyticsConfig(
+      projectId,
+      {
         userJwt: session.jwt,
         projectId: projectId,
-      });
+      },
+    );
     return JSON.parse(JSON.stringify(analyticsConfig));
   } catch (e: any) {
     if (e.response?.statusCode === 404) {
@@ -221,7 +223,7 @@ export async function getEmailAnalytics(
       {
         userJwt: session.jwt,
         projectId: projectId,
-      }
+      },
     );
 
     return {
@@ -265,7 +267,7 @@ export async function getAllClickEvents(
       {
         userJwt: session.jwt,
         projectId: Number(projectId),
-      }
+      },
     );
     return {
       success: true,
@@ -309,7 +311,7 @@ export async function getAllInputEvents(
       {
         userJwt: session.jwt,
         projectId: Number(projectId),
-      }
+      },
     );
     return {
       success: true,
@@ -353,7 +355,7 @@ export async function getAllVisitEvents(
       {
         userJwt: session.jwt,
         projectId: Number(projectId),
-      }
+      },
     );
     return {
       success: true,
@@ -369,7 +371,10 @@ export async function getAllVisitEvents(
   }
 }
 
-export async function getCustomEventTypes(projectName: string, projectId: string) {
+export async function getCustomEventTypes(
+  projectName: string,
+  projectId: string,
+) {
   const session = await getSession();
   if (!session) {
     return {
@@ -381,11 +386,13 @@ export async function getCustomEventTypes(projectName: string, projectId: string
 
   const junoClient = getJunoInstance();
   try {
-    const eventTypes =
-      await junoClient.analytics.getCustomEventTypesByProject(projectName, {
+    const eventTypes = await junoClient.analytics.getCustomEventTypesByProject(
+      projectName,
+      {
         userJwt: session.jwt,
         projectId: Number(projectId),
-      });
+      },
+    );
 
     return {
       success: true,
@@ -433,7 +440,7 @@ export async function getAllCustomEvents(
       {
         userJwt: session.jwt,
         projectId: Number(projectId),
-      }
+      },
     );
     return {
       success: true,

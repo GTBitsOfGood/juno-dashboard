@@ -24,7 +24,7 @@ export async function setupJunoEmail(sendgridKey: string, projectId: string) {
       {
         userJwt: session.jwt,
         projectId: Number(projectId),
-      }
+      },
     );
     return { success: true, message: "Successfully set up email service!" };
   } catch (e) {

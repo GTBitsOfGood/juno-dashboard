@@ -58,14 +58,7 @@ export function FileConfigTable({ projectId }: FileConfigTableProps) {
   }
 
   const deleteFileConfigHandler = useMutation({
-    mutationFn: () => {
-      const deletePromises = selectedRows.map(async (row) => {
-        const projectId = row.id;
-        return deleteFileConfig(projectId);
-      });
-
-      return Promise.all(deletePromises);
-    },
+    mutationFn: async () => deleteFileConfig(projectId),
     onSuccess: () => {
       toast.success("Success", {
         description: `Successfully deleted file configs.`,

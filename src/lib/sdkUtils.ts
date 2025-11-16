@@ -4,7 +4,7 @@ import { getJunoInstance } from "./juno";
 import { getSession } from "./session";
 import { requireAdmin } from "./auth";
 
-export async function setupJunoEmail(sendgridKey: string) {
+export async function setupJunoEmail(sendgridKey: string, projectId: string) {
   const session = await getSession();
   if (!session) {
     return { success: false, message: "Unauthorized" };
@@ -19,7 +19,13 @@ export async function setupJunoEmail(sendgridKey: string) {
 
   try {
     const juno = getJunoInstance();
-    await juno.email.setupEmail({ sendgridKey });
+    await juno.email.setupEmail(
+      { sendgridKey },
+      {
+        userJwt: session.jwt,
+        projectId: Number(projectId),
+      }
+    );
     return { success: true, message: "Successfully set up email service!" };
   } catch (e) {
     console.error(e);

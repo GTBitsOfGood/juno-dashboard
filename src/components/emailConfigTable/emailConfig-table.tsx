@@ -74,7 +74,7 @@ export function EmailConfigTable({ projectId }: EmailConfigTableProps) {
 
   const addEmailConfig = useMutation({
     mutationFn: async (sendgridKey: string) => {
-      const result = await setupJunoEmail(sendgridKey);
+      const result = await setupJunoEmail(sendgridKey, projectId);
       if (!result.success) {
         throw new Error(result.message);
       }

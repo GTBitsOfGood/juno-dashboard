@@ -43,7 +43,7 @@ export const AnalyticsActionsCell = ({
 
   return (
     <>
-      <Dialog modal={false} open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="h-8 w-8 p-0">

@@ -12,11 +12,12 @@ import {
 import { Input } from "../ui/input";
 import * as z from "zod";
 import { useForm } from "react-hook-form";
-import { createUserAction } from "@/lib/actions";
+import { createUserAction, linkUserToProject } from "@/lib/actions";
 import { UserColumn } from "../usertable/columns";
 import { CircleX, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { Alert } from "../ui/alert";
+import { toast } from "sonner";
 
 const createUserSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -27,9 +28,11 @@ const createUserSchema = z.object({
 type CreateUserFormProps = {
   onUserAdd: (newUser: UserColumn) => void;
   onClose?: () => void;
+  projectId?: string; // Optional: if provided, auto-link user to this project
+  projectName?: string; // Optional: project name for linking
 };
 
-const CreateUserForm = ({ onUserAdd, onClose }: CreateUserFormProps) => {
+const CreateUserForm = ({ onUserAdd, onClose, projectId, projectName }: CreateUserFormProps) => {
   /** Form to create a user */
   const createUserForm = useForm({
     resolver: zodResolver(createUserSchema),
@@ -57,6 +60,28 @@ const CreateUserForm = ({ onUserAdd, onClose }: CreateUserFormProps) => {
           role: result.user.type,
           projects: result.user.projectIds,
         };
+
+        // If projectId and projectName are provided, auto-link the user to the project
+        if (projectId && projectName) {
+          const linkResult = await linkUserToProject({
+            projectName,
+            userId: result.user.id.toString(),
+          });
+
+          if (linkResult.success) {
+            // Update the user's projects array to include this project
+            newUser.projects = [...newUser.projects, parseInt(projectId)];
+            toast.success("Success", {
+              description: `User created and linked to project successfully!`,
+            });
+          } else {
+            // User was created but linking failed
+            toast.warning("Warning", {
+              description: `User created but failed to link to project: ${linkResult.error}`,
+            });
+          }
+        }
+
         if (onUserAdd) {
           onUserAdd(newUser);
         }
@@ -69,6 +94,8 @@ const CreateUserForm = ({ onUserAdd, onClose }: CreateUserFormProps) => {
       }
     } catch (error) {
       console.error("Error creating user:", error);
+      setError("An error occurred while creating the user.");
+      setLoading(false);
     }
   };
 

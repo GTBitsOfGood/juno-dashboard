@@ -108,6 +108,12 @@ export default function ProjectUsersPage() {
         }))}
         isLoading={loading}
         onUserAction={handleUserAction}
+        currentProjectId={projectId as string}
+        currentProjectName={
+          projectData.find(
+            (project) => project.id == (projectId as unknown),
+          )?.name
+        }
       />
     </div>
   );

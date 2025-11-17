@@ -111,7 +111,7 @@ export default function ProjectUsersPage() {
         currentProjectId={projectId as string}
         currentProjectName={
           projectData.find((project) => project.id == (projectId as unknown))
-            ?.name
+            (project) => project.id === Number(projectId),
         }
       />
     </div>

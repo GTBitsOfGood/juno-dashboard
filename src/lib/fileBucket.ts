@@ -10,7 +10,7 @@ import { getSession } from "./session";
 
 export async function getBucketsByConfigIdAndEnv(
   configId: number,
-  projectId: string
+  projectId: string,
 ): Promise<FileBucket[]> {
   const session = await getSession();
   if (!session) {
@@ -27,7 +27,7 @@ export async function getBucketsByConfigIdAndEnv(
       {
         userJwt: session.jwt,
         projectId: projectId,
-      }
+      },
     );
 
     return JSON.parse(JSON.stringify(buckets));
@@ -47,7 +47,7 @@ export async function registerBucket(
     fileProviderName: string;
     fileServiceFile?: Array<object>;
   },
-  projectId: string
+  projectId: string,
 ): Promise<FileBucket> {
   const session = await getSession();
   if (!session) {
@@ -68,7 +68,7 @@ export async function registerBucket(
 
 export async function deleteBucket(
   options: DeleteFileBucketModel,
-  projectId: string
+  projectId: string,
 ): Promise<FileBucket> {
   const session = await getSession();
   if (!session) {

@@ -42,7 +42,7 @@ const AddFileBucketForm = ({
           onAddBucket({
             name: data.name,
             fileProviderName: data.fileProviderName,
-          })
+          }),
         )}
         className="space-y-6 rounded-lg"
       >

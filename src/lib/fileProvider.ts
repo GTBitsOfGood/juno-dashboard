@@ -11,7 +11,7 @@ import { getJunoInstance } from "./juno";
 import { getSession } from "./session";
 
 export async function getAllFileProviders(
-  projectId: string
+  projectId: string,
 ): Promise<FileProvider[]> {
   const session = await getSession();
   if (!session) {
@@ -45,7 +45,7 @@ export async function registerProvider(
     type: RegisterFileProviderModel.TypeEnum;
     accessKey: { accessKeyId: string; secretAccessKey: string };
   },
-  projectId: string
+  projectId: string,
 ): Promise<FileProviderPartial> {
   const session = await getSession();
   if (!session) {
@@ -66,7 +66,7 @@ export async function registerProvider(
 
 export async function deleteProvider(
   name: string,
-  projectId: string
+  projectId: string,
 ): Promise<FileBucket> {
   const session = await getSession();
   if (!session) {

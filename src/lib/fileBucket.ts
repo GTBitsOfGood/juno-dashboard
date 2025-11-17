@@ -9,7 +9,7 @@ import { getJunoInstance } from "./juno";
 import { getSession } from "./session";
 
 export async function getBucketsByConfigIdAndEnv(
-  configId: string,
+  configId: number,
   projectId: string
 ): Promise<FileBucket[]> {
   const session = await getSession();
@@ -22,10 +22,13 @@ export async function getBucketsByConfigIdAndEnv(
   const junoClient = getJunoInstance();
 
   try {
-    const buckets = await junoClient.file.getBucketsByConfigIdAndEnv(configId, {
-      userJwt: session.jwt,
-      projectId: projectId,
-    });
+    const buckets = await junoClient.file.getBucketsByConfigIdAndEnv(
+      configId.toString(),
+      {
+        userJwt: session.jwt,
+        projectId: projectId,
+      }
+    );
 
     return JSON.parse(JSON.stringify(buckets));
   } catch (e) {

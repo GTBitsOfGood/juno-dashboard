@@ -33,7 +33,7 @@ export async function getBucketsByConfigIdAndEnv(
     return JSON.parse(JSON.stringify(buckets));
   } catch (e) {
     if (e.response?.statusCode === 404) {
-      return null;
+      return [];
     }
 
     throw e;

@@ -95,7 +95,7 @@ export function BaseTable<TData, TValue>({
               table.resetRowSelection();
             }}
           >
-            Delete {selectedRows.length} selected config
+            Delete {selectedRows.length} selected item
             {selectedRows.length > 1 ? "s" : ""}
           </Button>
         )}
@@ -116,7 +116,7 @@ export function BaseTable<TData, TValue>({
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext(),
+                            header.getContext()
                           )}
                     </TableHead>
                   );
@@ -135,7 +135,7 @@ export function BaseTable<TData, TValue>({
                     <TableCell key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext(),
+                        cell.getContext()
                       )}
                     </TableCell>
                   ))}

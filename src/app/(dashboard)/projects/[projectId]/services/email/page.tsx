@@ -7,13 +7,6 @@ import EmailAnalyticsChart from "@/components/charts/EmailAnalyticsChart";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getEmailConfig, getEmailAnalytics } from "@/lib/settings";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
@@ -24,6 +17,10 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { getProjectById } from "@/lib/project";
 import { ProjectResponse } from "juno-sdk/build/main/internal/api";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Mail, Settings } from "lucide-react";
+import Link from "next/link";
 
 const EmailAnalyticsPage = () => {
   const { projectId } = useParams();
@@ -103,15 +100,21 @@ const EmailAnalyticsPage = () => {
         <h1 className="mb-6 text-xl">Email Analytics</h1>
         <Card>
           <CardHeader>
-            <CardTitle>No Email Configuration</CardTitle>
-            <CardDescription>
-              This project does not have an email service configured yet.
-            </CardDescription>
+            <div className="flex items-center gap-3">
+              <Mail className="h-5 w-5 text-muted-foreground" />
+              <CardTitle>No Email Configuration</CardTitle>
+            </div>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground">
-              Please configure your email service first to view analytics.
+            <p className="text-sm text-muted-foreground mb-4">
+              Configure your email service to view your analytics through Juno.
             </p>
+            <Button asChild>
+              <Link href={`/projects/${projectId}/settings`}>
+                <Settings className="mr-2 h-4 w-4" />
+                Go to Settings
+              </Link>
+            </Button>
           </CardContent>
         </Card>
       </div>

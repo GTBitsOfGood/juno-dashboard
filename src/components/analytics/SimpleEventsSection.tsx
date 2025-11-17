@@ -2,7 +2,6 @@
 
 import AnalyticsChart from "@/components/charts/AnalyticsChart";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,

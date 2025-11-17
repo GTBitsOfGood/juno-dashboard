@@ -42,7 +42,7 @@ export async function verifyJWT(token: string): Promise<VerifiedUser | null> {
         ? Number(data.user.id.low)
         : Number(data.user.id);
 
-    const projectIds = (data.user.projectIds || []).map((p: any) =>
+    const projectIds = (data.user.projectIds || []).map((p: unknown) =>
       typeof p === "object" && "low" in p ? Number(p.low) : Number(p),
     );
 

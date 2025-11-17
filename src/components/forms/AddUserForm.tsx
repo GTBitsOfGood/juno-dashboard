@@ -32,7 +32,12 @@ type CreateUserFormProps = {
   projectName?: string; // Optional: project name for linking
 };
 
-const CreateUserForm = ({ onUserAdd, onClose, projectId, projectName }: CreateUserFormProps) => {
+const CreateUserForm = ({
+  onUserAdd,
+  onClose,
+  projectId,
+  projectName,
+}: CreateUserFormProps) => {
   /** Form to create a user */
   const createUserForm = useForm({
     resolver: zodResolver(createUserSchema),
@@ -47,7 +52,7 @@ const CreateUserForm = ({ onUserAdd, onClose, projectId, projectName }: CreateUs
   const [error, setError] = useState("");
 
   const handleCreateUser = async (
-    data: Required<z.infer<typeof createUserSchema>>,
+    data: Required<z.infer<typeof createUserSchema>>
   ) => {
     setLoading(true);
     try {
@@ -69,11 +74,7 @@ const CreateUserForm = ({ onUserAdd, onClose, projectId, projectName }: CreateUs
           });
 
           if (linkResult.success) {
-            // Update the user's projects array to include this project
             newUser.projects = [...newUser.projects, parseInt(projectId)];
-            toast.success("Success", {
-              description: `User created and linked to project successfully!`,
-            });
           } else {
             // User was created but linking failed
             toast.warning("Warning", {

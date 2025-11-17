@@ -29,7 +29,7 @@ interface AnalyticsActionsCellProps {
     keys: {
       serverAnalyticsKey: string;
       clientAnalyticsKey: string;
-    },
+    }
   ) => void;
 }
 

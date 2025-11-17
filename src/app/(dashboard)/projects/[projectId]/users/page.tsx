@@ -87,7 +87,7 @@ export default function ProjectUsersPage() {
             <BreadcrumbLink href={`/projects/${projectId}`}>
               {
                 projectData.find(
-                  (project) => project.id == (projectId as unknown)
+                  (project) => project.id === Number(projectId),
                 )?.name
               }
             </BreadcrumbLink>

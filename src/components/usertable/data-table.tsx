@@ -41,6 +41,8 @@ interface DataTableProps<TData> {
   projectData: ProjectColumn[];
   isLoading: boolean;
   onUserAction: (user: UserColumn, action: "add" | "update" | "delete") => void;
+  currentProjectId?: string; // Optional: if provided, auto-link new users to this project
+  currentProjectName?: string; // Optional: project name for linking
 }
 
 export function UserDataTable<TData>({
@@ -48,6 +50,8 @@ export function UserDataTable<TData>({
   projectData,
   isLoading,
   onUserAction,
+  currentProjectId,
+  currentProjectName,
 }: DataTableProps<TData>) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [isAddUserDialogOpen, setIsAddUserDialogOpen] = useState(false);
@@ -153,6 +157,8 @@ export function UserDataTable<TData>({
               <CreateUserForm
                 onUserAdd={(user) => onUserAction?.(user, "add")}
                 onClose={() => setIsAddUserDialogOpen(false)}
+                projectId={currentProjectId}
+                projectName={currentProjectName}
               />
             </DialogContent>
           </Dialog>
@@ -203,7 +209,7 @@ export function UserDataTable<TData>({
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext(),
+                            header.getContext()
                           )}
                     </TableHead>
                   );
@@ -222,7 +228,7 @@ export function UserDataTable<TData>({
                     <TableCell key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext(),
+                        cell.getContext()
                       )}
                     </TableCell>
                   ))}

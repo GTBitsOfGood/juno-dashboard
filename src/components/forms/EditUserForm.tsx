@@ -25,10 +25,11 @@ import {
 } from "../ui/select";
 import { toast } from "sonner";
 import { InputMultiSelect, InputMultiSelectTrigger } from "../ui/multiselect";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { UserColumn } from "@/components/usertable/columns";
 import { SetUserTypeModel } from "juno-sdk/build/main/internal/api";
 import { ProjectColumn } from "@/app/(dashboard)/admin/projects/columns";
+import { useUserSession, UserType } from "../providers/SessionProvider";
 
 export const userTypeMap = {
   SUPERADMIN: 0,
@@ -37,7 +38,7 @@ export const userTypeMap = {
 } as const;
 
 const userTypeEnum = z.enum(
-  Object.keys(userTypeMap) as [keyof typeof userTypeMap],
+  Object.keys(userTypeMap) as [keyof typeof userTypeMap]
 );
 
 const setUserTypeSchema = z.object({
@@ -55,6 +56,23 @@ const EditUserForm = ({
   initialUserData: UserColumn;
   onUserUpdate?: (updatedUser: UserColumn) => void;
 }) => {
+  const { user: currentUser } = useUserSession();
+
+  // Filter available user types based on current user's permissions
+  // SUPERADMIN can set any type
+  // ADMIN can only set USER type
+  // USER shouldn't be able to edit (but we'll still filter just in case)
+  const availableUserTypes = useMemo(() => {
+    if (!currentUser) return ["USER"];
+
+    if (currentUser.type === UserType.SUPERADMIN) {
+      return Object.keys(userTypeMap);
+    } else if (currentUser.type === UserType.ADMIN) {
+      return ["USER"];
+    } else {
+      return ["USER"];
+    }
+  }, [currentUser]);
   const setUserTypeForm = useForm<z.infer<typeof setUserTypeSchema>>({
     resolver: zodResolver(setUserTypeSchema),
     defaultValues: {
@@ -68,7 +86,7 @@ const EditUserForm = ({
   });
 
   const handleSetUserType = async (
-    data: Required<z.infer<typeof setUserTypeSchema>>,
+    data: Required<z.infer<typeof setUserTypeSchema>>
   ) => {
     try {
       // Update user type
@@ -90,18 +108,18 @@ const EditUserForm = ({
 
       // Find projects to unlink (in initial but not in selected)
       const projectsToUnlink = initialProjectIds.filter(
-        (id) => !selectedProjects.includes(id),
+        (id) => !selectedProjects.includes(id)
       );
 
       // Find projects to link (in selected but not in initial)
       const projectsToLink = selectedProjects.filter(
-        (id) => !initialProjectIds.includes(id),
+        (id) => !initialProjectIds.includes(id)
       );
 
       // Unlink projects that were removed
       const unlinkPromises = projectsToUnlink.map((projectId) => {
         const projectName = projectData.find(
-          (p) => parseInt(p.id) === parseInt(projectId),
+          (p) => parseInt(p.id) === parseInt(projectId)
         )?.name;
         return unlinkUserFromProject({
           projectName,
@@ -112,7 +130,7 @@ const EditUserForm = ({
       // Link projects that were added
       const linkPromises = projectsToLink.map((projectId) => {
         const projectName = projectData.find(
-          (p) => parseInt(p.id) === parseInt(projectId),
+          (p) => parseInt(p.id) === parseInt(projectId)
         )?.name;
         return linkUserToProject({
           projectName,
@@ -155,7 +173,7 @@ const EditUserForm = ({
   const [selectedProjects, setSelectedProjects] = useState<string[]>(
     initialUserData.projects
       ? initialUserData.projects.map((id) => id.toString())
-      : [],
+      : []
   );
 
   const projectOptions = projectData.map((project) => ({
@@ -194,7 +212,7 @@ const EditUserForm = ({
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent>
-                  {Object.keys(userTypeMap).map((type) => (
+                  {availableUserTypes.map((type) => (
                     <SelectItem key={type} value={type}>
                       {type}
                     </SelectItem>

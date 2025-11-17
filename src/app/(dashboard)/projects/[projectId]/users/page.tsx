@@ -86,9 +86,8 @@ export default function ProjectUsersPage() {
           <BreadcrumbItem>
             <BreadcrumbLink href={`/projects/${projectId}`}>
               {
-                projectData.find(
-                  (project) => project.id === Number(projectId),
-                )?.name
+                projectData.find((project) => project.id === Number(projectId))
+                  ?.name
               }
             </BreadcrumbLink>
           </BreadcrumbItem>
@@ -110,8 +109,7 @@ export default function ProjectUsersPage() {
         onUserAction={handleUserAction}
         currentProjectId={projectId as string}
         currentProjectName={
-          projectData.find((project) => project.id == (projectId as unknown))
-            (project) => project.id === Number(projectId),
+          projectData.find((project) => project.id === Number(projectId))?.name
         }
       />
     </div>

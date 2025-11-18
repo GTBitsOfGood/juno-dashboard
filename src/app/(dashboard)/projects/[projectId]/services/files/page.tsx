@@ -19,6 +19,10 @@ import { useParams } from "next/navigation";
 import { useEffect } from "react";
 import { toast } from "sonner";
 
+interface ProjectId {
+  low: number;
+}
+
 const FileServicePage = () => {
   const { projectId } = useParams<{ projectId: string }>();
 
@@ -47,6 +51,10 @@ const FileServicePage = () => {
     queryKey: ["fileConfig", projectId],
     queryFn: async () => await getFileConfig(projectId),
   });
+
+  const configId = config?.id
+    ? (config.id as unknown as ProjectId).low
+    : undefined;
 
   useEffect(() => {
     if (isProjectError) {
@@ -96,7 +104,7 @@ const FileServicePage = () => {
 
           <div className="flex flex-col gap-8">
             <FileProviderTable projectId={projectId} />
-            <FileBucketTable projectId={projectId} configId={config?.id?.low} />
+            <FileBucketTable projectId={projectId} configId={configId} />
           </div>
         </div>
       )}

@@ -2,7 +2,7 @@
 
 import {
   FileProviderColumn,
-  columns as fileProviderColumns,
+  fileProviderColumns,
 } from "@/components/fileProviderTable/columns";
 import {
   Dialog,
@@ -113,7 +113,7 @@ export function FileProviderTable({ projectId }: FileProviderTableProps) {
     },
     onSuccess: () => {
       toast.success("Success", {
-        description: `Successfully added file provider.`,
+        description: `Successfully updated file provider.`,
       });
       queryClient.invalidateQueries({
         queryKey: ["fileProvider", projectId],
@@ -176,7 +176,11 @@ export function FileProviderTable({ projectId }: FileProviderTableProps) {
       <h1>File Providers</h1>
       <BaseTable
         data={fileProviderRowData}
-        columns={fileProviderColumns}
+        columns={fileProviderColumns(
+          addFileProviderHandler.isPending,
+          (options: FileProviderColumn) =>
+            addFileProviderHandler.mutate(options)
+        )}
         isLoading={isLoading}
         filterParams={{
           placeholder: "Filter by name...",

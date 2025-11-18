@@ -31,12 +31,14 @@ const addFileProviderSchema = z.object({
 });
 
 type AddFileProviderFormProps = {
+  existingProviderData?: z.infer<typeof addFileProviderSchema>;
   isPending: boolean;
   onAddProvider: (options: z.infer<typeof addFileProviderSchema>) => void;
   isEditMode?: boolean;
 };
 
 const AddFileProviderForm = ({
+  existingProviderData,
   isPending,
   onAddProvider,
   isEditMode,
@@ -44,6 +46,7 @@ const AddFileProviderForm = ({
   /** Form to create a file provider */
   const addFileProviderForm = useForm({
     resolver: zodResolver(addFileProviderSchema),
+    defaultValues: existingProviderData,
   });
 
   const supportedTypes = ["S3", "Azure"];
@@ -63,7 +66,7 @@ const AddFileProviderForm = ({
             <FormItem>
               <FormLabel>Provider Name</FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input {...field} disabled={isEditMode} />
               </FormControl>
               <FormMessage />
               <FormDescription>Name of this file provider.</FormDescription>

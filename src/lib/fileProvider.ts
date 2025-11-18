@@ -4,14 +4,13 @@ import {
   FileBucket,
   FileProvider,
   FileProviderPartial,
-  RegisterFileProviderModel,
 } from "juno-sdk/build/main/internal/api";
 import { hasProjectAccess } from "./auth";
 import { getJunoInstance } from "./juno";
 import { getSession } from "./session";
 
 export async function getAllFileProviders(
-  projectId: string,
+  projectId: string
 ): Promise<FileProvider[]> {
   const session = await getSession();
   if (!session) {
@@ -31,7 +30,7 @@ export async function getAllFileProviders(
     return JSON.parse(JSON.stringify(providers));
   } catch (e) {
     if (e.response?.statusCode === 404) {
-      return null;
+      return [];
     }
 
     throw e;
@@ -42,10 +41,10 @@ export async function registerProvider(
   options: {
     baseUrl: string;
     providerName: string;
-    type: RegisterFileProviderModel.TypeEnum;
-    accessKey: { accessKeyId: string; secretAccessKey: string };
+    type: string;
+    accessKey: { publicAccessKey: string; privateAccessKey: string };
   },
-  projectId: string,
+  projectId: string
 ): Promise<FileProviderPartial> {
   const session = await getSession();
   if (!session) {
@@ -61,12 +60,13 @@ export async function registerProvider(
     userJwt: session.jwt,
     projectId: projectId,
   });
+
   return JSON.parse(JSON.stringify(provider));
 }
 
 export async function deleteProvider(
   name: string,
-  projectId: string,
+  projectId: string
 ): Promise<FileBucket> {
   const session = await getSession();
   if (!session) {

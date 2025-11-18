@@ -1,6 +1,7 @@
 "use client";
 
 import { FileBucketTable } from "@/components/fileBucketTable/fileBucketTable";
+import { FileProviderTable } from "@/components/fileProviderTable/fileProviderTable";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -94,6 +95,7 @@ const FileServicePage = () => {
           </Breadcrumb>
 
           <div className="flex flex-col gap-8">
+            <FileProviderTable projectId={projectId} />
             <FileBucketTable projectId={projectId} configId={config?.id?.low} />
           </div>
         </div>

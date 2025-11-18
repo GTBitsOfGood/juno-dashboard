@@ -13,6 +13,14 @@ import {
   FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 
 const addFileBucketSchema = z.object({
   name: z.string().nonempty(),
@@ -20,12 +28,14 @@ const addFileBucketSchema = z.object({
 });
 
 type AddFileBucketFormProps = {
+  fileProviderNames: string[];
   isPending: boolean;
   onAddBucket: (options: { name: string; fileProviderName: string }) => void;
   isEditMode?: boolean;
 };
 
 const AddFileBucketForm = ({
+  fileProviderNames,
   isPending,
   onAddBucket,
   isEditMode,
@@ -67,7 +77,24 @@ const AddFileBucketForm = ({
             <FormItem>
               <FormLabel>File Provider Name</FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Select
+                  {...field}
+                  onValueChange={field.onChange}
+                  value={field.value}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select a provider" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      {fileProviderNames.map((name, index) => (
+                        <SelectItem key={index} value={name}>
+                          {name}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
               </FormControl>
               <FormMessage />
               <FormDescription>

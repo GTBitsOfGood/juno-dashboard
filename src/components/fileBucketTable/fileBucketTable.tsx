@@ -16,10 +16,11 @@ import {
   getBucketsByConfigIdAndEnv,
   registerBucket,
 } from "@/lib/fileBucket";
+import { getAllFileProviders } from "@/lib/fileProvider";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Row } from "@tanstack/react-table";
-import { FileBucket } from "juno-sdk/build/main/internal/api";
-import { useState } from "react";
+import { FileBucket, FileProvider } from "juno-sdk/build/main/internal/api";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { BaseTable } from "../baseTable";
 import AddFileBucketForm from "../forms/AddFileBucketForm";
@@ -47,7 +48,12 @@ export function FileBucketTable({ projectId, configId }: FileBucketTableProps) {
 
   const queryClient = useQueryClient();
 
-  const { isLoading, isError, data, error } = useQuery({
+  const {
+    isLoading: isBucketLoading,
+    isError: isBucketError,
+    data: buckets,
+    error: bucketError,
+  } = useQuery({
     queryKey: ["fileBucket", projectId, configId],
     queryFn: async () => {
       if (!isValidId(projectId, configId)) {
@@ -57,7 +63,41 @@ export function FileBucketTable({ projectId, configId }: FileBucketTableProps) {
     },
   });
 
-  const fileBucketRowData = (data ?? ([] as FileBucket[]))
+  const {
+    isLoading: isProviderLoading,
+    isError: isProviderError,
+    data: providers,
+    error: providerError,
+  } = useQuery({
+    queryKey: ["fileProvider", projectId],
+    queryFn: async () => {
+      if (
+        projectId == null ||
+        projectId == "" ||
+        Number.isNaN(Number(projectId))
+      ) {
+        throw new Error("Invalid projectId");
+      }
+      return await getAllFileProviders(projectId);
+    },
+  });
+
+  useEffect(() => {
+    if (isBucketError) {
+      toast.error("Error", {
+        description: `Failed to fetch file buckets: ${JSON.stringify(bucketError)}`,
+      });
+    }
+    if (isProviderError) {
+      toast.error("Error", {
+        description: `Failed to fetch file providers: ${JSON.stringify(providerError)}`,
+      });
+    }
+  }, [isBucketError, isProviderError, bucketError, providerError]);
+
+  const isLoading = isBucketLoading && isProviderLoading;
+
+  const fileBucketRowData = (buckets ?? ([] as FileBucket[]))
     .filter((bucket) => bucket)
     .map((bucket) => ({
       name: bucket.name,
@@ -69,11 +109,9 @@ export function FileBucketTable({ projectId, configId }: FileBucketTableProps) {
       ) ?? []) as string[],
     }));
 
-  if (isError) {
-    toast.error("Error", {
-      description: `Failed to fetch file buckets: ${JSON.stringify(error)}`,
-    });
-  }
+  const fileProviderNames = (providers ?? ([] as FileProvider[]))
+    .filter((provider) => provider)
+    .map((provider) => provider.providerName);
 
   const deleteFileBucketHandler = useMutation({
     mutationFn: () => {
@@ -138,6 +176,7 @@ export function FileBucketTable({ projectId, configId }: FileBucketTableProps) {
             </DialogDescription>
           </DialogHeader>
           <AddFileBucketForm
+            fileProviderNames={fileProviderNames}
             isPending={addFileBucketHandler.isPending}
             onAddBucket={(options: {
               name: string;

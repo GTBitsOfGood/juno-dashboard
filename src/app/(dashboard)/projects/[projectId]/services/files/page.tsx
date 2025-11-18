@@ -15,6 +15,7 @@ import { getFileConfig } from "@/lib/settings";
 import { useQuery } from "@tanstack/react-query";
 import { ProjectResponse } from "juno-sdk/build/main/internal/api";
 import { useParams } from "next/navigation";
+import { useEffect } from "react";
 import { toast } from "sonner";
 
 const FileServicePage = () => {
@@ -46,17 +47,20 @@ const FileServicePage = () => {
     queryFn: async () => await getFileConfig(projectId),
   });
 
-  if (isProjectError) {
-    toast.error("Error", {
-      description: `Failed to fetch project: ${JSON.stringify(projectError)}`,
-    });
-  }
+  useEffect(() => {
+    if (isProjectError) {
+      toast.error("Error", {
+        description: `Failed to fetch project: ${JSON.stringify(projectError)}`,
+      });
+    }
 
-  if (isConfigError) {
-    toast.error("Error", {
-      description: `Failed to fetch file config: ${JSON.stringify(configError)}`,
-    });
-  }
+    if (isConfigError) {
+      toast.error("Error", {
+        description: `Failed to fetch file config: ${JSON.stringify(configError)}`,
+      });
+    }
+  }, [isProjectError, isConfigError, projectError, configError]);
+
   const isLoading = isProjectLoading || isConfigLoading;
 
   return (

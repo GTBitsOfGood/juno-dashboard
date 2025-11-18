@@ -14,7 +14,7 @@ export type FileProviderColumn = {
 
 export const fileProviderColumns = (
   isPending: boolean,
-  onAddProvider: (options: FileProviderColumn) => void
+  onAddProvider: (options: FileProviderColumn) => void,
 ): ColumnDef<FileProviderColumn>[] => [
   {
     id: "select",

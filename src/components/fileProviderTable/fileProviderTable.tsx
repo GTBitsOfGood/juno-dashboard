@@ -39,7 +39,7 @@ export function FileProviderTable({ projectId }: FileProviderTableProps) {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedRows, setSelectedRows] = useState<Row<FileProviderColumn>[]>(
-    []
+    [],
   );
 
   const queryClient = useQueryClient();
@@ -108,7 +108,7 @@ export function FileProviderTable({ projectId }: FileProviderTableProps) {
             privateAccessKey: options.privateAccessKey,
           },
         },
-        projectId
+        projectId,
       );
     },
     onSuccess: () => {
@@ -179,7 +179,7 @@ export function FileProviderTable({ projectId }: FileProviderTableProps) {
         columns={fileProviderColumns(
           addFileProviderHandler.isPending,
           (options: FileProviderColumn) =>
-            addFileProviderHandler.mutate(options)
+            addFileProviderHandler.mutate(options),
         )}
         isLoading={isLoading}
         filterParams={{

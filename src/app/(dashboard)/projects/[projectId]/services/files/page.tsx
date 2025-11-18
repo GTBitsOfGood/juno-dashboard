@@ -67,11 +67,11 @@ const FileServicePage = () => {
     <>
       {isLoading ? (
         <div className="flex flex-col gap-2">
-          <Skeleton className="mx-10 my-10 h-4 w-[250px] rounded-xl" />
-          <Skeleton className="mx-10 mb-2 h-4 w-[200px] rounded-xl" />
-          <Skeleton className="mx-10 mb-8 h-[125px] w-[550px] rounded-xl" />
-          <Skeleton className="mx-10 mb-2 h-4 w-[200px] rounded-xl" />
-          <Skeleton className="mx-10 mb-8 h-[125px] w-[550px] rounded-xl" />
+          <Skeleton className="mx-10 my-10 h-4 w-60 rounded-xl" />
+          <Skeleton className="mx-10 mb-2 h-4 w-60 rounded-xl" />
+          <Skeleton className="mx-10 mb-8 h-20 w-[450px] rounded-xl" />
+          <Skeleton className="mx-10 mb-2 h-4 w-60 rounded-xl" />
+          <Skeleton className="mx-10 mb-8 h-20 w-[450px] rounded-xl" />
         </div>
       ) : (
         <div className="container mx-auto px-10 py-10 md:w-[85vw] sm:w-full">

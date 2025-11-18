@@ -109,7 +109,7 @@ export function FileBucketTable({ projectId, configId }: FileBucketTableProps) {
       configEnv: bucket.configEnv,
       providerName: bucket.fileProviderName,
       fileNames: (bucket.fileServiceFile?.map(
-        (file) => (file as unknown as File)?.fileId?.path ?? "Unknown file"
+        (file) => (file as unknown as File)?.fileId?.path ?? "Unknown file",
       ) ?? []) as string[],
     }));
 
@@ -126,7 +126,7 @@ export function FileBucketTable({ projectId, configId }: FileBucketTableProps) {
             configId: row.original.configId,
             fileProviderName: row.original.providerName,
           },
-          projectId
+          projectId,
         );
       });
 
@@ -152,7 +152,7 @@ export function FileBucketTable({ projectId, configId }: FileBucketTableProps) {
           configId,
           fileProviderName: options.fileProviderName,
         },
-        projectId
+        projectId,
       );
     },
     onSuccess: () => {

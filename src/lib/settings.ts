@@ -13,7 +13,7 @@ import { getJunoInstance } from "./juno";
 import { getSession } from "./session";
 
 export async function getFileConfig(
-  projectId: string
+  projectId: string,
 ): Promise<FileConfigResponse> {
   const session = await getSession();
   if (!session) {
@@ -43,7 +43,7 @@ export async function getFileConfig(
 }
 
 export async function createFileConfig(
-  projectId: string
+  projectId: string,
 ): Promise<SetupFileServiceResponse> {
   const session = await getSession();
   if (!session) {
@@ -63,7 +63,7 @@ export async function createFileConfig(
 }
 
 export async function deleteFileConfig(
-  projectId: string
+  projectId: string,
 ): Promise<FileConfigResponse> {
   const session = await getSession();
   if (!session) {
@@ -83,7 +83,7 @@ export async function deleteFileConfig(
 }
 
 export async function getEmailConfig(
-  projectId: string
+  projectId: string,
 ): Promise<EmailConfigResponse> {
   const session = await getSession();
   if (!session) {
@@ -113,7 +113,7 @@ export async function getEmailConfig(
 }
 
 export async function getAnalyticsConfig(
-  projectId: string
+  projectId: string,
 ): Promise<AnalyticsConfigResponse> {
   const session = await getSession();
   if (!session) {
@@ -131,7 +131,7 @@ export async function getAnalyticsConfig(
       {
         userJwt: session.jwt,
         projectId: projectId,
-      }
+      },
     );
     return JSON.parse(JSON.stringify(analyticsConfig));
   } catch (e) {
@@ -143,7 +143,7 @@ export async function getAnalyticsConfig(
 }
 
 export async function deleteAnalyticsConfig(
-  projectId: string
+  projectId: string,
 ): Promise<AnalyticsConfigResponse> {
   const session = await getSession();
   if (!session) {
@@ -162,7 +162,7 @@ export async function deleteAnalyticsConfig(
 
 export async function updateAnalyticsConfig(
   projectId: number,
-  config: UpdateAnalyticsConfigModel
+  config: UpdateAnalyticsConfigModel,
 ): Promise<AnalyticsConfigResponse> {
   const session = await getSession();
   if (!session) {
@@ -177,7 +177,7 @@ export async function updateAnalyticsConfig(
   const analyticsConfig =
     await junoClient.analyticsConfig.updateAnalyticsConfig(
       projectId.toString(),
-      config
+      config,
     );
   return JSON.parse(JSON.stringify(analyticsConfig));
 }
@@ -187,7 +187,7 @@ export async function createAnalyticsConfig(
   keys: {
     serverAnalyticsKey: string;
     clientAnalyticsKey: string;
-  }
+  },
 ): Promise<AnalyticsConfigResponse> {
   const session = await getSession();
   if (!session) {
@@ -216,7 +216,7 @@ export async function getEmailAnalytics(
     limit?: number;
     offset?: number;
     aggregatedBy?: "day" | "week" | "month";
-  }
+  },
 ) {
   const session = await getSession();
   if (!session) {
@@ -270,7 +270,7 @@ export async function getEmailAnalytics(
       {
         userJwt: session.jwt,
         projectId: projectId,
-      }
+      },
     );
 
     return {
@@ -292,7 +292,7 @@ export async function getAllClickEvents(
   options?: {
     afterTime?: string;
     limit?: number;
-  }
+  },
 ) {
   const session = await getSession();
   if (!session) {
@@ -314,7 +314,7 @@ export async function getAllClickEvents(
       {
         userJwt: session.jwt,
         projectId: Number(projectId),
-      }
+      },
     );
     return {
       success: true,
@@ -336,7 +336,7 @@ export async function getAllInputEvents(
   options?: {
     afterTime?: string;
     limit?: number;
-  }
+  },
 ) {
   const session = await getSession();
   if (!session) {
@@ -358,7 +358,7 @@ export async function getAllInputEvents(
       {
         userJwt: session.jwt,
         projectId: Number(projectId),
-      }
+      },
     );
     return {
       success: true,
@@ -380,7 +380,7 @@ export async function getAllVisitEvents(
   options?: {
     afterTime?: string;
     limit?: number;
-  }
+  },
 ) {
   const session = await getSession();
   if (!session) {
@@ -402,7 +402,7 @@ export async function getAllVisitEvents(
       {
         userJwt: session.jwt,
         projectId: Number(projectId),
-      }
+      },
     );
     return {
       success: true,
@@ -420,7 +420,7 @@ export async function getAllVisitEvents(
 
 export async function getCustomEventTypes(
   projectName: string,
-  projectId: string
+  projectId: string,
 ) {
   const session = await getSession();
   if (!session) {
@@ -438,7 +438,7 @@ export async function getCustomEventTypes(
       {
         userJwt: session.jwt,
         projectId: Number(projectId),
-      }
+      },
     );
 
     return {
@@ -463,7 +463,7 @@ export async function getAllCustomEvents(
   options?: {
     afterTime?: string;
     limit?: number;
-  }
+  },
 ) {
   const session = await getSession();
   if (!session) {
@@ -487,7 +487,7 @@ export async function getAllCustomEvents(
       {
         userJwt: session.jwt,
         projectId: Number(projectId),
-      }
+      },
     );
     return {
       success: true,

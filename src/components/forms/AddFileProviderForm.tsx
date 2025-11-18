@@ -125,7 +125,7 @@ const AddFileProviderForm = ({
             <FormItem>
               <FormLabel>Public Access Key</FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input type={"password"} {...field} />
               </FormControl>
               <FormMessage />
               <FormDescription>
@@ -141,7 +141,7 @@ const AddFileProviderForm = ({
             <FormItem>
               <FormLabel>Private Access Key</FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input type={"password"} {...field} />
               </FormControl>
               <FormMessage />
               <FormDescription>

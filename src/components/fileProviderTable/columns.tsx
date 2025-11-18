@@ -2,6 +2,7 @@
 
 import { Checkbox } from "@/components/ui/checkbox";
 import { ColumnDef } from "@tanstack/react-table";
+import { PasswordBox } from "../passwordBox";
 import { ProviderActionsCell } from "./providerActionCell";
 
 export type FileProviderColumn = {
@@ -14,7 +15,7 @@ export type FileProviderColumn = {
 
 export const fileProviderColumns = (
   isPending: boolean,
-  onAddProvider: (options: FileProviderColumn) => void,
+  onAddProvider: (options: FileProviderColumn) => void
 ): ColumnDef<FileProviderColumn>[] => [
   {
     id: "select",
@@ -49,10 +50,34 @@ export const fileProviderColumns = (
   {
     accessorKey: "publicAccessKey",
     header: "Public Access Key",
+    cell: ({ row }) => {
+      const publicAccessKey = row.original.publicAccessKey;
+      return (
+        <PasswordBox
+          className="mr-6"
+          password={publicAccessKey}
+          readOnly
+          round
+        />
+      );
+    },
+    size: 200,
   },
   {
     accessorKey: "privateAccessKey",
     header: "Private Access Key",
+    cell: ({ row }) => {
+      const privateAccessKey = row.original.privateAccessKey;
+      return (
+        <PasswordBox
+          className="mr-6"
+          password={privateAccessKey}
+          readOnly
+          round
+        />
+      );
+    },
+    size: 200,
   },
   {
     id: "actions",

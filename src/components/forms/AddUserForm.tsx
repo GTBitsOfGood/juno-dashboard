@@ -17,6 +17,7 @@ import { UserColumn } from "../usertable/columns";
 import { CircleX, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { Alert } from "../ui/alert";
+import { toast } from "sonner";
 
 const createUserSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -62,7 +63,9 @@ const CreateUserForm = ({
           role: result.user.type,
           projects: result.user.projectIds,
         };
-        if (projectIds) {
+
+        // Link user to project if originatingProjectId is provided
+        if (projectIds && projectIds.length > 0) {
           const projectPromises: Promise<{success:boolean}>[] = [];
 
           for (const projectId of projectIds) {
@@ -73,10 +76,14 @@ const CreateUserForm = ({
               })
             );
           }
+
           const linkResults = await Promise.all(projectPromises);
+          const failedLinks = linkResults.filter((r) => !r.success);
+
           if (!newUser.projects) {
             newUser.projects = [];
           }
+
           for (let i = 0; i < linkResults.length; i++) {
             if (linkResults[i].success) {
               newUser.projects.push(projectIds[i]);
@@ -84,7 +91,15 @@ const CreateUserForm = ({
           }
 
           newUser.projects = Array.from(new Set(newUser.projects));
+
+          // Show warning if any links failed
+          if (failedLinks.length > 0) {
+            toast.warning("User created with incomplete project links", {
+              description: `User was created successfully, but failed to link to ${failedLinks.length} project${failedLinks.length > 1 ? "s" : ""}. Please manually add them to the project.`,
+            });
+          }
         }
+
         if (onUserAdd) {
           onUserAdd(newUser);
         }
@@ -96,7 +111,11 @@ const CreateUserForm = ({
         setLoading(false);
       }
     } catch (error) {
-      console.error("Error creating user:", error);
+      setError("An unexpected error occurred. Please try again.");
+      toast.error("Failed to create user", {
+        description: error instanceof Error ? error.message : "An unexpected error occurred",
+      });
+      setLoading(false);
     }
   };
 

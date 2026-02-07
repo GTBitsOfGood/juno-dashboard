@@ -161,11 +161,22 @@ export async function linkUserToProjectId(data: {
   projectId: number;
   userId: string;
 }) {
+  const session = await getSession();
+  if (!session) {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  if (!requireAdmin(session.user)) {
+    return {
+      success: false,
+      error: "Only admins and superadmins can link users to projects",
+    };
+  }
+
   const junoClient = getJunoInstance();
   try {
-    const { jwt } = await getSession();
     await junoClient.user.linkToProject({
-      credentials: jwt,
+      credentials: session.jwt,
       project: { id: data.projectId },
       userId: data.userId,
     });

@@ -155,7 +155,11 @@ export function UserDataTable<TData>({
               <CreateUserForm
                 onUserAdd={(user) => onUserAction?.(user, "add")}
                 onClose={() => setIsAddUserDialogOpen(false)}
-                projectIds={originatingProjectId != undefined ? [originatingProjectId] : []}
+                projectIds={
+                  originatingProjectId != undefined
+                    ? [originatingProjectId]
+                    : []
+                }
               />
             </DialogContent>
           </Dialog>

@@ -50,7 +50,7 @@ const CreateUserForm = ({
   const [error, setError] = useState("");
 
   const handleCreateUser = async (
-    data: Required<z.infer<typeof createUserSchema>>
+    data: Required<z.infer<typeof createUserSchema>>,
   ) => {
     setLoading(true);
     try {
@@ -66,14 +66,14 @@ const CreateUserForm = ({
 
         // Link user to project if originatingProjectId is provided
         if (projectIds && projectIds.length > 0) {
-          const projectPromises: Promise<{success:boolean}>[] = [];
+          const projectPromises: Promise<{ success: boolean }>[] = [];
 
           for (const projectId of projectIds) {
             projectPromises.push(
               linkUserToProjectId({
                 projectId: projectId,
                 userId: String(result.user.id),
-              })
+              }),
             );
           }
 
@@ -113,7 +113,10 @@ const CreateUserForm = ({
     } catch (error) {
       setError("An unexpected error occurred. Please try again.");
       toast.error("Failed to create user", {
-        description: error instanceof Error ? error.message : "An unexpected error occurred",
+        description:
+          error instanceof Error
+            ? error.message
+            : "An unexpected error occurred",
       });
       setLoading(false);
     }

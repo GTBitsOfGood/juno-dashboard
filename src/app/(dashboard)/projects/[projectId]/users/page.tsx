@@ -22,7 +22,9 @@ export default function ProjectUsersPage() {
   const [users, setUsers] = useState<UserColumn[]>([]);
   const [projectData, setProjectData] = useState<ProjectResponse[]>([]);
   const [projectName, setProjectName] = useState<string>("");
-  const [originatingProjectId, setOriginatingProjectId] = useState<number | null>(null);
+  const [originatingProjectId, setOriginatingProjectId] = useState<
+    number | null
+  >(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -45,8 +47,9 @@ export default function ProjectUsersPage() {
         if (projectsResult.success) {
           setProjectData(projectsResult.projects);
 
-          const projectName = projectsResult.projects.find((project) => project.id === projectIdNum)
-              ?.name;
+          const projectName = projectsResult.projects.find(
+            (project) => project.id === projectIdNum,
+          )?.name;
           setProjectName(projectName);
         } else {
           toast.error("Error", {
@@ -67,7 +70,7 @@ export default function ProjectUsersPage() {
 
   const handleUserAction = (
     user: UserColumn,
-    action: "add" | "update" | "delete"
+    action: "add" | "update" | "delete",
   ) => {
     if (action === "add") {
       setUsers((prevUsers) => [...prevUsers, user]);
@@ -75,7 +78,7 @@ export default function ProjectUsersPage() {
 
     if (action === "update") {
       setUsers((prevUsers) =>
-        prevUsers.map((u) => (u.id === user.id ? user : u))
+        prevUsers.map((u) => (u.id === user.id ? user : u)),
       );
     }
 
@@ -113,7 +116,9 @@ export default function ProjectUsersPage() {
         }))}
         isLoading={loading}
         onUserAction={handleUserAction}
-        originatingProjectId={originatingProjectId != null ? originatingProjectId : undefined}
+        originatingProjectId={
+          originatingProjectId != null ? originatingProjectId : undefined
+        }
       />
     </div>
   );

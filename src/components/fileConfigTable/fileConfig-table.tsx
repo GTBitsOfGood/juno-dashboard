@@ -8,7 +8,11 @@ import {
   DialogFooter,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { getFileConfig } from "@/lib/settings";
+import {
+  createFileConfig,
+  deleteFileConfig,
+  getFileConfig,
+} from "@/lib/settings";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -53,19 +57,8 @@ export function FileConfigTable({ projectId }: FileConfigTableProps) {
     });
   }
 
-  const deleteFileConfig = useMutation({
-    // TODO: use SDK method to delete file config
-    mutationFn: () => {
-      const deletePromises = selectedRows.map(async (row) => {
-        // TODO: Remove this console.log when adding SDK method
-        console.log("Use SDK method to delete file config", row);
-
-        const result = { success: true, error: undefined };
-        return result;
-      });
-
-      return Promise.all(deletePromises);
-    },
+  const deleteFileConfigHandler = useMutation({
+    mutationFn: async () => deleteFileConfig(projectId),
     onSuccess: () => {
       toast.success("Success", {
         description: `Successfully deleted file configs.`,
@@ -76,9 +69,8 @@ export function FileConfigTable({ projectId }: FileConfigTableProps) {
     onError: () => toast.error("An error occurred while deleting configs."),
   });
 
-  const addFileConfig = useMutation({
-    // TODO: use file service setup SDK method here
-    mutationFn: async () => {},
+  const addFileConfigHandler = useMutation({
+    mutationFn: async () => createFileConfig(projectId),
     onSuccess: () => {
       toast.success("Success", {
         description: `Successfully added file configs.`,
@@ -88,6 +80,7 @@ export function FileConfigTable({ projectId }: FileConfigTableProps) {
     onSettled: () => {
       setIsAddConfigDialogOpen(false);
     },
+    onError: () => toast.error("An error occurred while adding configs."),
   });
 
   return (
@@ -103,9 +96,9 @@ export function FileConfigTable({ projectId }: FileConfigTableProps) {
           </DialogHeader>
           <AddFileConfigForm
             projectId={Number(projectId)}
-            error={addFileConfig.error?.message}
-            isPending={addFileConfig.isPending}
-            onAddConfig={() => addFileConfig.mutate()}
+            error={addFileConfigHandler.error?.message}
+            isPending={addFileConfigHandler.isPending}
+            onAddConfig={() => addFileConfigHandler.mutate()}
           />
         </DialogContent>
       </Dialog>
@@ -124,16 +117,16 @@ export function FileConfigTable({ projectId }: FileConfigTableProps) {
             <Button
               variant="outline"
               onClick={() => setIsDeleteDialogOpen(false)}
-              disabled={deleteFileConfig.isPending}
+              disabled={deleteFileConfigHandler.isPending}
             >
               Cancel
             </Button>
             <Button
               variant="destructive"
-              onClick={() => deleteFileConfig.mutate()}
-              disabled={deleteFileConfig.isPending}
+              onClick={() => deleteFileConfigHandler.mutate()}
+              disabled={deleteFileConfigHandler.isPending}
             >
-              {deleteFileConfig.isPending ? "Deleting..." : "Delete"}
+              {deleteFileConfigHandler.isPending ? "Deleting..." : "Delete"}
             </Button>
           </DialogFooter>
         </DialogContent>

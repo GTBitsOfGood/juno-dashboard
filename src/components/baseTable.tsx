@@ -95,7 +95,7 @@ export function BaseTable<TData, TValue>({
               table.resetRowSelection();
             }}
           >
-            Delete {selectedRows.length} selected config
+            Delete {selectedRows.length} selected item
             {selectedRows.length > 1 ? "s" : ""}
           </Button>
         )}

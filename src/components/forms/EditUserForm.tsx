@@ -99,26 +99,38 @@ const EditUserForm = ({
       );
 
       // Unlink projects that were removed
-      const unlinkPromises = projectsToUnlink.map((projectId) => {
-        const projectName = projectData.find(
-          (p) => parseInt(p.id) === parseInt(projectId),
-        )?.name;
-        return unlinkUserFromProject({
-          projectName,
-          userId: initialUserData.id.toString(),
-        });
-      });
+      const unlinkPromises = projectsToUnlink
+        .map((projectId) => {
+          const projectName = projectData.find(
+            (p) => parseInt(p.id) === parseInt(projectId),
+          )?.name;
+          if (!projectName) {
+            console.error(`Project with ID ${projectId} not found`);
+            return null;
+          }
+          return unlinkUserFromProject({
+            projectName,
+            userId: initialUserData.id.toString(),
+          });
+        })
+        .filter((promise) => promise !== null);
 
       // Link projects that were added
-      const linkPromises = projectsToLink.map((projectId) => {
-        const projectName = projectData.find(
-          (p) => parseInt(p.id) === parseInt(projectId),
-        )?.name;
-        return linkUserToProject({
-          projectName,
-          userId: initialUserData.id.toString(),
-        });
-      });
+      const linkPromises = projectsToLink
+        .map((projectId) => {
+          const projectName = projectData.find(
+            (p) => parseInt(p.id) === parseInt(projectId),
+          )?.name;
+          if (!projectName) {
+            console.error(`Project with ID ${projectId} not found`);
+            return null;
+          }
+          return linkUserToProject({
+            projectName,
+            userId: initialUserData.id.toString(),
+          });
+        })
+        .filter((promise) => promise !== null);
 
       // Execute all project operations
       const unlinkResults = await Promise.all(unlinkPromises);

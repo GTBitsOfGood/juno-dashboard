@@ -5,21 +5,37 @@ import { cookies } from "next/headers";
 import { SetUserTypeModel } from "juno-sdk/build/main/internal/api";
 import { APIKey } from "@/components/forms/CreateAPIKeyForm";
 import { getSession } from "./session";
+import { requireSuperAdmin, requireAdmin, hasProjectAccess } from "./auth";
 
 export async function setUserTypeAction(data: {
   email: string;
   type: SetUserTypeModel.TypeEnum;
 }) {
+  const session = await getSession();
+  if (!session) {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  if (!requireSuperAdmin(session.user)) {
+    return { success: false, error: "Only superadmins can change user types" };
+  }
+
   const junoClient = getJunoInstance();
 
   try {
-    const { jwt } = await getSession();
     await junoClient.user.setUserType({
       input: { email: data.email, type: data.type },
-      credentials: jwt,
+      credentials: session.jwt,
     });
     return { success: true };
-  } catch {
+  } catch (err) {
+    if (err.body) {
+      return {
+        success: false,
+        error: `Failed to update user type: ${JSON.stringify(err.body.message)}`,
+      };
+    }
+
     return {
       success: false,
       error: `Failed to update user type: ${data.type}`,
@@ -32,17 +48,28 @@ export async function createUserAction(data: {
   email: string;
   password: string;
 }) {
+  const session = await getSession();
+  if (!session) {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  if (!requireAdmin(session.user)) {
+    return {
+      success: false,
+      error: "Only admins and superadmins can create users",
+    };
+  }
+
   const junoClient = getJunoInstance();
 
   const { name, email, password } = data;
 
   try {
-    const { jwt } = await getSession();
     const user = await junoClient.user.createUser({
       name,
       email,
       password,
-      credentials: jwt,
+      credentials: session.jwt,
     });
 
     return {
@@ -67,14 +94,25 @@ export async function createKeyAction(data: APIKey) {
 }
 
 export async function createProjectAction(data: { projectName: string }) {
+  const session = await getSession();
+  if (!session) {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  if (!requireAdmin(session.user)) {
+    return {
+      success: false,
+      error: "Only admins and superadmins can create projects",
+    };
+  }
+
   const projectName = data.projectName;
 
   const junoClient = getJunoInstance();
   try {
-    const { jwt } = await getSession();
     const project = await junoClient.project.createProject({
       projectName,
-      credentials: jwt,
+      credentials: session.jwt,
     });
     return {
       success: true,
@@ -93,11 +131,22 @@ export async function linkUserToProject(data: {
   projectName: string;
   userId: string;
 }) {
+  const session = await getSession();
+  if (!session) {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  if (!requireAdmin(session.user)) {
+    return {
+      success: false,
+      error: "Only admins and superadmins can link users to projects",
+    };
+  }
+
   const junoClient = getJunoInstance();
   try {
-    const { jwt } = await getSession();
     await junoClient.user.linkToProject({
-      credentials: jwt,
+      credentials: session.jwt,
       project: { name: data.projectName },
       userId: data.userId,
     });
@@ -131,11 +180,22 @@ export async function unlinkUserFromProject(data: {
   projectName: string;
   userId: string;
 }) {
+  const session = await getSession();
+  if (!session) {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  if (!requireAdmin(session.user)) {
+    return {
+      success: false,
+      error: "Only admins and superadmins can unlink users from projects",
+    };
+  }
+
   const junoClient = getJunoInstance();
   try {
-    const { jwt } = await getSession();
     await junoClient.user.unlinkFromProject({
-      credentials: jwt,
+      credentials: session.jwt,
       project: { name: data.projectName },
       userId: data.userId,
     });
@@ -147,12 +207,22 @@ export async function unlinkUserFromProject(data: {
 }
 
 export async function getProjectUsers(projectId: string) {
+  const session = await getSession();
+  if (!session) {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  if (!hasProjectAccess(session.user, Number(projectId))) {
+    return { success: false, error: "You don't have access to this project" };
+  }
+
   const junoClient = getJunoInstance();
 
   try {
-    const { jwt } = await getSession();
-
-    const users = await junoClient.project.getProjectUsersById(projectId, jwt);
+    const users = await junoClient.project.getProjectUsersById(
+      projectId,
+      session.jwt,
+    );
 
     return {
       success: true,
@@ -205,20 +275,24 @@ export async function createJWTAuthentication(data: {
 
 export async function deleteJWT() {
   const cookieStore = await cookies();
-  const cookie = cookieStore.get("jwt-token");
-  //Revoke key as well
-  const junoClient = getJunoInstance();
-  junoClient.auth.revokeKey({ apiKey: cookie.value });
   cookieStore.delete("jwt-token");
 }
 
 export async function deleteUserAction(userId: string) {
+  const session = await getSession();
+  if (!session) {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  if (!requireSuperAdmin(session.user)) {
+    return { success: false, error: "Only superadmins can delete users" };
+  }
+
   const junoClient = getJunoInstance();
   try {
-    const { jwt } = await getSession();
     await junoClient.user.deleteUser({
       userId,
-      credentials: jwt,
+      credentials: session.jwt,
     });
     return { success: true };
   } catch (error) {
@@ -228,12 +302,20 @@ export async function deleteUserAction(userId: string) {
 }
 
 export async function deleteProjectAction(projectId: string) {
+  const session = await getSession();
+  if (!session) {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  if (!requireSuperAdmin(session.user)) {
+    return { success: false, error: "Only superadmins can delete projects" };
+  }
+
   const junoClient = getJunoInstance();
   try {
-    const { jwt } = await getSession();
     await junoClient.project.deleteProject({
       project: { id: Number(projectId) },
-      credentials: jwt,
+      credentials: session.jwt,
     });
     return { success: true };
   } catch (error) {

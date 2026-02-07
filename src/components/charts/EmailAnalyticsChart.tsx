@@ -130,8 +130,8 @@ const EmailAnalyticsChart = ({
             accessibilityLayer
             data={data}
             margin={{
-              left: 12,
-              right: 12,
+              left: 0,
+              right: 0,
             }}
           >
             <CartesianGrid vertical={false} />
@@ -143,13 +143,20 @@ const EmailAnalyticsChart = ({
               tickFormatter={(value) => {
                 const date = new Date(value);
                 return date.toLocaleDateString("en-US", {
-                  month: "short",
+                  month: "numeric",
                   day: "numeric",
                 });
               }}
             />
             <ChartTooltip
               cursor={false}
+              labelFormatter={(value) => {
+                const date = new Date(value);
+                return date.toLocaleDateString("en-US", {
+                  month: "numeric",
+                  day: "numeric",
+                });
+              }}
               content={<ChartTooltipContent indicator="dot" />}
             />
             {metrics.map((metric) => (
@@ -160,7 +167,7 @@ const EmailAnalyticsChart = ({
                 fill={`var(--color-${metric})`}
                 fillOpacity={0.4}
                 stroke={`var(--color-${metric})`}
-                stackId="a"
+                stackId={metrics.length > 1 ? undefined : "a"}
               />
             ))}
           </AreaChart>

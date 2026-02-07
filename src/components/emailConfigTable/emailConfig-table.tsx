@@ -21,6 +21,11 @@ interface EmailConfigTableProps {
   projectId: string;
 }
 
+// dumb int64 being moved to high and low
+interface ProjectId {
+  low: number;
+}
+
 export function EmailConfigTable({ projectId }: EmailConfigTableProps) {
   const [isAddConfigDialogOpen, setIsAddConfigDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -36,7 +41,7 @@ export function EmailConfigTable({ projectId }: EmailConfigTableProps) {
   const emailConfigRowData = [data]
     .filter((config) => config)
     .map((config) => ({
-      id: config.id.low,
+      id: (config.id as unknown as ProjectId).low,
       environment: config.environment,
       sendgridKey: config.sendgridKey,
       domainNames: config.domains?.map((domain) => domain.domain) ?? [],
@@ -74,7 +79,7 @@ export function EmailConfigTable({ projectId }: EmailConfigTableProps) {
 
   const addEmailConfig = useMutation({
     mutationFn: async (sendgridKey: string) => {
-      const result = await setupJunoEmail(sendgridKey);
+      const result = await setupJunoEmail(sendgridKey, projectId);
       if (!result.success) {
         throw new Error(result.message);
       }

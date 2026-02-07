@@ -16,7 +16,6 @@ import {
   setUserTypeAction,
   unlinkUserFromProject,
 } from "@/lib/actions";
-import { SetUserTypeModel } from "juno-sdk/build/main/internal/api";
 import {
   Select,
   SelectContent,
@@ -27,8 +26,9 @@ import {
 import { toast } from "sonner";
 import { InputMultiSelect, InputMultiSelectTrigger } from "../ui/multiselect";
 import { useState } from "react";
-import { ProjectColumn } from "@/app/(auth)/admin/projects/columns";
 import { UserColumn } from "@/components/usertable/columns";
+import { SetUserTypeModel } from "juno-sdk/build/main/internal/api";
+import { ProjectColumn } from "@/app/(dashboard)/admin/projects/columns";
 
 export const userTypeMap = {
   SUPERADMIN: 0,
@@ -73,13 +73,13 @@ const EditUserForm = ({
     try {
       // Update user type
       const result = await setUserTypeAction({
-        type: data.userType as unknown as SetUserTypeModel.TypeEnum, //May not be good
+        type: data.userType as unknown as SetUserTypeModel.TypeEnum,
         email: data.userEmail,
       });
 
       if (!result.success) {
         toast.error("Error", {
-          description: "Failed to edit user type",
+          description: result.error,
         });
         return;
       }

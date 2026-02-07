@@ -1,11 +1,31 @@
 "use server";
 
 import { getJunoInstance } from "./juno";
+import { getSession } from "./session";
+import { requireAdmin } from "./auth";
 
-export async function setupJunoEmail(sendgridKey: string) {
+export async function setupJunoEmail(sendgridKey: string, projectId: string) {
+  const session = await getSession();
+  if (!session) {
+    return { success: false, message: "Unauthorized" };
+  }
+
+  if (!requireAdmin(session.user)) {
+    return {
+      success: false,
+      message: "Only admins and superadmins can set up email service",
+    };
+  }
+
   try {
     const juno = getJunoInstance();
-    await juno.email.setupEmail({ sendgridKey });
+    await juno.email.setupEmail(
+      { sendgridKey },
+      {
+        userJwt: session.jwt,
+        projectId: Number(projectId),
+      },
+    );
     return { success: true, message: "Successfully set up email service!" };
   } catch (e) {
     console.error(e);
@@ -20,6 +40,18 @@ export async function registerJunoDomain(
   domain: string,
   subdomain: string | undefined,
 ) {
+  const session = await getSession();
+  if (!session) {
+    return { success: false, message: "Unauthorized" };
+  }
+
+  if (!requireAdmin(session.user)) {
+    return {
+      success: false,
+      message: "Only admins and superadmins can register domains",
+    };
+  }
+
   try {
     const juno = getJunoInstance();
     await juno.email.registerDomain({ domain, subdomain });
@@ -42,6 +74,18 @@ export async function registerJunoSenderAddress(
   zip: string,
   country: string,
 ) {
+  const session = await getSession();
+  if (!session) {
+    return { success: false, message: "Unauthorized" };
+  }
+
+  if (!requireAdmin(session.user)) {
+    return {
+      success: false,
+      message: "Only admins and superadmins can register sender addresses",
+    };
+  }
+
   try {
     const juno = getJunoInstance();
     await juno.email.registerSenderAddress({

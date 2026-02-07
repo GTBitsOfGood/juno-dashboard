@@ -105,7 +105,7 @@ const EditUserForm = ({
             (p) => parseInt(p.id) === parseInt(projectId),
           )?.name;
           if (!projectName) {
-            console.error(`Project with ID ${projectId} not found`);
+            // console.error(`Project with ID ${projectId} not found`);
             return null;
           }
           return unlinkUserFromProject({
@@ -122,7 +122,7 @@ const EditUserForm = ({
             (p) => parseInt(p.id) === parseInt(projectId),
           )?.name;
           if (!projectName) {
-            console.error(`Project with ID ${projectId} not found`);
+            // console.error(`Project with ID ${projectId} not found`);
             return null;
           }
           return linkUserToProject({

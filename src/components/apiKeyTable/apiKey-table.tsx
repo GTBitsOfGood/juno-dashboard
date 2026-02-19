@@ -2,11 +2,13 @@
 
 import {
   ColumnFiltersState,
+  SortingState,
   VisibilityState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
+  getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
 
@@ -58,11 +60,13 @@ export function ApiKeyDataTable({
   isLoading,
   onKeyAction,
 }: ApiKeyDataTableProps) {
+  const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [pendingDeleteKey, setPendingDeleteKey] =
-    useState<ApiKeyColumn | null>(null);
+  const [pendingDeleteKey, setPendingDeleteKey] = useState<ApiKeyColumn | null>(
+    null,
+  );
   const [hasSelectedRows, setHasSelectedRows] = useState(false);
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false);
 
@@ -77,11 +81,14 @@ export function ApiKeyDataTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    onSortingChange: setSorting,
+    getSortedRowModel: getSortedRowModel(),
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     state: {
+      sorting,
       columnFilters,
       columnVisibility,
     },
@@ -118,8 +125,19 @@ export function ApiKeyDataTable({
   };
 
   return (
-    <>
-      <div className="items-center flex justify-between py-4 gap-3">
+    <div className="bg-black border-2 border-slate-800 rounded-[6px] px-[6px] py-[12px] flex flex-col gap-[12px] shadow-[0px_0px_8px_0px_white]">
+      {/* Card Header */}
+      <div className="flex flex-col gap-[4px] px-[8px]">
+        <h2 className="text-[30px] font-semibold text-gray-100 leading-[30px] tracking-[-1px]">
+          Your API Keys
+        </h2>
+        <p className="text-sm text-gray-400">
+          View API keys you&apos;ve created for Juno projects.
+        </p>
+      </div>
+
+      <div className="px-[9px] flex flex-col gap-4">
+      <div className="items-center flex justify-between gap-3">
         <Input
           placeholder="Filter API Keys by Description"
           value={
@@ -128,7 +146,7 @@ export function ApiKeyDataTable({
           onChange={(event) => {
             table.getColumn("description")?.setFilterValue(event.target.value);
           }}
-          className="max-w-sm"
+          className="max-w-sm bg-black border-slate-700"
         />
 
         <div className="flex gap-2">
@@ -244,10 +262,11 @@ export function ApiKeyDataTable({
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
+              table.getRowModel().rows.map((row, index) => (
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  className={index % 2 === 1 ? "bg-neutral-900" : "bg-black"}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
@@ -311,6 +330,7 @@ export function ApiKeyDataTable({
           </Button>
         </div>
       </div>
-    </>
+      </div>
+    </div>
   );
 }

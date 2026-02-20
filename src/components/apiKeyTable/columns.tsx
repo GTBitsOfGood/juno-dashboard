@@ -14,8 +14,8 @@ export type ApiKeyColumn = {
 };
 
 const PROJECT_COLORS = [
-  "bg-green-700",
-  "bg-amber-700",
+  "bg-emerald-900",
+  "bg-orange-900",
   "bg-sky-700",
   "bg-purple-700",
   "bg-rose-700",
@@ -69,9 +69,7 @@ export const apiKeyColumns = (
           </Button>
         </div>
       ),
-      cell: ({ row }) => (
-        <div className="text-center">{row.original.id}</div>
-      ),
+      cell: ({ row }) => <div className="text-center">{row.original.id}</div>,
     },
     {
       accessorKey: "description",
@@ -92,9 +90,7 @@ export const apiKeyColumns = (
         <div className="text-center">
           <Button
             variant="ghost"
-            onClick={() =>
-              column.toggleSorting(column.getIsSorted() === "asc")
-            }
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
             Date Created
             <ArrowUpDown className="ml-1 h-4 w-4" />
@@ -115,9 +111,7 @@ export const apiKeyColumns = (
         <div className="text-center">
           <Button
             variant="ghost"
-            onClick={() =>
-              column.toggleSorting(column.getIsSorted() === "asc")
-            }
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
             Linked Project
             <ArrowUpDown className="ml-1 h-4 w-4" />
@@ -144,9 +138,7 @@ export const apiKeyColumns = (
         <div className="text-center">
           <Button
             variant="ghost"
-            onClick={() =>
-              column.toggleSorting(column.getIsSorted() === "asc")
-            }
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
             Environment
             <ArrowUpDown className="ml-1 h-4 w-4" />

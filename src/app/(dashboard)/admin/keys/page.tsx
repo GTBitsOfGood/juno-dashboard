@@ -13,7 +13,7 @@ import { toast } from "sonner";
 import { useState } from "react";
 import { ApiKeyDataTable } from "@/components/apiKeyTable/apiKey-table";
 import { ApiKeyColumn } from "@/components/apiKeyTable/columns";
-import ApiKeyRevealCard from "@/components/ApiKeyRevealCard";
+import ApiKeyRevealCard from "@/components/forms/ApiKeyRevealForm";
 
 const mockApiKeys: ApiKeyColumn[] = [
   {
@@ -80,7 +80,7 @@ export default function KeyPage() {
       </Breadcrumb>
 
       {/* Top section: form (left) + reveal card (right) — always side by side */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 items-start">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 items-start w-100">
         <CreateAPIKeyForm
           onKeyAdd={(newKey) => {
             const dateCreated = new Date().toISOString().split("T")[0];
@@ -106,8 +106,6 @@ export default function KeyPage() {
           }}
         />
 
-       
-
         {/* Preview: reveal card with mock key data */}
         <ApiKeyRevealCard
           keyValue="eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c3ItcGxhY2Vob2xkZXIiLCJpYXQiOjE3MDgzMjgwMDB9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
@@ -117,8 +115,6 @@ export default function KeyPage() {
           dateCreated="2026-01-31"
         />
       </div>
-
-      
 
       {/* Table card */}
       <ApiKeyDataTable

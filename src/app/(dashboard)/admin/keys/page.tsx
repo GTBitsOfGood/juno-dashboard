@@ -108,7 +108,11 @@ export default function KeyPage() {
 
         {/* Preview: reveal card with mock key data */}
         <ApiKeyRevealCard
-          keyValue={createdKey != undefined ? createdKey.value : "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c3ItcGxhY2Vob2xkZXIiLCJpYXQiOjE3MDgzMjgwMDB9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"}
+          keyValue={
+            createdKey != undefined
+              ? createdKey.value
+              : "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c3ItcGxhY2Vob2xkZXIiLCJpYXQiOjE3MDgzMjgwMDB9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+          }
           description="Email check-ins"
           environment="SIT"
           project="Juno Dashboard"

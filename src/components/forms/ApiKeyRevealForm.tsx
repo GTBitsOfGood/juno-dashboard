@@ -9,12 +9,7 @@ import {
   Terminal,
   TriangleAlert,
 } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardTitle,
-} from "../ui/card";
+import { Card, CardContent, CardDescription, CardTitle } from "../ui/card";
 
 type ApiKeyRevealCardProps = {
   keyValue: string | null;

@@ -74,14 +74,19 @@ export const apiKeyColumns = (
     {
       accessorKey: "description",
       header: ({ column }) => (
-        <Button
+        <div className='text-left'>
+          <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Description
           <ArrowUpDown className="ml-1 h-4 w-4" />
         </Button>
+        </div>
+
+        
       ),
+      cell: ({ row }) => <div className="pl-4 text-left">{row.original.description}</div>,
       size: 300,
     },
     {

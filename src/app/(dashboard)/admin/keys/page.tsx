@@ -106,23 +106,19 @@ export default function KeyPage() {
           }}
         />
 
+       
+
+        {/* Preview: reveal card with mock key data */}
         <ApiKeyRevealCard
-          keyValue={createdKey?.value ?? null}
-          description={createdKey?.description ?? ""}
-          environment={createdKey?.environment ?? ""}
-          project={createdKey?.project ?? ""}
-          dateCreated={createdKey?.dateCreated ?? ""}
+          keyValue="eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c3ItcGxhY2Vob2xkZXIiLCJpYXQiOjE3MDgzMjgwMDB9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+          description="Email check-ins"
+          environment="SIT"
+          project="Juno Dashboard"
+          dateCreated="2026-01-31"
         />
       </div>
 
-      {/* Preview: reveal card with mock key data */}
-      <ApiKeyRevealCard
-        keyValue="eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c3ItcGxhY2Vob2xkZXIiLCJpYXQiOjE3MDgzMjgwMDB9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
-        description="Email check-ins"
-        environment="SIT"
-        project="Juno Dashboard"
-        dateCreated="2026-01-31"
-      />
+      
 
       {/* Table card */}
       <ApiKeyDataTable

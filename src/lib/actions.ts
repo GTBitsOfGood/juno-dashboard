@@ -235,6 +235,7 @@ export async function createJWTAuthentication(data: {
       email: data.email,
       password: data.password,
     });
+    console.log("getUserJWT ", result);
     //Token needs to be put in a cookie and stuff
     (await cookies()).set({
       name: "jwt-token",
@@ -249,6 +250,7 @@ export async function createJWTAuthentication(data: {
     if (error.code === "ECONNREFUSED") {
       return { success: false, error: "Failed to connect to Juno instance." };
     }
+    console.log(error);
 
     return { success: false, error: "Invalid user credentials provided." };
   }

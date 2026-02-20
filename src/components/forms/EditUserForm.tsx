@@ -38,7 +38,7 @@ export const userTypeMap = {
 } as const;
 
 const userTypeEnum = z.enum(
-  Object.keys(userTypeMap) as [keyof typeof userTypeMap]
+  Object.keys(userTypeMap) as [keyof typeof userTypeMap],
 );
 
 const setUserTypeSchema = z.object({
@@ -86,7 +86,7 @@ const EditUserForm = ({
   });
 
   const handleSetUserType = async (
-    data: Required<z.infer<typeof setUserTypeSchema>>
+    data: Required<z.infer<typeof setUserTypeSchema>>,
   ) => {
     try {
       // Update user type
@@ -108,18 +108,18 @@ const EditUserForm = ({
 
       // Find projects to unlink (in initial but not in selected)
       const projectsToUnlink = initialProjectIds.filter(
-        (id) => !selectedProjects.includes(id)
+        (id) => !selectedProjects.includes(id),
       );
 
       // Find projects to link (in selected but not in initial)
       const projectsToLink = selectedProjects.filter(
-        (id) => !initialProjectIds.includes(id)
+        (id) => !initialProjectIds.includes(id),
       );
 
       // Unlink projects that were removed
       const unlinkPromises = projectsToUnlink.map((projectId) => {
         const projectName = projectData.find(
-          (p) => parseInt(p.id) === parseInt(projectId)
+          (p) => parseInt(p.id) === parseInt(projectId),
         )?.name;
         return unlinkUserFromProject({
           projectName,
@@ -130,7 +130,7 @@ const EditUserForm = ({
       // Link projects that were added
       const linkPromises = projectsToLink.map((projectId) => {
         const projectName = projectData.find(
-          (p) => parseInt(p.id) === parseInt(projectId)
+          (p) => parseInt(p.id) === parseInt(projectId),
         )?.name;
         return linkUserToProject({
           projectName,
@@ -173,7 +173,7 @@ const EditUserForm = ({
   const [selectedProjects, setSelectedProjects] = useState<string[]>(
     initialUserData.projects
       ? initialUserData.projects.map((id) => id.toString())
-      : []
+      : [],
   );
 
   const projectOptions = projectData.map((project) => ({

@@ -85,7 +85,7 @@ const CreateAPIKeyForm = ({ onKeyAdd, onClose }: CreateAPIKeyFormProps) => {
       if (onClose) {
         onClose();
       }
-    } catch (error) {
+    } catch {
       setError("An error occurred while creating the API key");
     }
   };

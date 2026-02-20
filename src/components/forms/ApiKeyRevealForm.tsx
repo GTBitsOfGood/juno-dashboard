@@ -106,7 +106,7 @@ const ApiKeyRevealCard = ({
         </CardTitle>
         <CardDescription>
           <p className="text-sm text-gray-400">
-            Paste the line below into your project's environment variables file.
+            Paste the line below into your project&apos;s environment variables file.
           </p>
         </CardDescription>
       </div>

@@ -133,7 +133,7 @@ export function ApiKeyDataTable({
         </CardTitle>
         <CardDescription>
           <p className="text-sm text-gray-400">
-            View API keys you've created for Juno projects.
+            View API keys you&apos;ve created for Juno projects.
           </p>
         </CardDescription>
       </div>

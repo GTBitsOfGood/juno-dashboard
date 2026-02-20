@@ -48,6 +48,7 @@ import { apiKeyColumns, ApiKeyColumn } from "./columns";
 import { toast } from "sonner";
 import SkeletonRows from "../table/SkeletonRows";
 import { ChevronDown } from "lucide-react";
+import { DarkCard } from "@/components/ui/dark-card";
 
 interface ApiKeyDataTableProps {
   data: ApiKeyColumn[];
@@ -125,17 +126,11 @@ export function ApiKeyDataTable({
   };
 
   return (
-    <div className="bg-black border-2 border-slate-800 rounded-[6px] px-[6px] py-[12px] flex flex-col gap-[12px] shadow-[0px_0px_8px_0px_white]">
-      {/* Card Header */}
-      <div className="flex flex-col gap-[4px] px-[8px]">
-        <h2 className="text-[30px] font-semibold text-gray-100 leading-[30px] tracking-[-1px]">
-          Your API Keys
-        </h2>
-        <p className="text-sm text-gray-400">
-          View API keys you&apos;ve created for Juno projects.
-        </p>
-      </div>
-
+    <DarkCard
+      title="Your API Keys"
+      description="View API keys you've created for Juno projects."
+      className="px-[6px] gap-[12px]"
+    >
       <div className="px-[9px] flex flex-col gap-4">
       <div className="items-center flex justify-between gap-3">
         <Input
@@ -239,7 +234,7 @@ export function ApiKeyDataTable({
         </DialogContent>
       </Dialog>
 
-      <div className="rounded-md border">
+      <div className="bg-black rounded-lg overflow-clip">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -266,7 +261,7 @@ export function ApiKeyDataTable({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  className={index % 2 === 1 ? "bg-neutral-900" : "bg-black"}
+                  className={index % 2 === 1 ? "bg-neutral-900" : "bg-neutral-950"}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
@@ -331,6 +326,6 @@ export function ApiKeyDataTable({
         </div>
       </div>
       </div>
-    </div>
+    </DarkCard>
   );
 }

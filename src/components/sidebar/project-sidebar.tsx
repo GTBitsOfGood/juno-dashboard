@@ -10,6 +10,7 @@ import {
   Shield,
   FolderKanban,
 } from "lucide-react";
+import Image from "next/image";
 
 import {
   Sidebar,
@@ -21,6 +22,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarTrigger,
 } from "@/components/ui/sidebar";
 import {
   DropdownMenu,
@@ -128,8 +130,12 @@ export function ProjectSidebar({
   ];
 
   return (
-    <Sidebar>
-      <SidebarHeader>
+    <Sidebar className="border-transparent">
+      <SidebarHeader className="p-0 gap-0">
+        <div className="flex items-center h-14 px-4 shrink-0">
+          <Image src="/infra_logo.png" alt="Infra" height={21} width={75} />
+        </div>
+        <div className="p-2">
         <SidebarMenu>
           <SidebarMenuItem>
             <DropdownMenu>
@@ -179,6 +185,7 @@ export function ProjectSidebar({
             </DropdownMenu>
           </SidebarMenuItem>
         </SidebarMenu>
+        </div>
       </SidebarHeader>
 
       <SidebarContent>

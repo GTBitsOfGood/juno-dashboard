@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { useEffect, useState } from "react";
 import { getUsers, getProjects } from "@/lib/sdkActions";
+import { PendingAccountRequests } from "@/components/admin/PendingAccountRequests";
 
 export default function UsersPage() {
   const [userData, setUserData] = useState<UserColumn[]>([]);
@@ -87,6 +88,8 @@ export default function UsersPage() {
         isLoading={isLoading}
         onUserAction={handleUserAction}
       />
+
+      <PendingAccountRequests />
     </div>
   );
 }

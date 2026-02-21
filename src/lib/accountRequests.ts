@@ -59,7 +59,7 @@ export async function getAccountRequests(): Promise<{
 }
 
 // PLACEHOLDER: replace with real SDK call
-export async function deleteAccountRequest(id: string): Promise<{
+export async function deleteAccountRequest(): Promise<{
   success: boolean;
   error?: string;
 }> {
@@ -104,7 +104,7 @@ export async function acceptAccountRequest(request: AccountRequest): Promise<{
     }
   }
 
-  const deleteResult = await deleteAccountRequest(request.id);
+  const deleteResult = await deleteAccountRequest();
   if (!deleteResult.success) {
     console.error(`Failed to delete account request ${request.id}: ${deleteResult.error}`);
   }
@@ -112,9 +112,9 @@ export async function acceptAccountRequest(request: AccountRequest): Promise<{
   return { success: true };
 }
 
-export async function declineAccountRequest(id: string): Promise<{
+export async function declineAccountRequest(): Promise<{
   success: boolean;
   error?: string;
 }> {
-  return deleteAccountRequest(id);
+  return deleteAccountRequest();
 }

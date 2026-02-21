@@ -96,7 +96,7 @@ export function PendingAccountRequests() {
   const handleDecline = async (request: AccountRequest) => {
     setProcessing(request.id, true);
     try {
-      const result = await declineAccountRequest(request.id);
+      const result = await declineAccountRequest();
       if (result.success) {
         setRequests((prev) => prev.filter((r) => r.id !== request.id));
         toast.success("Request Declined", {

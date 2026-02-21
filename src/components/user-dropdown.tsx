@@ -35,7 +35,7 @@ export function UserDropdown({ name }: UserDropdownProps) {
       <DropdownMenuContent align="end" className="w-48">
         <DropdownMenuItem
           onClick={logOut}
-          className="flex items-center gap-2 text-red-400 focus:text-red-400"
+          className="flex items-center gap-2 text-destructive focus:text-destructive"
         >
           <LogOut className="h-4 w-4" />
           <span>Logout</span>

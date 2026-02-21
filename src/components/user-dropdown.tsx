@@ -2,7 +2,7 @@
 
 import { ChevronDown, LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/ui/user-avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,12 +10,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { deleteJWT } from "@/lib/actions";
-
-function getInitials(name: string): string {
-  const parts = name.trim().split(/\s+/);
-  if (parts.length === 1) return parts[0][0].toUpperCase();
-  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-}
 
 type UserDropdownProps = {
   name: string;
@@ -34,11 +28,7 @@ export function UserDropdown({ name }: UserDropdownProps) {
       <DropdownMenuTrigger asChild>
         <button className="flex items-center gap-3 rounded-md px-2 py-1 focus:outline-none">
           <span className="text-sm text-muted-foreground">{name}</span>
-          <Avatar className="h-8 w-8">
-            <AvatarFallback className="text-xs font-medium bg-primary/20 text-primary">
-              {getInitials(name)}
-            </AvatarFallback>
-          </Avatar>
+          <UserAvatar name={name} />
           <ChevronDown className="h-4 w-4 text-muted-foreground" />
         </button>
       </DropdownMenuTrigger>

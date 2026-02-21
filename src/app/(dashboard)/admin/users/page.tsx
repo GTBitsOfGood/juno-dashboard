@@ -79,6 +79,7 @@ export default function UsersPage() {
         </BreadcrumbList>
       </Breadcrumb>
       <h1>Users</h1>
+      <PendingAccountRequests />
       <UserDataTable
         data={userData}
         projectData={projectData.map((project) => ({
@@ -88,8 +89,6 @@ export default function UsersPage() {
         isLoading={isLoading}
         onUserAction={handleUserAction}
       />
-
-      <PendingAccountRequests />
     </div>
   );
 }

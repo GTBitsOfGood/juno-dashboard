@@ -7,13 +7,9 @@ import {
   User,
   Mail,
   Files,
-  LogOut,
   Shield,
   FolderKanban,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
-
-import { deleteJWT } from "@/lib/actions";
 
 import {
   Sidebar,
@@ -131,12 +127,6 @@ export function ProjectSidebar({
     },
   ];
 
-  const router = useRouter();
-  async function logOut() {
-    await deleteJWT();
-    router.push("/admin");
-  }
-
   return (
     <Sidebar>
       <SidebarHeader>
@@ -207,15 +197,6 @@ export function ProjectSidebar({
                 </SidebarMenuItem>
               ))}
 
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <button onClick={logOut}>
-                    <LogOut className="text-red-300 h-6 w-6" />
-
-                    <div className="text-red-300">Logout</div>
-                  </button>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

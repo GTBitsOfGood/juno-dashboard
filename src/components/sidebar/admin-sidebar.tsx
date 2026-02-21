@@ -5,14 +5,10 @@ import {
   ListTodo,
   Settings,
   User,
-  LogOut,
   KeyRound,
   Shield,
   FolderKanban,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
-
-import { deleteJWT } from "@/lib/actions";
 
 import {
   Sidebar,
@@ -92,11 +88,6 @@ export function AdminSidebar() {
     fetchProjects();
   }, [user]);
 
-  const router = useRouter();
-  async function logOut() {
-    await deleteJWT();
-    router.push("/admin");
-  }
   return (
     <Sidebar>
       <SidebarHeader>
@@ -156,15 +147,6 @@ export function AdminSidebar() {
                 </SidebarMenuItem>
               ))}
 
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <button onClick={logOut}>
-                    <LogOut className="text-red-300 h-6 w-6" />
-
-                    <div className="text-red-300">Logout</div>
-                  </button>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

@@ -181,9 +181,7 @@ export function PendingAccountRequests() {
                       </Badge>
 
                       {request.projectName && (
-                        <Badge variant="secondary">
-                          {request.projectName}
-                        </Badge>
+                        <Badge variant="secondary">{request.projectName}</Badge>
                       )}
                     </div>
 

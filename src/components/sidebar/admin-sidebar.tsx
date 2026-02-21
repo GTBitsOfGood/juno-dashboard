@@ -96,44 +96,44 @@ export function AdminSidebar() {
           <Image src="/infra_logo.png" alt="Infra" height={21} width={75} />
         </div>
         <div className="p-2">
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <SidebarMenuButton className="h-12 px-4 hover:bg-accent/50 data-[state=open]:bg-accent/50 border border-white/10 rounded-lg font-semibold">
-                  {"Admin Dashboard"}
-                  <ChevronDown className="ml-auto h-4 w-4 transition-transform data-[state=open]:rotate-180" />
-                </SidebarMenuButton>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-[--radix-popper-anchor-width]">
-                <DropdownMenuItem asChild key={"admin"}>
-                  <a href={"/admin"} className="flex items-center gap-2">
-                    <Shield className="h-4 w-4" />
-                    <span>Admin Dashboard</span>
-                  </a>
-                </DropdownMenuItem>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <SidebarMenuButton className="h-12 px-4 hover:bg-accent/50 data-[state=open]:bg-accent/50 border border-white/10 rounded-lg font-semibold">
+                    {"Admin Dashboard"}
+                    <ChevronDown className="ml-auto h-4 w-4 transition-transform data-[state=open]:rotate-180" />
+                  </SidebarMenuButton>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-[--radix-popper-anchor-width]">
+                  <DropdownMenuItem asChild key={"admin"}>
+                    <a href={"/admin"} className="flex items-center gap-2">
+                      <Shield className="h-4 w-4" />
+                      <span>Admin Dashboard</span>
+                    </a>
+                  </DropdownMenuItem>
 
-                {projects.length > 0 && (
-                  <>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuLabel>Projects</DropdownMenuLabel>
-                    {projects.map((project) => (
-                      <DropdownMenuItem asChild key={project.id}>
-                        <a
-                          href={`/projects/${project.id}`}
-                          className="flex items-center gap-2"
-                        >
-                          <FolderKanban className="h-4 w-4" />
-                          <span>{project.name}</span>
-                        </a>
-                      </DropdownMenuItem>
-                    ))}
-                  </>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </SidebarMenuItem>
-        </SidebarMenu>
+                  {projects.length > 0 && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuLabel>Projects</DropdownMenuLabel>
+                      {projects.map((project) => (
+                        <DropdownMenuItem asChild key={project.id}>
+                          <a
+                            href={`/projects/${project.id}`}
+                            className="flex items-center gap-2"
+                          >
+                            <FolderKanban className="h-4 w-4" />
+                            <span>{project.name}</span>
+                          </a>
+                        </DropdownMenuItem>
+                      ))}
+                    </>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </SidebarMenuItem>
+          </SidebarMenu>
         </div>
       </SidebarHeader>
 
@@ -152,7 +152,6 @@ export function AdminSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
-
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

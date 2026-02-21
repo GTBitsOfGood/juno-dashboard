@@ -1,6 +1,10 @@
 "use server";
 
-import { createUserAction, createProjectAction, linkUserToProject } from "./actions";
+import {
+  createUserAction,
+  createProjectAction,
+  linkUserToProject,
+} from "./actions";
 import { getSession } from "./session";
 import { requireAdmin } from "./auth";
 
@@ -25,7 +29,11 @@ export async function getAccountRequests(): Promise<{
   if (!session) return { success: false, requests: [], error: "Unauthorized" };
 
   if (!requireAdmin(session.user)) {
-    return { success: false, requests: [], error: "Only admins can view account requests" };
+    return {
+      success: false,
+      requests: [],
+      error: "Only admins can view account requests",
+    };
   }
 
   return {
@@ -84,14 +92,22 @@ export async function acceptAccountRequest(request: AccountRequest): Promise<{
   });
 
   if (!userResult.success) {
-    return { success: false, error: `Failed to create user: ${JSON.stringify(userResult.error)}` };
+    return {
+      success: false,
+      error: `Failed to create user: ${JSON.stringify(userResult.error)}`,
+    };
   }
 
   if (request.userType === "ADMIN" && request.projectName) {
-    const projectResult = await createProjectAction({ projectName: request.projectName });
+    const projectResult = await createProjectAction({
+      projectName: request.projectName,
+    });
 
     if (!projectResult.success) {
-      return { success: false, error: `User created but failed to create project: ${projectResult.error}` };
+      return {
+        success: false,
+        error: `User created but failed to create project: ${projectResult.error}`,
+      };
     }
 
     const linkResult = await linkUserToProject({
@@ -100,13 +116,18 @@ export async function acceptAccountRequest(request: AccountRequest): Promise<{
     });
 
     if (!linkResult.success) {
-      return { success: false, error: `User and project created but failed to link them: ${linkResult.error}` };
+      return {
+        success: false,
+        error: `User and project created but failed to link them: ${linkResult.error}`,
+      };
     }
   }
 
   const deleteResult = await deleteAccountRequest();
   if (!deleteResult.success) {
-    console.error(`Failed to delete account request ${request.id}: ${deleteResult.error}`);
+    console.error(
+      `Failed to delete account request ${request.id}: ${deleteResult.error}`,
+    );
   }
 
   return { success: true };

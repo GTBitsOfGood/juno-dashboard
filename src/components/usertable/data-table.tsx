@@ -133,9 +133,7 @@ export function UserDataTable<TData>({
               (table.getColumn("role")?.getFilterValue() as string) ?? "all"
             }
             onValueChange={(val) =>
-              table
-                .getColumn("role")
-                ?.setFilterValue(val === "all" ? "" : val)
+              table.getColumn("role")?.setFilterValue(val === "all" ? "" : val)
             }
           >
             <SelectTrigger className="w-40">

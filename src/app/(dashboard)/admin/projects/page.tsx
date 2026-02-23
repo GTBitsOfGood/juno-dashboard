@@ -1,7 +1,5 @@
 "use client";
 
-import { ProjectColumn, columns } from "./columns";
-import { ProjectDataTable } from "./data-table";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -13,6 +11,8 @@ import {
 import { getProjects } from "@/lib/sdkActions";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { ProjectColumn, columns } from "./columns";
+import { ProjectDataTable } from "./data-table";
 
 export default function ProjectsPage() {
   const [projectData, setProjectData] = useState<ProjectColumn[]>([]);
@@ -61,7 +61,7 @@ export default function ProjectsPage() {
   };
 
   return (
-    <div className="container mx-auto px-10 py-10">
+    <div className="container mx-auto">
       <Breadcrumb className="mb-4">
         <BreadcrumbList>
           <BreadcrumbItem>

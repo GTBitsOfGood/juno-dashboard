@@ -13,7 +13,7 @@ export default function AdminLayout({
       <AdminSidebar />
       <div className="flex flex-col flex-1 min-w-0">
         <TopBar />
-        <main>{children}</main>
+        <main className="w-screen m-8">{children}</main>
       </div>
     </SidebarProvider>
   );

@@ -1,8 +1,5 @@
 "use client";
 
-import { ProjectResponse } from "juno-sdk/build/main/internal/api";
-import { UserColumn } from "../../../../components/usertable/columns";
-import { UserDataTable } from "../../../../components/usertable/data-table";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -11,9 +8,13 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { getProjects, getUsers } from "@/lib/sdkActions";
+import { ProjectResponse } from "juno-sdk/build/main/internal/api";
 import { useEffect, useState } from "react";
 import { getUsers, getProjects } from "@/lib/sdkActions";
 import { PendingAccountRequests } from "@/components/admin/PendingAccountRequests";
+import { UserColumn } from "../../../../components/usertable/columns";
+import { UserDataTable } from "../../../../components/usertable/data-table";
 
 export default function UsersPage() {
   const [userData, setUserData] = useState<UserColumn[]>([]);
@@ -66,7 +67,7 @@ export default function UsersPage() {
   };
 
   return (
-    <div className="container mx-auto px-10 py-10">
+    <div className="container mx-auto">
       <Breadcrumb className="mb-4">
         <BreadcrumbList>
           <BreadcrumbItem>

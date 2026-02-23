@@ -1,7 +1,7 @@
 import { ProjectSidebar } from "@/components/sidebar/project-sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import "../../../globals.css";
 import { getProjectById } from "@/lib/project";
+import "../../../globals.css";
 
 export default async function ProjectLayout({
   children,

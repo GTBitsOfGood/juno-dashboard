@@ -12,6 +12,29 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -20,35 +43,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useState, useEffect } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { apiKeyColumns, ApiKeyColumn } from "./columns";
+import { ChevronDown } from "lucide-react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import SkeletonRows from "../table/SkeletonRows";
-import { ChevronDown } from "lucide-react";
 import { Card, CardDescription, CardTitle } from "../ui/card";
+import { ApiKeyColumn, apiKeyColumns } from "./columns";
 
 interface ApiKeyDataTableProps {
   data: ApiKeyColumn[];
@@ -126,18 +126,18 @@ export function ApiKeyDataTable({
   };
 
   return (
-    <Card>
-      <div className="px-3 py-3">
+    <Card className="p-6 flex flex-col gap-8">
+      <div>
         <CardTitle>
-          <h2 className="text-3xl font-semibold">Your API Keys</h2>
+          <h2 className="text-2xl font-semibold mb-1">Your API Keys</h2>
         </CardTitle>
         <CardDescription>
-          <p className="text-sm text-gray-400">
-            View API keys you&apos;ve created for Juno projects.
+          <p className="text-gray-400">
+            View API keys you created for Juno projects.
           </p>
         </CardDescription>
       </div>
-      <div className="px-[9px] flex flex-col gap-4">
+      <div className="flex flex-col gap-4">
         <div className="items-center flex justify-between gap-3">
           <Input
             placeholder="Filter API Keys by Description"
@@ -149,7 +149,6 @@ export function ApiKeyDataTable({
                 .getColumn("description")
                 ?.setFilterValue(event.target.value);
             }}
-            className="max-w-sm bg-black border-slate-700"
           />
 
           <div className="flex gap-2">
@@ -269,9 +268,7 @@ export function ApiKeyDataTable({
                   <TableRow
                     key={row.id}
                     data-state={row.getIsSelected() && "selected"}
-                    className={
-                      index % 2 === 1 ? "bg-neutral-900" : "bg-neutral-950"
-                    }
+                    className={index % 2 === 1 ? "bg-background" : "bg-card"}
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>

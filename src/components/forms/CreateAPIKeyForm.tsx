@@ -1,7 +1,13 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { ProjectIdentifier } from "juno-sdk/build/main/lib/identifiers";
+import { Loader2 } from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 import { Button } from "../ui/button";
+import { Card, CardContent, CardDescription, CardTitle } from "../ui/card";
 import {
   Form,
   FormControl,
@@ -12,11 +18,6 @@ import {
   FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
-import * as z from "zod";
-import { useForm } from "react-hook-form";
-import { Loader2 } from "lucide-react";
-import { useState } from "react";
-import { ProjectIdentifier } from "juno-sdk/build/main/lib/identifiers";
 import {
   Select,
   SelectContent,
@@ -24,7 +25,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { Card, CardContent, CardDescription, CardTitle } from "../ui/card";
 
 export enum Environment {
   Dev = "Dev",
@@ -93,14 +93,10 @@ const CreateAPIKeyForm = ({ onKeyAdd, onClose }: CreateAPIKeyFormProps) => {
 
   return (
     <Card>
-      <div className="px-3 py-3">
-        <CardTitle>
-          <h2 className="text-3xl font-semibold">Create a New API Key</h2>
-        </CardTitle>
+      <div className="p-6">
+        <CardTitle className="text-2xl mb-1">Create a New API Key</CardTitle>
         <CardDescription>
-          <p className="text-sm text-gray-400">
-            API keys allow you to access Juno services programmatically.
-          </p>
+          API keys allow you to access Juno services programmatically.
         </CardDescription>
       </div>
       <CardContent>
@@ -110,24 +106,19 @@ const CreateAPIKeyForm = ({ onKeyAdd, onClose }: CreateAPIKeyFormProps) => {
           )}
           <form
             onSubmit={createUserForm.handleSubmit(handleCreateUser)}
-            className="flex flex-col gap-8 px-1 py-[10px]"
+            className="flex flex-col gap-8"
           >
             <FormField
               control={createUserForm.control}
               name="projectName"
               render={({ field }) => (
-                <FormItem className="flex flex-col gap-[9px] space-y-0">
-                  <FormLabel className="text-[12px] font-semibold text-white leading-5">
-                    Project Name
-                  </FormLabel>
+                <FormItem>
+                  <FormLabel>Project Name</FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      className="bg-black border border-slate-900 h-[32px] rounded-[2px] text-white text-sm"
-                    />
+                    <Input {...field} />
                   </FormControl>
                   <FormMessage />
-                  <FormDescription className="text-[11px] font-semibold text-slate-300 leading-5">
+                  <FormDescription>
                     Name of the project to add an API key
                   </FormDescription>
                 </FormItem>
@@ -137,18 +128,13 @@ const CreateAPIKeyForm = ({ onKeyAdd, onClose }: CreateAPIKeyFormProps) => {
               control={createUserForm.control}
               name="description"
               render={({ field }) => (
-                <FormItem className="flex flex-col gap-[9px] space-y-0">
-                  <FormLabel className="text-[12px] font-semibold text-white leading-5">
-                    Description
-                  </FormLabel>
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      className="bg-black border border-slate-900 h-[32px] rounded-[2px] text-white text-sm"
-                    />
+                    <Input {...field} />
                   </FormControl>
                   <FormMessage />
-                  <FormDescription className="text-[11px] font-semibold text-slate-300 leading-5">
+                  <FormDescription>
                     Description of the use case for this API key
                   </FormDescription>
                 </FormItem>
@@ -158,15 +144,13 @@ const CreateAPIKeyForm = ({ onKeyAdd, onClose }: CreateAPIKeyFormProps) => {
               control={createUserForm.control}
               name="environment"
               render={({ field }) => (
-                <FormItem className="flex flex-col gap-[9px] space-y-0">
-                  <FormLabel className="text-[12px] font-semibold text-white leading-5">
-                    Environment
-                  </FormLabel>
+                <FormItem>
+                  <FormLabel>Environment</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
                   >
-                    <SelectTrigger className="bg-black border border-slate-900 h-[32px] rounded-[2px] text-white text-sm">
+                    <SelectTrigger>
                       <SelectValue placeholder="Select environment" />
                     </SelectTrigger>
                     <SelectContent>
@@ -178,7 +162,7 @@ const CreateAPIKeyForm = ({ onKeyAdd, onClose }: CreateAPIKeyFormProps) => {
                     </SelectContent>
                   </Select>
                   <FormMessage />
-                  <FormDescription className="text-[11px] font-semibold text-slate-300 leading-5">
+                  <FormDescription>
                     Select the environment this API key will be used in.
                   </FormDescription>
                 </FormItem>
@@ -186,7 +170,7 @@ const CreateAPIKeyForm = ({ onKeyAdd, onClose }: CreateAPIKeyFormProps) => {
             />
             <Button
               type="submit"
-              className="bg-blue-500 hover:bg-blue-600 text-slate-900 text-[12px] font-semibold h-[32px] rounded-[4px] w-[114px]"
+              className="bg-blue-500 hover:bg-blue-600 w-fit"
             >
               {loading && <Loader2 className="animate-spin h-3 w-3 mr-1" />}
               Create API Key

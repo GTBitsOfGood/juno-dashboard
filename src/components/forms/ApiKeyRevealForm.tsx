@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import {
   Check,
   Clipboard,
@@ -9,6 +8,7 @@ import {
   Terminal,
   TriangleAlert,
 } from "lucide-react";
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardTitle } from "../ui/card";
 
 type ApiKeyRevealCardProps = {
@@ -100,42 +100,40 @@ const ApiKeyRevealCard = ({
 
   return (
     <Card className="h-full">
-      <div className="px-3 py-3">
+      <div className="p-6">
         <CardTitle>
-          <h2 className="text-3xl font-semibold">API Key Details</h2>
+          <h2 className="text-2xl mb-1">API Key Details</h2>
         </CardTitle>
         <CardDescription>
-          <p className="text-sm text-gray-400">
-            Paste the line below into your project&apos;s environment variables
-            file.
-          </p>
+          Paste the line below into your project&apos;s environment variables
+          file.
         </CardDescription>
       </div>
 
       <CardContent>
         {/* Code Block Area */}
-        <div className="flex flex-col flex-1">
+        <div>
           {keyValue ? (
-            <div className="flex flex-col gap-3 items-center flex-1">
+            <div className="flex flex-col gap-3 items-center">
               {/* Code editor */}
-              <div className="bg-[#1e1e1e] rounded-[4px] max-w-[500px] w-full flex flex-col">
+              <div className="bg-[#1e1e1e] rounded-lg max-w-[500px] w-full">
                 {/* Code block header */}
-                <div className="flex items-center justify-between px-[6px] py-[8px] bg-[#252526] rounded-t-[4px] border-b border-[#3c3c3c]">
+                <div className="flex justify-between p-2 bg-[#252526] rounded-t-lg border-b border-[#3c3c3c]">
                   {/* Left: traffic lights + terminal icon + filename */}
-                  <div className="flex items-center gap-[6px]">
+                  <div className="flex items-center gap-1">
                     {/* macOS traffic lights */}
                     <div className="flex items-center gap-[6px] mr-1">
                       <span className="w-3 h-3 rounded-full bg-[#ff5f57]" />
                       <span className="w-3 h-3 rounded-full bg-[#febc2e]" />
                       <span className="w-3 h-3 rounded-full bg-[#28c840]" />
                     </div>
-                    <Terminal className="w-5 h-5 text-slate-500 shrink-0" />
-                    <span className="font-mono font-semibold text-[14px] text-slate-500 leading-5">
+                    <Terminal className="size-5 text-slate-500" />
+                    <span className="font-mono font-semibold text-sm text-slate-500">
                       .env.local
                     </span>
                   </div>
                   {/* Right: eye + copy */}
-                  <div className="flex items-center h-[22px]">
+                  <div className="flex items-center h-6">
                     <button
                       onClick={() => setRevealed(!revealed)}
                       className="text-slate-400 hover:text-slate-200 transition-colors p-1"
@@ -147,10 +145,10 @@ const ApiKeyRevealCard = ({
                         <Eye className="w-5 h-5" />
                       )}
                     </button>
-                    <div className="w-px h-[18px] bg-[#3c3c3c] mx-1" />
+                    <div className="w-px h-6 bg-[#3c3c3c] mx-1" />
                     <button
                       onClick={handleCopy}
-                      className="flex items-center gap-[7px] px-[10px] py-[2px] text-white hover:text-slate-200 transition-colors"
+                      className="flex items-center gap-2 px-2 py-1 text-white hover:text-slate-200 transition-colors"
                       title="Copy key to clipboard"
                     >
                       {copied ? (
@@ -158,20 +156,20 @@ const ApiKeyRevealCard = ({
                       ) : (
                         <Clipboard className="w-4 h-4" />
                       )}
-                      <span className="font-mono font-semibold text-[14px] leading-5">
+                      <span className="font-mono font-semibold text-sm">
                         {copied ? "Copied!" : "Copy"}
                       </span>
                     </button>
                   </div>
                 </div>
                 {/* Code content */}
-                <div className="flex flex-col py-[4px] overflow-x-auto">
+                <div className="flex flex-col py-2 overflow-x-auto">
                   {lines.map((line) => (
                     <div
                       key={line.num}
-                      className={`flex font-mono font-semibold text-[14px] leading-6 min-h-[24px] whitespace-nowrap ${line.num === 4 ? "bg-[#2a2d2e]" : ""}`}
+                      className={`flex font-mono font-semibold text-sm min-h-6 whitespace-nowrap ${line.num === 4 ? "bg-[#2a2d2e]" : ""}`}
                     >
-                      <span className="w-[32px] text-right pr-2 text-[#858585] shrink-0 select-none">
+                      <span className="w-8 text-right pr-2 text-[#858585]">
                         {line.num}
                       </span>
                       <span className="pl-1">{line.content ?? "\u00A0"}</span>
@@ -180,7 +178,7 @@ const ApiKeyRevealCard = ({
                 </div>
               </div>
 
-              <div className="flex items-start gap-2 max-w-[500px] w-full bg-yellow-500/10 border border-yellow-500/30 rounded-[4px] px-3 py-2">
+              <div className="flex items-start gap-2 max-w-[500px] w-full bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-2">
                 <TriangleAlert className="w-4 h-4 text-yellow-500 shrink-0 mt-0.5" />
                 <p className="text-yellow-500 text-sm font-medium">
                   Warning: You will not be able to view your API key again after

@@ -78,7 +78,7 @@ export async function deleteAccountRequest(id: string): Promise<{
     return { success: false, error: "Only admins can manage account requests" };
   }
 
-  const success = (id === id);
+  const success = id === id;
   return { success };
 }
 

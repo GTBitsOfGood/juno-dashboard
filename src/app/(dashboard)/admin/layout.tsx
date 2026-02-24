@@ -10,9 +10,9 @@ export default function AdminLayout({
 }>) {
   return (
     <SidebarProvider>
+      <TopBar />
       <AdminSidebar />
-      <div className="flex flex-col w-screen">
-        <TopBar />
+      <div className="flex flex-col w-screen mt-11">
         <main className="m-8">{children}</main>
       </div>
     </SidebarProvider>

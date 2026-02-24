@@ -9,7 +9,6 @@ import {
   Shield,
   User,
 } from "lucide-react";
-import Image from "next/image";
 
 import {
   Sidebar,
@@ -90,11 +89,8 @@ export function AdminSidebar() {
   }, [user]);
 
   return (
-    <Sidebar className="border-transparent">
+    <Sidebar className="border-transparent fixed top-14">
       <SidebarHeader className="p-0 gap-0">
-        <div className="flex items-center h-14 px-4 pt-2 shrink-0">
-          <Image src="/infra_logo.png" alt="Infra" height={21} width={100} />
-        </div>
         <div className="p-2">
           <SidebarMenu>
             <SidebarMenuItem>
@@ -137,7 +133,7 @@ export function AdminSidebar() {
         </div>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="px-1">
         <SidebarGroup>
           <SidebarGroupLabel>Application</SidebarGroupLabel>
           <SidebarGroupContent>

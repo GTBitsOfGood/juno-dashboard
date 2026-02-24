@@ -1,18 +1,14 @@
 "use client";
 import {
   ChevronDown,
+  FolderKanban,
+  KeyRound,
   LayoutDashboard,
   ListTodo,
   Settings,
-  User,
-  LogOut,
-  KeyRound,
   Shield,
-  FolderKanban,
+  User,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
-
-import { deleteJWT } from "@/lib/actions";
 
 import {
   Sidebar,
@@ -25,17 +21,17 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { getProjects } from "@/lib/sdkActions";
+import { useEffect, useState } from "react";
+import { useUserSession } from "../providers/SessionProvider";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
   DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { useUserSession } from "../providers/SessionProvider";
-import { useEffect, useState } from "react";
-import { getProjects } from "@/lib/sdkActions";
 
 // Menu items.
 const items = [
@@ -92,55 +88,52 @@ export function AdminSidebar() {
     fetchProjects();
   }, [user]);
 
-  const router = useRouter();
-  async function logOut() {
-    await deleteJWT();
-    router.push("/admin");
-  }
   return (
-    <Sidebar>
-      <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <SidebarMenuButton className="h-12 px-4 hover:bg-accent/50 data-[state=open]:bg-accent/50 border border-white/10 rounded-lg font-semibold">
-                  {"Admin Dashboard"}
-                  <ChevronDown className="ml-auto h-4 w-4 transition-transform data-[state=open]:rotate-180" />
-                </SidebarMenuButton>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-[--radix-popper-anchor-width]">
-                <DropdownMenuItem asChild key={"admin"}>
-                  <a href={"/admin"} className="flex items-center gap-2">
-                    <Shield className="h-4 w-4" />
-                    <span>Admin Dashboard</span>
-                  </a>
-                </DropdownMenuItem>
+    <Sidebar className="border-transparent fixed top-14">
+      <SidebarHeader className="p-0 gap-0">
+        <div className="p-2">
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <SidebarMenuButton className="h-12 px-4 hover:bg-accent/50 data-[state=open]:bg-accent/50 border border-white/10 rounded-lg font-semibold">
+                    {"Admin Dashboard"}
+                    <ChevronDown className="ml-auto h-4 w-4 transition-transform data-[state=open]:rotate-180" />
+                  </SidebarMenuButton>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-[--radix-popper-anchor-width]">
+                  <DropdownMenuItem asChild key={"admin"}>
+                    <a href={"/admin"} className="flex items-center gap-2">
+                      <Shield className="h-4 w-4" />
+                      <span>Admin Dashboard</span>
+                    </a>
+                  </DropdownMenuItem>
 
-                {projects.length > 0 && (
-                  <>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuLabel>Projects</DropdownMenuLabel>
-                    {projects.map((project) => (
-                      <DropdownMenuItem asChild key={project.id}>
-                        <a
-                          href={`/projects/${project.id}`}
-                          className="flex items-center gap-2"
-                        >
-                          <FolderKanban className="h-4 w-4" />
-                          <span>{project.name}</span>
-                        </a>
-                      </DropdownMenuItem>
-                    ))}
-                  </>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </SidebarMenuItem>
-        </SidebarMenu>
+                  {projects.length > 0 && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuLabel>Projects</DropdownMenuLabel>
+                      {projects.map((project) => (
+                        <DropdownMenuItem asChild key={project.id}>
+                          <a
+                            href={`/projects/${project.id}`}
+                            className="flex items-center gap-2"
+                          >
+                            <FolderKanban className="h-4 w-4" />
+                            <span>{project.name}</span>
+                          </a>
+                        </DropdownMenuItem>
+                      ))}
+                    </>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </div>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="px-1">
         <SidebarGroup>
           <SidebarGroupLabel>Application</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -155,16 +148,6 @@ export function AdminSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
-
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <button onClick={logOut}>
-                    <LogOut className="text-red-300 h-6 w-6" />
-
-                    <div className="text-red-300">Logout</div>
-                  </button>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

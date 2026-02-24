@@ -1,5 +1,6 @@
 "use client";
 
+import { PendingAccountRequests } from "@/components/admin/PendingAccountRequests";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -10,58 +11,53 @@ import {
 } from "@/components/ui/breadcrumb";
 import { getProjects, getUsers } from "@/lib/sdkActions";
 import { ProjectResponse } from "juno-sdk/build/main/internal/api";
-import { useEffect, useState } from "react";
 import { UserColumn } from "../../../../components/usertable/columns";
+import { toast } from "sonner";
 import { UserDataTable } from "../../../../components/usertable/data-table";
+import { Separator } from "@/components/ui/separator";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 export default function UsersPage() {
-  const [userData, setUserData] = useState<UserColumn[]>([]);
-  const [projectData, setProjectData] = useState<ProjectResponse[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const [usersResult, projectsResult] = await Promise.all([
-          getUsers(),
-          getProjects(),
-        ]);
+  const queryClient = useQueryClient();
 
-        if (!usersResult.success) {
-          console.error(`Failed to fetch users: ${usersResult.error}`);
-        }
-        if (!projectsResult.success) {
-          console.error(`Failed to fetch projects: ${projectsResult.error}`);
-        }
+  const {
+    data: usersResult,
+    isLoading: isUsersLoading,
+    isError: isUsersError,
+    error: usersError,
+  } = useQuery({
+    queryKey: ["users"],
+    queryFn: getUsers,
+  });
 
-        setUserData(usersResult.users);
-        setProjectData(projectsResult.projects);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    }
+  const {
+    data: projectsResult,
+    isLoading: isProjectsLoading,
+    isError: isProjectsError,
+    error: projectsError,
+  } = useQuery({
+    queryKey: ["projects"],
+    queryFn: getProjects,
+  });
 
-    fetchData();
-  }, []);
+  if (isUsersError) {
+    toast.error("Error", {
+      description: `Failed to fetch users: ${JSON.stringify(usersError)}`,
+    });
+  }
 
-  const handleUserAction = (
-    user: UserColumn,
-    action: "add" | "update" | "delete",
-  ) => {
-    if (action === "add") {
-      setUserData((prevUsers) => [...prevUsers, user]);
-    }
+  if (isProjectsError) {
+    toast.error("Error", {
+      description: `Failed to fetch projects: ${JSON.stringify(projectsError)}`,
+    });
+  }
 
-    if (action === "update") {
-      setUserData((prevUsers) =>
-        prevUsers.map((u) => (u.id === user.id ? user : u)),
-      );
-    }
+  const userData: UserColumn[] = usersResult?.users ?? [];
+  const projectData: ProjectResponse[] = projectsResult?.projects ?? [];
+  const isLoading = isUsersLoading || isProjectsLoading;
 
-    if (action === "delete") {
-      setUserData((prevUsers) => prevUsers.filter((u) => u.id !== user.id));
-    }
+  const handleUserAction = () => {
+    queryClient.invalidateQueries({ queryKey: ["users"] });
   };
 
   return (
@@ -77,6 +73,8 @@ export default function UsersPage() {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
+      <PendingAccountRequests />
+      <Separator className="my-8" />
       <h1>Users</h1>
       <UserDataTable
         data={userData}

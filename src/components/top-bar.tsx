@@ -1,9 +1,9 @@
 "use client";
 
-import { usePathname } from "next/navigation";
 import { useUserSession } from "@/components/providers/SessionProvider";
-import { UserDropdown } from "@/components/user-dropdown";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { UserDropdown } from "@/components/user-dropdown";
+import { usePathname } from "next/navigation";
 
 function getPageTitle(pathname: string): string {
   if (pathname === "/admin") return "Dashboard";

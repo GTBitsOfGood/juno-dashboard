@@ -1,5 +1,6 @@
 "use client";
 
+import { PendingAccountRequests } from "@/components/admin/PendingAccountRequests";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -8,11 +9,10 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { Separator } from "@/components/ui/separator";
 import { getProjects, getUsers } from "@/lib/sdkActions";
 import { ProjectResponse } from "juno-sdk/build/main/internal/api";
 import { useEffect, useState } from "react";
-import { getUsers, getProjects } from "@/lib/sdkActions";
-import { PendingAccountRequests } from "@/components/admin/PendingAccountRequests";
 import { UserColumn } from "../../../../components/usertable/columns";
 import { UserDataTable } from "../../../../components/usertable/data-table";
 
@@ -79,8 +79,9 @@ export default function UsersPage() {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <h1>Users</h1>
       <PendingAccountRequests />
+      <Separator className="mt-12 mb-8" />
+      <h2 className="text-lg font-semibold">All Users</h2>
       <UserDataTable
         data={userData}
         projectData={projectData.map((project) => ({

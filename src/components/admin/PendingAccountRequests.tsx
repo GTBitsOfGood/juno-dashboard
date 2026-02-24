@@ -1,18 +1,18 @@
 "use client";
 
+import { CheckCircle, XCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { CheckCircle, XCircle } from "lucide-react";
 
-import { UserAvatar } from "@/components/ui/user-avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { UserAvatar } from "@/components/ui/user-avatar";
 import {
-  AccountRequest,
-  getAccountRequests,
   acceptAccountRequest,
+  AccountRequest,
   declineAccountRequest,
+  getAccountRequests,
 } from "@/lib/accountRequests";
 
 function roleBadgeVariant(
@@ -118,7 +118,7 @@ export function PendingAccountRequests() {
   };
 
   return (
-    <div className="mt-10">
+    <div>
       <Separator className="mb-8" />
 
       <div className="grid grid-cols-1 md:grid-cols-[280px_1fr] gap-8">

@@ -1,13 +1,13 @@
 "use client";
 import {
   ChevronDown,
+  FolderKanban,
+  KeyRound,
   LayoutDashboard,
   ListTodo,
   Settings,
-  User,
-  KeyRound,
   Shield,
-  FolderKanban,
+  User,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -22,17 +22,17 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { getProjects } from "@/lib/sdkActions";
+import { useEffect, useState } from "react";
+import { useUserSession } from "../providers/SessionProvider";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
   DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { useUserSession } from "../providers/SessionProvider";
-import { useEffect, useState } from "react";
-import { getProjects } from "@/lib/sdkActions";
 
 // Menu items.
 const items = [
@@ -92,8 +92,8 @@ export function AdminSidebar() {
   return (
     <Sidebar className="border-transparent">
       <SidebarHeader className="p-0 gap-0">
-        <div className="flex items-center h-14 px-4 shrink-0">
-          <Image src="/infra_logo.png" alt="Infra" height={21} width={75} />
+        <div className="flex items-center h-14 px-4 pt-2 shrink-0">
+          <Image src="/infra_logo.png" alt="Infra" height={21} width={100} />
         </div>
         <div className="p-2">
           <SidebarMenu>

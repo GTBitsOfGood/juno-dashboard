@@ -1,6 +1,6 @@
 import { AdminSidebar } from "@/components/sidebar/admin-sidebar";
-import { SidebarProvider } from "@/components/ui/sidebar";
 import { TopBar } from "@/components/top-bar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import "../../globals.css";
 
 export default function AdminLayout({
@@ -11,9 +11,9 @@ export default function AdminLayout({
   return (
     <SidebarProvider>
       <AdminSidebar />
-      <div className="flex flex-col flex-1 min-w-0">
+      <div className="flex flex-col w-screen">
         <TopBar />
-        <main className="w-screen m-8">{children}</main>
+        <main className="m-8">{children}</main>
       </div>
     </SidebarProvider>
   );

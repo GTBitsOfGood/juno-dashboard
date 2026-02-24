@@ -1,6 +1,14 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import {
+  Button,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/auth/ui";
 import {
   Form,
   FormControl,
@@ -10,14 +18,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -31,7 +31,7 @@ const requestAccountSchema = z
     name: z.string().min(1, "Name is required"),
     email: z.string().email("Invalid email"),
     userType: z.enum(["User", "Admin"], {
-      required_error: "Please select a user type",
+      required_error: "Please select user type",
     }),
     projectName: z.string().optional(),
   })
@@ -43,7 +43,7 @@ const requestAccountSchema = z
       return true;
     },
     {
-      message: "Project name is required for Admin users",
+      message: "Project name required for admin users",
       path: ["projectName"],
     },
   );
@@ -76,15 +76,15 @@ const RequestAccountPage = () => {
     setLoading(true);
     setError("");
 
+    /* TODO: Send request to infra team for approval
     const values = form.getValues();
-
     const payload = {
       name: values.name,
       email: values.email,
       userType: values.userType,
       projectName: values.userType === "Admin" ? values.projectName : undefined,
     };
-    console.log("Account request payload:", payload);
+    */
 
     setSuccess(true);
     setLoading(false);
@@ -93,17 +93,19 @@ const RequestAccountPage = () => {
   if (success) {
     return (
       <div className="w-full max-w-sm">
-        <div className="flex items-center gap-2 text-amber-300">
+        <div className="flex items-center gap-2 text-white">
           <CheckCircle2 className="h-5 w-5" />
-          <h2 className="text-3xl font-bold">Request Submitted</h2>
+          <h2 className="text-4xl font-bold tracking-tight">
+            Request Submitted
+          </h2>
         </div>
-        <p className="mt-2 text-muted-foreground">
+        <p className="mt-3 text-sm text-white/40">
           Your account request has been submitted. Please contact the Infra team
           for approval.
         </p>
         <Link
           href="/login"
-          className="mt-4 inline-block text-amber-300 underline-offset-4 hover:underline"
+          className="mt-6 inline-block text-sm text-amber-400/70 underline-offset-4 hover:text-amber-300 hover:underline"
         >
           Back to login
         </Link>
@@ -112,33 +114,34 @@ const RequestAccountPage = () => {
   }
 
   return (
-    <div className="w-full max-w-sm text-base">
-      <h2 className="mb-1 text-3xl font-medium">Request an Account</h2>
-      <p className="mb-6 text-muted-foreground">
-        Fill in your details to request access to Juno.
-      </p>
+    <div className="w-full max-w-sm">
+      <h2 className="mb-6 text-4xl font-bold tracking-tight text-white">
+        Request account
+      </h2>
 
       {error.length > 0 && (
-        <Alert className="mb-4">
-          <div className="flex items-center gap-2 text-red-300">
+        <Alert className="mb-6 border-red-500/20 bg-red-500/10">
+          <div className="flex items-center gap-2 text-red-400">
             <CircleX className="h-4 w-4" />
-            <span>{error}</span>
+            <span className="text-sm">{error}</span>
           </div>
         </Alert>
       )}
 
       <Form {...form}>
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} noValidate className="space-y-4">
           <FormField
             control={form.control}
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Name</FormLabel>
+                <FormLabel className="text-base text-white/60">Name</FormLabel>
                 <FormControl>
                   <Input placeholder="Jane Doe" {...field} />
                 </FormControl>
-                <FormDescription>Full name of user</FormDescription>
+                <FormDescription className="text-xs text-white/30">
+                  Full name
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -149,7 +152,7 @@ const RequestAccountPage = () => {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel className="text-base text-white/60">Email</FormLabel>
                 <FormControl>
                   <Input
                     placeholder="you@example.com"
@@ -157,8 +160,8 @@ const RequestAccountPage = () => {
                     {...field}
                   />
                 </FormControl>
-                <FormDescription>
-                  Use the same email registered with other project services
+                <FormDescription className="text-xs text-white/30">
+                  Email registered with other project services
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -170,7 +173,9 @@ const RequestAccountPage = () => {
             name="userType"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>User Type</FormLabel>
+                <FormLabel className="text-base text-white/60">
+                  User Type
+                </FormLabel>
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
@@ -185,8 +190,8 @@ const RequestAccountPage = () => {
                     <SelectItem value="Admin">Admin</SelectItem>
                   </SelectContent>
                 </Select>
-                <FormDescription>
-                  Admin role is for Engineering Managers only
+                <FormDescription className="text-xs text-white/30">
+                  Admin role for engineering managers only
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -199,12 +204,14 @@ const RequestAccountPage = () => {
               name="projectName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Project Name</FormLabel>
+                  <FormLabel className="text-base text-white/60">
+                    Project Name
+                  </FormLabel>
                   <FormControl>
                     <Input placeholder="My Project" {...field} />
                   </FormControl>
-                  <FormDescription>
-                    Enter project name as you would like it to appear in Juno
+                  <FormDescription className="text-xs text-white/30">
+                    Project name as you would like it to appear
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -214,7 +221,7 @@ const RequestAccountPage = () => {
 
           <Button
             type="submit"
-            className="w-full bg-amber-400 text-black hover:bg-amber-400"
+            className="mt-2 w-full"
             disabled={loading}
           >
             {loading && <Loader2 className="animate-spin" />}
@@ -223,11 +230,11 @@ const RequestAccountPage = () => {
         </form>
       </Form>
 
-      <p className="mt-6 text-muted-foreground">
+      <p className="mt-8 text-sm text-white/40">
         Already have an account?{" "}
         <Link
           href="/login"
-          className="text-amber-300 underline-offset-4 hover:underline"
+          className="text-amber-400/70 underline-offset-4 hover:text-amber-300 hover:underline"
         >
           Log in
         </Link>

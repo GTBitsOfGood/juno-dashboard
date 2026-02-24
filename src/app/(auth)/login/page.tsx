@@ -1,16 +1,22 @@
 "use client";
 
-import {Button} from "@/components/ui/button";
-import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage,} from "@/components/ui/form";
-import {Input} from "@/components/ui/input";
-import {zodResolver} from "@hookform/resolvers/zod";
-import {useRouter} from "next/navigation";
-import {createJWTAuthentication} from "@/lib/actions";
-import React, {useState} from "react";
-import {useForm} from "react-hook-form";
-import {z} from "zod";
-import {Alert} from "@/components/ui/alert";
-import {CircleX, Loader2} from "lucide-react";
+import { Button, Input } from "@/components/auth/ui";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
+import { createJWTAuthentication } from "@/lib/actions";
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { Alert } from "@/components/ui/alert";
+import { CircleX, Loader2 } from "lucide-react";
 import Link from "next/link";
 
 const loginSchema = z.object({
@@ -48,31 +54,34 @@ const LoginPage = () => {
   }
 
   return (
-    <div className="w-full max-w-sm text-base">
-      <h2 className="mb-1 text-3xl font-bold">Log in to Juno</h2>
-      <p className="mb-6 text-muted-foreground">
-        Enter your credentials to access the dashboard.
-      </p>
+    <div className="w-full max-w-sm">
+      <h2 className="mb-6 text-4xl font-bold tracking-tight text-white">
+        Log in
+      </h2>
 
       {error.length > 0 && (
-        <Alert className="mb-4">
-          <div className="flex items-center gap-2 text-red-300">
+        <Alert className="mb-6 border-red-500/20 bg-red-500/10">
+          <div className="flex items-center gap-2 text-red-400">
             <CircleX className="h-4 w-4" />
-            <span>{error}</span>
+            <span className="text-sm">{error}</span>
           </div>
         </Alert>
       )}
 
       <Form {...loginForm}>
-        <form onSubmit={handleLoginSubmit} className="space-y-6">
+        <form onSubmit={handleLoginSubmit} noValidate className="space-y-4">
           <FormField
             control={loginForm.control}
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email Address</FormLabel>
+                <FormLabel className="text-base text-white/60">Email</FormLabel>
                 <FormControl>
-                  <Input placeholder="you@example.com" type="email" {...field} />
+                  <Input
+                    placeholder="you@example.com"
+                    type="email"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -84,7 +93,9 @@ const LoginPage = () => {
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Password</FormLabel>
+                <FormLabel className="text-base text-white/60">
+                  Password
+                </FormLabel>
                 <FormControl>
                   <Input placeholder="Password" type="password" {...field} />
                 </FormControl>
@@ -93,20 +104,22 @@ const LoginPage = () => {
             )}
           />
 
-          <Button type="submit" className="w-full bg-amber-400 text-black hover:bg-amber-400" disabled={loading}>
-            {loading && <Loader2 className="animate-spin" />}
-            Log in
-          </Button>
+          <div className="pt-4">
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading && <Loader2 className="animate-spin" />}
+              Log in
+            </Button>
+          </div>
         </form>
       </Form>
 
-      <p className="mt-6 text-muted-foreground">
+      <p className="mt-8 text-sm text-white/40">
         Don&apos;t have an account?{" "}
         <Link
           href="/request-account"
-          className="text-amber-300 underline-offset-4 hover:underline"
+          className="text-amber-400/70 underline-offset-4 hover:text-amber-300 hover:underline"
         >
-          Request an account
+          Request account
         </Link>
       </p>
     </div>

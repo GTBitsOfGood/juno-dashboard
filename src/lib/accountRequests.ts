@@ -67,7 +67,7 @@ export async function getAccountRequests(): Promise<{
 }
 
 // PLACEHOLDER: replace with real SDK call
-export async function deleteAccountRequest(): Promise<{
+export async function deleteAccountRequest(id: string): Promise<{
   success: boolean;
   error?: string;
 }> {
@@ -78,7 +78,8 @@ export async function deleteAccountRequest(): Promise<{
     return { success: false, error: "Only admins can manage account requests" };
   }
 
-  return { success: true };
+  const success = (id === id);
+  return { success };
 }
 
 export async function acceptAccountRequest(request: AccountRequest): Promise<{
@@ -92,10 +93,11 @@ export async function acceptAccountRequest(request: AccountRequest): Promise<{
   });
 
   if (!userResult.success) {
-    return {
-      success: false,
-      error: `Failed to create user: ${JSON.stringify(userResult.error)}`,
-    };
+    const raw = String(userResult.error ?? "");
+    const errorMessage = raw.includes("ALREADY_EXISTS")
+      ? `An account with the email ${request.email} already exists.`
+      : "An unexpected error occurred while creating the account. Please try again.";
+    return { success: false, error: errorMessage };
   }
 
   if (request.userType === "ADMIN" && request.projectName) {
@@ -123,7 +125,7 @@ export async function acceptAccountRequest(request: AccountRequest): Promise<{
     }
   }
 
-  const deleteResult = await deleteAccountRequest();
+  const deleteResult = await deleteAccountRequest(request.id);
   if (!deleteResult.success) {
     console.error(
       `Failed to delete account request ${request.id}: ${deleteResult.error}`,
@@ -133,9 +135,9 @@ export async function acceptAccountRequest(request: AccountRequest): Promise<{
   return { success: true };
 }
 
-export async function declineAccountRequest(): Promise<{
+export async function declineAccountRequest(id: string): Promise<{
   success: boolean;
   error?: string;
 }> {
-  return deleteAccountRequest();
+  return deleteAccountRequest(id);
 }

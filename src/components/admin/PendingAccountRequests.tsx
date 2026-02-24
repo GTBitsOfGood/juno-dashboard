@@ -1,13 +1,14 @@
 "use client";
 
 import { CheckCircle, XCircle } from "lucide-react";
-import { useEffect, useState } from "react";
 import { toast } from "sonner";
-
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { UserAvatar } from "@/components/ui/user-avatar";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   acceptAccountRequest,
   AccountRequest,
@@ -29,33 +30,21 @@ function roleBadgeVariant(
 }
 
 export function PendingAccountRequests() {
-  const [requests, setRequests] = useState<AccountRequest[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [processingIds, setProcessingIds] = useState<Set<string>>(new Set());
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    async function fetchRequests() {
-      try {
-        const result = await getAccountRequests();
-        if (result.success) {
-          setRequests(result.requests);
-        } else {
-          toast.error("Error", {
-            description: result.error ?? "Failed to fetch account requests.",
-          });
-        }
-      } catch (err) {
-        console.error("Failed to load account requests:", err);
-        toast.error("Error", {
-          description: "Failed to load account requests.",
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    }
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ["accountRequests"],
+    queryFn: getAccountRequests,
+  });
 
-    fetchRequests();
-  }, []);
+  const requests = data?.success ? data.requests : [];
+
+  if (isError) {
+    toast.error("Error", {
+      description: `Failed to fetch account requests: ${JSON.stringify(error)}`,
+    });
+  }
 
   const setProcessing = (id: string, processing: boolean) => {
     setProcessingIds((prev) => {
@@ -69,53 +58,52 @@ export function PendingAccountRequests() {
     });
   };
 
-  const handleAccept = async (request: AccountRequest) => {
-    setProcessing(request.id, true);
-    try {
-      const result = await acceptAccountRequest(request);
+  const acceptRequestHandler = useMutation({
+    mutationFn: async (request: AccountRequest) =>
+      acceptAccountRequest(request),
+    onMutate: (request) => setProcessing(request.id, true),
+    onSuccess: (result, request) => {
+      setProcessing(request.id, false);
       if (result.success) {
-        setRequests((prev) => prev.filter((r) => r.id !== request.id));
         toast.success("Request Accepted", {
           description: `${request.name} (${request.email}) has been added as ${request.userType}.`,
         });
+        queryClient.invalidateQueries({ queryKey: ["accountRequests"] });
+        queryClient.invalidateQueries({ queryKey: ["users"] });
       } else {
         toast.error("Failed to Accept Request", {
           description: result.error ?? "An unexpected error occurred.",
         });
       }
-    } catch (err) {
-      console.error("Unexpected error accepting request:", err);
-      toast.error("Error", {
-        description: "An unexpected error occurred.",
-      });
-    } finally {
+    },
+    onError: (_, request) => {
       setProcessing(request.id, false);
-    }
-  };
+      toast.error("Error", { description: "An unexpected error occurred." });
+    },
+  });
 
-  const handleDecline = async (request: AccountRequest) => {
-    setProcessing(request.id, true);
-    try {
-      const result = await declineAccountRequest();
+  const declineRequestHandler = useMutation({
+    mutationFn: async (request: AccountRequest) =>
+      declineAccountRequest(request.id),
+    onMutate: (request) => setProcessing(request.id, true),
+    onSuccess: (result, request) => {
+      setProcessing(request.id, false);
       if (result.success) {
-        setRequests((prev) => prev.filter((r) => r.id !== request.id));
         toast.success("Request Declined", {
           description: `The request from ${request.email} has been removed.`,
         });
+        queryClient.invalidateQueries({ queryKey: ["accountRequests"] });
       } else {
         toast.error("Failed to Decline Request", {
           description: result.error ?? "An unexpected error occurred.",
         });
       }
-    } catch (err) {
-      console.error("Unexpected error declining request:", err);
-      toast.error("Error", {
-        description: "An unexpected error occurred.",
-      });
-    } finally {
+    },
+    onError: (_, request) => {
       setProcessing(request.id, false);
-    }
-  };
+      toast.error("Error", { description: "An unexpected error occurred." });
+    },
+  });
 
   return (
     <div>
@@ -136,18 +124,15 @@ export function PendingAccountRequests() {
           {isLoading ? (
             <div className="divide-y">
               {[1, 2, 3].map((n) => (
-                <div
-                  key={n}
-                  className="flex items-center gap-4 px-6 py-4 animate-pulse"
-                >
-                  <div className="h-9 w-9 rounded-full bg-muted shrink-0" />
+                <div key={n} className="flex items-center gap-4 px-6 py-4">
+                  <Skeleton className="h-9 w-9 rounded-full shrink-0" />
                   <div className="flex-1 space-y-2">
-                    <div className="h-3 w-32 rounded bg-muted" />
-                    <div className="h-3 w-48 rounded bg-muted" />
+                    <Skeleton className="h-3 w-32" />
+                    <Skeleton className="h-3 w-48" />
                   </div>
-                  <div className="h-6 w-16 rounded bg-muted" />
-                  <div className="h-8 w-20 rounded bg-muted" />
-                  <div className="h-8 w-20 rounded bg-muted" />
+                  <Skeleton className="h-6 w-16" />
+                  <Skeleton className="h-8 w-20" />
+                  <Skeleton className="h-8 w-20" />
                 </div>
               ))}
             </div>
@@ -190,7 +175,7 @@ export function PendingAccountRequests() {
                         size="sm"
                         variant="outline"
                         disabled={isProcessing}
-                        onClick={() => handleAccept(request)}
+                        onClick={() => acceptRequestHandler.mutate(request)}
                         className="gap-1.5"
                       >
                         <CheckCircle className="h-3.5 w-3.5" />
@@ -200,7 +185,7 @@ export function PendingAccountRequests() {
                         size="sm"
                         variant="outline"
                         disabled={isProcessing}
-                        onClick={() => handleDecline(request)}
+                        onClick={() => declineRequestHandler.mutate(request)}
                         className="gap-1.5 border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
                       >
                         <XCircle className="h-3.5 w-3.5" />

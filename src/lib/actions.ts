@@ -157,6 +157,36 @@ export async function linkUserToProject(data: {
   }
 }
 
+export async function linkUserToProjectId(data: {
+  projectId: number;
+  userId: string;
+}) {
+  const session = await getSession();
+  if (!session) {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  if (!requireAdmin(session.user)) {
+    return {
+      success: false,
+      error: "Only admins and superadmins can link users to projects",
+    };
+  }
+
+  const junoClient = getJunoInstance();
+  try {
+    await junoClient.user.linkToProject({
+      credentials: session.jwt,
+      project: { id: data.projectId },
+      userId: data.userId,
+    });
+    return { success: true };
+  } catch (error) {
+    console.error("Error linking user:", error);
+    return { success: false, error: "Failed to link user type to project" };
+  }
+}
+
 export async function unlinkUserFromProject(data: {
   projectName: string;
   userId: string;

@@ -95,7 +95,7 @@ const RequestAccountPage = () => {
 
   if (success) {
     return (
-      <div className="w-full max-w-lg h-full">
+      <div className="w-full max-w-md h-full">
         <div className="flex items-center gap-2">
           <CheckCircle2 className="h-5 w-5" />
           <h2 className="text-2xl font-semibold">Request Submitted</h2>
@@ -115,7 +115,7 @@ const RequestAccountPage = () => {
   }
 
   return (
-    <div className="w-full max-w-lg">
+    <div className="w-full max-w-md">
       <h2 className="mb-8 text-4xl font-semibold text-center">
         Request new account
       </h2>

@@ -54,7 +54,7 @@ const LoginPage = () => {
   }
 
   return (
-    <div className="w-full max-w-lg">
+    <div className="w-full max-w-md">
       <h2 className="mb-8 text-4xl font-semibold text-center">
         Welcome to Juno
       </h2>

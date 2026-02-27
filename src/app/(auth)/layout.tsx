@@ -7,23 +7,21 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex h-screen bg-neutral-950">
-      <div className="flex w-[60%] flex-col px-24">
-        <div className="flex flex-1 flex-col items-center pt-[8%]">
-          <div className="w-full max-w-sm">
-            <Image
-              src="/brand.png"
-              alt="Juno"
-              width={120}
-              height={32}
-              className="mb-8"
-            />
-          </div>
-          {children}
+    <div className="flex h-screen">
+      <div className="flex w-[60%] flex-col">
+        <div className="w-full p-6">
+          <Image
+            src="/brand.png"
+            alt="Juno"
+            width={100}
+            height={21}
+            className="mb-10"
+          />
         </div>
+        <div className="flex flex-col items-center">{children}</div>
       </div>
 
-      <div className="relative w-[40%] overflow-visible">
+      <div className="relative w-[40%] overflow-visible bg-neutral-950">
         <InstructionPanel />
       </div>
     </div>

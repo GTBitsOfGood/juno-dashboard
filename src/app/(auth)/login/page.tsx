@@ -54,8 +54,10 @@ const LoginPage = () => {
   }
 
   return (
-    <div className="w-full max-w-lg h-full">
-      <h2 className="mb-6 text-xl font-semibold">Log in to Juno</h2>
+    <div className="w-full max-w-lg">
+      <h2 className="mb-8 text-4xl font-semibold text-center">
+        Welcome to Juno
+      </h2>
 
       {error.length > 0 && (
         <Alert className="mb-4 border-red-500/20 bg-red-500/10">

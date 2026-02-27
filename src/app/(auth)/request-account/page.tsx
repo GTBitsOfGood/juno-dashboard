@@ -9,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/auth/ui";
+import { Alert } from "@/components/ui/alert";
 import {
   Form,
   FormControl,
@@ -19,12 +20,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { CheckCircle2, CircleX, Loader2 } from "lucide-react";
+import Link from "next/link";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Alert } from "@/components/ui/alert";
-import { CheckCircle2, CircleX, Loader2 } from "lucide-react";
-import Link from "next/link";
 
 const requestAccountSchema = z
   .object({
@@ -92,16 +92,14 @@ const RequestAccountPage = () => {
 
   if (success) {
     return (
-      <div className="w-full max-w-sm">
-        <div className="flex items-center gap-2 text-white">
+      <div className="w-full max-w-lg h-full">
+        <div className="flex items-center gap-2">
           <CheckCircle2 className="h-5 w-5" />
-          <h2 className="text-4xl font-bold tracking-tight">
-            Request Submitted
-          </h2>
+          <h2 className="text-2xl font-semibold">Request Submitted</h2>
         </div>
         <p className="mt-3 text-sm text-white/40">
-          Your account request has been submitted. Please contact the Infra team
-          for approval.
+          Your account request has been submitted. Please contact Infra for
+          approval.
         </p>
         <Link
           href="/login"
@@ -114,13 +112,11 @@ const RequestAccountPage = () => {
   }
 
   return (
-    <div className="w-full max-w-sm">
-      <h2 className="mb-6 text-4xl font-bold tracking-tight text-white">
-        Request account
-      </h2>
+    <div className="w-full max-w-lg h-full">
+      <h2 className="mb-6 text-xl font-semibold">Request new account</h2>
 
       {error.length > 0 && (
-        <Alert className="mb-6 border-red-500/20 bg-red-500/10">
+        <Alert className="mb-4 border-red-500/20 bg-red-500/10">
           <div className="flex items-center gap-2 text-red-400">
             <CircleX className="h-4 w-4" />
             <span className="text-sm">{error}</span>
@@ -135,7 +131,7 @@ const RequestAccountPage = () => {
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-base text-white/60">Name</FormLabel>
+                <FormLabel className="text-white/60">Name</FormLabel>
                 <FormControl>
                   <Input placeholder="Jane Doe" {...field} />
                 </FormControl>
@@ -152,7 +148,7 @@ const RequestAccountPage = () => {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-base text-white/60">Email</FormLabel>
+                <FormLabel className="text-white/60">Email</FormLabel>
                 <FormControl>
                   <Input
                     placeholder="you@example.com"
@@ -173,9 +169,7 @@ const RequestAccountPage = () => {
             name="userType"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-base text-white/60">
-                  User Type
-                </FormLabel>
+                <FormLabel className="text-white/60">User Type</FormLabel>
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
@@ -204,11 +198,9 @@ const RequestAccountPage = () => {
               name="projectName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-base text-white/60">
-                    Project Name
-                  </FormLabel>
+                  <FormLabel className="text-white/60">Project Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="My Project" {...field} />
+                    <Input placeholder="GT Scheduler" {...field} />
                   </FormControl>
                   <FormDescription className="text-xs text-white/30">
                     Project name as you would like it to appear
@@ -226,7 +218,7 @@ const RequestAccountPage = () => {
         </form>
       </Form>
 
-      <p className="mt-8 text-sm text-white/40">
+      <p className="mt-5 text-sm text-white/40">
         Already have an account?{" "}
         <Link
           href="/login"

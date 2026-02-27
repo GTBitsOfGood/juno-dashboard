@@ -1,7 +1,13 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { ProjectIdentifier } from "juno-sdk/build/main/lib/identifiers";
+import { Loader2 } from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 import { Button } from "../ui/button";
+import { Card, CardContent, CardDescription, CardTitle } from "../ui/card";
 import {
   Form,
   FormControl,
@@ -12,12 +18,6 @@ import {
   FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
-import * as z from "zod";
-import { useForm } from "react-hook-form";
-import { CircleX, Loader2 } from "lucide-react";
-import { useState } from "react";
-import { Alert } from "../ui/alert";
-import { ProjectIdentifier } from "juno-sdk/build/main/lib/identifiers";
 import {
   Select,
   SelectContent,
@@ -41,6 +41,7 @@ export type APIKey = {
   description: string;
   environment: Environment;
   project: ProjectIdentifier;
+  value: string;
 };
 
 type CreateAPIKeyFormProps = {
@@ -49,7 +50,6 @@ type CreateAPIKeyFormProps = {
 };
 
 const CreateAPIKeyForm = ({ onKeyAdd, onClose }: CreateAPIKeyFormProps) => {
-  /** Form to create a user */
   const createUserForm = useForm({
     resolver: zodResolver(createAPIKeySchema),
     defaultValues: {
@@ -68,10 +68,15 @@ const CreateAPIKeyForm = ({ onKeyAdd, onClose }: CreateAPIKeyFormProps) => {
     setLoading(true);
     try {
       // TODO: Placeholder until SDK has createKey authentication added
+      const placeholderValue =
+        "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9." +
+        "eyJzdWIiOiJ1c3ItcGxhY2Vob2xkZXIiLCJpYXQiOjE3MDgzMjgwMDB9." +
+        "SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
       const key: APIKey = {
         environment: data.environment,
         description: data.description,
         project: { name: data.projectName },
+        value: placeholderValue,
       };
 
       onKeyAdd(key);
@@ -80,89 +85,100 @@ const CreateAPIKeyForm = ({ onKeyAdd, onClose }: CreateAPIKeyFormProps) => {
       if (onClose) {
         onClose();
       }
-    } catch (error) {
-      console.error("Error creating user:", error);
-      setError(error);
+    } catch {
+      setError("An error occurred while creating the API key");
+      setLoading(false);
     }
   };
 
   return (
-    <Form {...createUserForm}>
-      {error.length > 0 ? (
-        <Alert>
-          <div className="flex space-x-2 text-red-300 items-center align-middle">
-            <CircleX className="h-4 w-4" />
-            <div>Error: {error}</div>
-          </div>
-        </Alert>
-      ) : (
-        <></>
-      )}
-      <form
-        onSubmit={createUserForm.handleSubmit(handleCreateUser)}
-        className="space-y-6 rounded-lg"
-      >
-        <FormField
-          control={createUserForm.control}
-          name="projectName"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Project Name</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormMessage />
-              <FormDescription>
-                Name of the project to add an API key
-              </FormDescription>
-            </FormItem>
+    <Card>
+      <div className="p-6">
+        <CardTitle className="text-2xl mb-1">Create a New API Key</CardTitle>
+        <CardDescription>
+          API keys allow you to access Juno services programmatically.
+        </CardDescription>
+      </div>
+      <CardContent>
+        <Form {...createUserForm}>
+          {error.length > 0 && (
+            <p className="text-xs text-red-400">Error: {error}</p>
           )}
-        />
-        <FormField
-          control={createUserForm.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input type="email" {...field} />
-              </FormControl>
-              <FormMessage />
-              <FormDescription>
-                Description of what this API key is intended for. Please be
-                descriptive with your use case
-              </FormDescription>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={createUserForm.control}
-          name="environment"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Environment</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select type" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.keys(Environment).map((type) => (
-                    <SelectItem key={type} value={type}>
-                      {type}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <Button type="submit">
-          {loading ? <Loader2 className="animate-spin" /> : <></>}
-          Create API Key
-        </Button>
-      </form>
-    </Form>
+          <form
+            onSubmit={createUserForm.handleSubmit(handleCreateUser)}
+            className="flex flex-col gap-8"
+          >
+            <FormField
+              control={createUserForm.control}
+              name="projectName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Project Name</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                  <FormDescription>
+                    Name of the project to add an API key
+                  </FormDescription>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={createUserForm.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                  <FormDescription>
+                    Description of the use case for this API key
+                  </FormDescription>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={createUserForm.control}
+              name="environment"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Environment</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select environment" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.keys(Environment).map((type) => (
+                        <SelectItem key={type} value={type}>
+                          {type}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                  <FormDescription>
+                    Select the environment this API key will be used in.
+                  </FormDescription>
+                </FormItem>
+              )}
+            />
+            <Button
+              type="submit"
+              className="bg-blue-500 hover:bg-blue-600 w-fit"
+            >
+              {loading && <Loader2 className="animate-spin h-3 w-3 mr-1" />}
+              Create API Key
+            </Button>
+          </form>
+        </Form>
+      </CardContent>
+    </Card>
   );
 };
 

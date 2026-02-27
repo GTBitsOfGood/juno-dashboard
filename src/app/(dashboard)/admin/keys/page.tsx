@@ -91,7 +91,7 @@ export default function KeyPage() {
   };
 
   return (
-    <div className="container mx-auto">
+    <div className="flex flex-col">
       <Breadcrumb className="mb-4">
         <BreadcrumbList>
           <BreadcrumbItem>

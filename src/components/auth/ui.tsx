@@ -1,6 +1,5 @@
-import * as React from "react";
-import { Input } from "@/components/ui/input";
 import { Button, type ButtonProps } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -12,9 +11,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import * as React from "react";
 
 const inputClass =
-  "h-11 border-white/10 bg-white/5 text-base md:text-base text-white placeholder:text-white/25 focus-visible:ring-amber-400/30";
+  "border-white/10 bg-white/5 placeholder:text-white/25 focus-visible:ring-amber-400/30";
 
 const StyledInput = React.forwardRef<
   HTMLInputElement,
@@ -28,10 +28,7 @@ const StyledButton = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, ...props }, ref) => (
     <Button
       ref={ref}
-      className={cn(
-        "h-11 bg-amber-400 font-semibold text-black hover:bg-amber-300",
-        className,
-      )}
+      className={cn("bg-amber-400 text-black hover:bg-amber-300", className)}
       {...props}
     />
   ),
@@ -39,7 +36,7 @@ const StyledButton = React.forwardRef<HTMLButtonElement, ButtonProps>(
 StyledButton.displayName = "StyledButton";
 
 const triggerClass =
-  "h-11 border-white/10 bg-white/5 text-base text-white placeholder:text-white/25 focus:ring-amber-400/30 data-[placeholder]:text-white/25";
+  "h-10 border-white/10 bg-white/5 placeholder:text-white/25 focus:ring-amber-400/30 data-[placeholder]:text-white/25";
 
 const StyledSelectTrigger = React.forwardRef<
   React.ElementRef<typeof SelectTrigger>,
@@ -70,14 +67,14 @@ const StyledSelectItem = React.forwardRef<
 StyledSelectItem.displayName = "StyledSelectItem";
 
 export {
-  StyledInput as Input,
   StyledButton as Button,
-  StyledSelectTrigger as SelectTrigger,
-  StyledSelectContent as SelectContent,
-  StyledSelectItem as SelectItem,
+  StyledInput as Input,
   Select,
-  SelectValue,
+  StyledSelectContent as SelectContent,
   SelectGroup,
+  StyledSelectItem as SelectItem,
   SelectLabel,
   SelectSeparator,
+  StyledSelectTrigger as SelectTrigger,
+  SelectValue,
 };

@@ -1,6 +1,7 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { Button, Input } from "@/components/auth/ui";
+import { Alert } from "@/components/ui/alert";
 import {
   Form,
   FormControl,
@@ -9,15 +10,14 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
 import { createJWTAuthentication } from "@/lib/actions";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { CircleX, Loader2 } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Alert } from "@/components/ui/alert";
-import { CircleX, Loader2 } from "lucide-react";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email"),
@@ -38,8 +38,6 @@ const LoginPage = () => {
 
   async function handleLoginSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-
-    // start loading animation
     setLoading(true);
 
     const values = loginForm.getValues();
@@ -48,7 +46,6 @@ const LoginPage = () => {
       password: values.password,
     });
     if (result.success) {
-      //Go to admin page
       router.push("/admin");
     } else {
       setError(result.error);
@@ -57,62 +54,73 @@ const LoginPage = () => {
   }
 
   return (
-    <>
-      <div className="container mx-auto max-w-xl">
-        <Form {...loginForm}>
-          <form
-            onSubmit={handleLoginSubmit}
-            className="space-y-4 p-4 rounded-lg"
-          >
-            <h2 className="text-lg font-semibold mt-24">Log in to Juno</h2>
+    <div className="w-full max-w-lg">
+      <h2 className="mb-8 text-4xl font-semibold text-center">
+        Welcome to Juno
+      </h2>
 
-            {error.length > 0 ? (
-              <Alert>
-                <div className="flex space-x-2 text-red-300 items-center align-middle">
-                  <CircleX className="h-4 w-4" />
-                  <div>{error}</div>
-                </div>
-              </Alert>
-            ) : (
-              <></>
+      {error.length > 0 && (
+        <Alert className="mb-4 border-red-500/20 bg-red-500/10">
+          <div className="flex items-center gap-2 text-red-400">
+            <CircleX className="h-4 w-4" />
+            <span className="text-sm">{error}</span>
+          </div>
+        </Alert>
+      )}
+
+      <Form {...loginForm}>
+        <form onSubmit={handleLoginSubmit} noValidate className="space-y-4">
+          <FormField
+            control={loginForm.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-white/60">Email</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="you@example.com"
+                    type="email"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
+          />
 
-            <FormField
-              control={loginForm.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email Address</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Email" type="email" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <FormField
+            control={loginForm.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-white/60">Password</FormLabel>
+                <FormControl>
+                  <Input placeholder="Password" type="password" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-            <FormField
-              control={loginForm.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Password" type="password" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <Button type="submit">
-              {loading ? <Loader2 className="animate-spin" /> : <></>}
+          <div className="pt-4">
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading && <Loader2 className="animate-spin" />}
               Log in
             </Button>
-          </form>
-        </Form>
-      </div>
-    </>
+          </div>
+        </form>
+      </Form>
+
+      <p className="mt-5 text-sm text-white/40">
+        Don&apos;t have an account?{" "}
+        <Link
+          href="/request-account"
+          className="text-amber-400/70 underline-offset-4 hover:text-amber-300 hover:underline"
+        >
+          Request account
+        </Link>
+      </p>
+    </div>
   );
 };
 

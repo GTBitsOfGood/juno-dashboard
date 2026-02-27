@@ -30,6 +30,7 @@ const requestAccountSchema = z
   .object({
     name: z.string().min(1, "Name is required"),
     email: z.string().email("Invalid email"),
+    password: z.string().min(8),
     userType: z.enum(["User", "Admin"], {
       required_error: "Please select user type",
     }),
@@ -60,6 +61,7 @@ const RequestAccountPage = () => {
     defaultValues: {
       name: "",
       email: "",
+      password: "",
       userType: undefined,
       projectName: "",
     },
@@ -81,6 +83,7 @@ const RequestAccountPage = () => {
     const payload = {
       name: values.name,
       email: values.email,
+      password: values.password,
       userType: values.userType,
       projectName: values.userType === "Admin" ? values.projectName : undefined,
     };
@@ -139,6 +142,23 @@ const RequestAccountPage = () => {
                 </FormControl>
                 <FormDescription className="text-xs text-white/30">
                   Full name
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-white/60">Password</FormLabel>
+                <FormControl>
+                  <Input placeholder="ilovebitsofgood" {...field} />
+                </FormControl>
+                <FormDescription className="text-xs text-white/30">
+                  Account password
                 </FormDescription>
                 <FormMessage />
               </FormItem>

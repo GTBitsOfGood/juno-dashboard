@@ -1,32 +1,47 @@
 "use client";
 
+import {
+  ClipboardList,
+  Key,
+  Package,
+  ShieldCheck,
+  type LucideIcon,
+} from "lucide-react";
 import { useState } from "react";
-import { ClipboardList, Key, Package, ShieldCheck } from "lucide-react";
-import { type LucideIcon } from "lucide-react";
 
-const slides: { step: string; icon: LucideIcon; description: string }[] = [
+const slides: {
+  step: string;
+  icon: LucideIcon;
+  title: string;
+  description: string;
+}[] = [
   {
     step: "01",
     icon: ClipboardList,
+    title: "Enter account information",
     description:
-      "Request an account with the necessary information. Engineering Managers also provide their project name.",
+      "Request an account with the necessary information. Engineering Managers should select user type Admin and provide their project name as they would like it to appear in Juno.",
   },
   {
     step: "02",
     icon: ShieldCheck,
-    description: "Contact Infra team for approval.",
+    title: "Await Infra approval",
+    description:
+      "Please contact the Infra team to approve your request for a new account.",
   },
   {
     step: "03",
     icon: Key,
+    title: "Create a Juno API Key",
     description:
-      "Engineering Managers create Juno API Key to access all Juno services. Developers request their Engineering Managers to add them to the project.",
+      "Engineering Managers create a Juno API Key to access all Juno services. Developers should request their Engineering Managers to add them to their project.",
   },
   {
     step: "04",
     icon: Package,
+    title: "Install Juno SDK",
     description:
-      "Install Juno SDK, provide API key, and access all Juno services!",
+      "Install juno-sdk from NPM, provide API key, and access all Juno services!",
   },
 ];
 
@@ -111,16 +126,16 @@ export default function InstructionPanel() {
       )}
 
       <div className="relative flex w-full flex-1 items-start pl-24 pr-16 pt-[15.125%]">
-        <div key={current} className="flex flex-col items-start">
-          <span className="mb-4 animate-in fade-in slide-in-from-bottom-1 text-lg font-medium text-amber-400/60 duration-500 fill-mode-both">
-            Step {slides[current].step}
+        <div key={current} className="flex flex-col items-start w-full">
+          <span className="mb-6 animate-in fade-in slide-in-from-bottom-1 text-xl font-medium text-amber-400/60 duration-500 fill-mode-both">
+            Onboarding Guide - Step {slides[current].step}
           </span>
 
-          <h2 className="mb-6 animate-in fade-in slide-in-from-bottom-2 text-4xl font-bold tracking-tight text-white duration-500 delay-100 fill-mode-both">
-            Onboard new project
+          <h2 className="mb-6 animate-in fade-in slide-in-from-bottom-2 text-3xl font-bold tracking-tight text-white duration-500 delay-100 fill-mode-both">
+            {slides[current].title}
           </h2>
 
-          <p className="animate-in fade-in slide-in-from-bottom-3 text-2xl leading-relaxed text-white/60 duration-500 delay-200 fill-mode-both">
+          <p className="animate-in fade-in slide-in-from-bottom-3 leading-relaxed text-white/60 duration-500 delay-200 fill-mode-both whitespace-pre-line">
             {slides[current].description}
           </p>
         </div>

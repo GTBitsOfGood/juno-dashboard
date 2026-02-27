@@ -9,12 +9,12 @@ export default function AuthLayout({
   return (
     <div className="flex h-screen">
       <div className="flex w-[60%] flex-col">
-        <div className="w-full p-6">
+        <div className="w-full p-5">
           <Image
-            src="/brand.png"
+            src="/InfraJuno.png"
             alt="Juno"
-            width={100}
-            height={21}
+            width={180}
+            height={30}
             className="mb-10"
           />
         </div>

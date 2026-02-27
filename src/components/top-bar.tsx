@@ -35,8 +35,8 @@ export function TopBar() {
 
   return (
     <header className="flex items-center h-14 pr-6 bg-black border-b border-white/10 fixed top-0 left-0 right-0 z-50">
-      <div className="flex items-center h-14 shrink-0 justify-center w-[--sidebar-width]">
-        <Image src="/infra_logo.png" alt="Infra" height={21} width={100} />
+      <div className="flex items-center h-14 shrink-0 p-5 w-[--sidebar-width]">
+        <Image src="/InfraJuno.png" alt="Infra" height={30} width={180} />
       </div>
       <div className="flex justify-between w-full items-center">
         <div className="flex gap-1 pl-5 items-center">

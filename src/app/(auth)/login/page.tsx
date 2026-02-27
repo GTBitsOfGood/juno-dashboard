@@ -54,13 +54,11 @@ const LoginPage = () => {
   }
 
   return (
-    <div className="w-full max-w-sm">
-      <h2 className="mb-6 text-4xl font-bold tracking-tight text-white">
-        Log in
-      </h2>
+    <div className="w-full max-w-lg h-full">
+      <h2 className="mb-6 text-xl font-semibold">Log in to Juno</h2>
 
       {error.length > 0 && (
-        <Alert className="mb-6 border-red-500/20 bg-red-500/10">
+        <Alert className="mb-4 border-red-500/20 bg-red-500/10">
           <div className="flex items-center gap-2 text-red-400">
             <CircleX className="h-4 w-4" />
             <span className="text-sm">{error}</span>
@@ -75,7 +73,7 @@ const LoginPage = () => {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-base text-white/60">Email</FormLabel>
+                <FormLabel className="text-white/60">Email</FormLabel>
                 <FormControl>
                   <Input
                     placeholder="you@example.com"
@@ -93,9 +91,7 @@ const LoginPage = () => {
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-base text-white/60">
-                  Password
-                </FormLabel>
+                <FormLabel className="text-white/60">Password</FormLabel>
                 <FormControl>
                   <Input placeholder="Password" type="password" {...field} />
                 </FormControl>
@@ -113,7 +109,7 @@ const LoginPage = () => {
         </form>
       </Form>
 
-      <p className="mt-8 text-sm text-white/40">
+      <p className="mt-5 text-sm text-white/40">
         Don&apos;t have an account?{" "}
         <Link
           href="/request-account"

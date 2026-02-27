@@ -9,13 +9,13 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { getProjects, getUsers } from "@/lib/sdkActions";
-import { ProjectResponse } from "juno-sdk/build/main/internal/api";
-import { UserColumn } from "../../../../components/usertable/columns";
-import { toast } from "sonner";
-import { UserDataTable } from "../../../../components/usertable/data-table";
 import { Separator } from "@/components/ui/separator";
+import { getProjects, getUsers } from "@/lib/sdkActions";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { ProjectResponse } from "juno-sdk/build/main/internal/api";
+import { toast } from "sonner";
+import { UserColumn } from "../../../../components/usertable/columns";
+import { UserDataTable } from "../../../../components/usertable/data-table";
 
 export default function UsersPage() {
   const queryClient = useQueryClient();
@@ -61,7 +61,7 @@ export default function UsersPage() {
   };
 
   return (
-    <div className="container mx-auto">
+    <div className="flex flex-col">
       <Breadcrumb className="mb-4">
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -75,7 +75,7 @@ export default function UsersPage() {
       </Breadcrumb>
       <PendingAccountRequests />
       <Separator className="my-8" />
-      <h1>Users</h1>
+      <h2 className="text-lg font-semibold">Users</h2>
       <UserDataTable
         data={userData}
         projectData={projectData.map((project) => ({

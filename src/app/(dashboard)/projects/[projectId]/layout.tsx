@@ -22,7 +22,7 @@ export default async function ProjectLayout({
         projectId={Number(projectId)}
       />
       <div className="flex flex-col w-screen mt-11">
-        <main className="m-8">{children}</main>
+        <main className="m-7">{children}</main>
       </div>
     </SidebarProvider>
   );

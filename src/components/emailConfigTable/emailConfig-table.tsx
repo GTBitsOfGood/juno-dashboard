@@ -145,7 +145,7 @@ export function EmailConfigTable({ projectId }: EmailConfigTableProps) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <h1>Email Configurations</h1>
+      <h1 className="text-lg font-bold">Email Configurations</h1>
       <BaseTable
         data={emailConfigRowData}
         columns={emailConfigColumns(

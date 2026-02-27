@@ -30,7 +30,7 @@ import {
   getCustomEventTypes,
 } from "@/lib/settings";
 import { useQuery } from "@tanstack/react-query";
-import { ProjectResponse } from "juno-sdk/build/main/internal/index";
+import { ProjectResponse } from "juno-sdk/build/main/internal/api";
 import { BarChart3, Settings } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";

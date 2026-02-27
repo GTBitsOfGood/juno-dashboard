@@ -1,6 +1,7 @@
 "use client";
 
 import { Button, Input } from "@/components/auth/ui";
+import { Alert } from "@/components/ui/alert";
 import {
   Form,
   FormControl,
@@ -9,15 +10,14 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
 import { createJWTAuthentication } from "@/lib/actions";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { CircleX, Loader2 } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Alert } from "@/components/ui/alert";
-import { CircleX, Loader2 } from "lucide-react";
-import Link from "next/link";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email"),

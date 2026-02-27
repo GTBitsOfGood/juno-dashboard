@@ -45,11 +45,7 @@ const StyledSelectTrigger = React.forwardRef<
   React.ElementRef<typeof SelectTrigger>,
   React.ComponentPropsWithoutRef<typeof SelectTrigger>
 >(({ className, ...props }, ref) => (
-  <SelectTrigger
-    ref={ref}
-    className={cn(triggerClass, className)}
-    {...props}
-  />
+  <SelectTrigger ref={ref} className={cn(triggerClass, className)} {...props} />
 ));
 StyledSelectTrigger.displayName = "StyledSelectTrigger";
 
@@ -59,11 +55,7 @@ const StyledSelectContent = React.forwardRef<
   React.ElementRef<typeof SelectContent>,
   React.ComponentPropsWithoutRef<typeof SelectContent>
 >(({ className, ...props }, ref) => (
-  <SelectContent
-    ref={ref}
-    className={cn(contentClass, className)}
-    {...props}
-  />
+  <SelectContent ref={ref} className={cn(contentClass, className)} {...props} />
 ));
 StyledSelectContent.displayName = "StyledSelectContent";
 

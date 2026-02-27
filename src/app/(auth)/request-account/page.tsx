@@ -219,11 +219,7 @@ const RequestAccountPage = () => {
             />
           )}
 
-          <Button
-            type="submit"
-            className="mt-2 w-full"
-            disabled={loading}
-          >
+          <Button type="submit" className="mt-2 w-full" disabled={loading}>
             {loading && <Loader2 className="animate-spin" />}
             Request Account
           </Button>

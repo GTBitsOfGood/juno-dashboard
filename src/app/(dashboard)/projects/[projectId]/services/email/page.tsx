@@ -1,11 +1,6 @@
 "use client";
 
-import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
 import EmailAnalyticsChart from "@/components/charts/EmailAnalyticsChart";
-import { Skeleton } from "@/components/ui/skeleton";
-import { getEmailConfig, getEmailAnalytics } from "@/lib/settings";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -14,13 +9,19 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { useQuery } from "@tanstack/react-query";
-import { getProjectById } from "@/lib/project";
-import { ProjectResponse } from "juno-sdk/build/main/internal/api";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
+import { getProjectById } from "@/lib/project";
+import { getEmailAnalytics, getEmailConfig } from "@/lib/settings";
+import { useQuery } from "@tanstack/react-query";
+import { ProjectResponse } from "juno-sdk/build/main/internal/api";
 import { Mail, Settings } from "lucide-react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 const EmailAnalyticsPage = () => {
   const { projectId } = useParams();
@@ -83,8 +84,26 @@ const EmailAnalyticsPage = () => {
 
   if (emailConfigLoading) {
     return (
-      <div className="p-6">
-        <h1 className="mb-6 text-xl">Email Analytics</h1>
+      <div className="flex flex-col">
+        <Breadcrumb className="mb-4">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/projects">Projects</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink href={`/projects/${projectId}`}>
+                {isLoading ? "****" : (data?.name ?? "Unknown")}
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Email Analytics</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+        <Separator className="mb-8" />
+        <h1 className="mb-4 text-lg font-bold">Email Analytics</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <Skeleton className="h-64" />
           <Skeleton className="h-64" />
@@ -96,9 +115,27 @@ const EmailAnalyticsPage = () => {
 
   if (!hasEmailConfig) {
     return (
-      <div className="p-6">
-        <h1 className="mb-6 text-xl">Email Analytics</h1>
-        <Card>
+      <div className="flex flex-col">
+        <Breadcrumb className="mb-4">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/projects">Projects</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink href={`/projects/${projectId}`}>
+                {isLoading ? "****" : (data?.name ?? "Unknown")}
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Email Analytics</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+        <Separator className="mb-8" />
+        <h1 className="mb-4 text-lg font-bold">Email Analytics</h1>
+        <Card className="max-w-[35%]">
           <CardHeader>
             <div className="flex items-center gap-3">
               <Mail className="h-5 w-5 text-muted-foreground" />
@@ -122,7 +159,7 @@ const EmailAnalyticsPage = () => {
   }
 
   return (
-    <div className="p-6">
+    <div className="flex flex-col">
       <Breadcrumb className="mb-4">
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -140,7 +177,8 @@ const EmailAnalyticsPage = () => {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <h1 className="mb-6 text-xl">
+      <Separator className="mb-8" />
+      <h1 className="mb-6 text-lg font-bold">
         Email Analytics{" "}
         <span className="text-sm text-gray-400">from the past 30 days</span>
       </h1>

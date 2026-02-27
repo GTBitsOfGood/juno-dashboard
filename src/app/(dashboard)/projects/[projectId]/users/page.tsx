@@ -1,12 +1,5 @@
 "use client";
 
-import { UserDataTable } from "@/components/usertable/data-table";
-import { UserColumn } from "@/components/usertable/columns";
-import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import { getProjectUsers } from "@/lib/actions";
-import { getProjects } from "@/lib/sdkActions";
-import { ProjectResponse } from "juno-sdk/build/main/internal/api";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -15,6 +8,14 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { Separator } from "@/components/ui/separator";
+import { UserColumn } from "@/components/usertable/columns";
+import { UserDataTable } from "@/components/usertable/data-table";
+import { getProjectUsers } from "@/lib/actions";
+import { getProjects } from "@/lib/sdkActions";
+import { ProjectResponse } from "juno-sdk/build/main/internal/api";
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 export default function ProjectUsersPage() {
@@ -76,7 +77,7 @@ export default function ProjectUsersPage() {
   };
 
   return (
-    <div className="container mx-auto px-10 py-10">
+    <div className="flex flex-col">
       <Breadcrumb className="mb-4">
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -98,8 +99,8 @@ export default function ProjectUsersPage() {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-
-      <h1>Project Users</h1>
+      <Separator className="mb-8" />
+      <h1 className="text-lg font-bold">Project Users</h1>
       <UserDataTable
         data={users}
         projectData={projectData.map((project) => ({

@@ -219,7 +219,7 @@ export function FileBucketTable({ projectId, configId }: FileBucketTableProps) {
         </DialogContent>
       </Dialog>
 
-      <h1>File Buckets</h1>
+      <h1 className="text-lg font-bold">File Buckets</h1>
       <BaseTable
         data={fileBucketRowData}
         columns={fileBucketColumns}

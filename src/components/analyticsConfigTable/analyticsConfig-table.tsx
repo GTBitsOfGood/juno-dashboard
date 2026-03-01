@@ -160,7 +160,7 @@ export function AnalyticsConfigTable({ projectId }: AnalyticsConfigTableProps) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <h1>Analytics Configurations</h1>
+      <h1 className="text-lg font-bold">Analytics Configurations</h1>
       <BaseTable
         data={analyticsConfigRowData}
         columns={analyticsConfigColumns(

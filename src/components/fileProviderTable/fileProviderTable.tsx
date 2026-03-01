@@ -173,7 +173,7 @@ export function FileProviderTable({ projectId }: FileProviderTableProps) {
         </DialogContent>
       </Dialog>
 
-      <h1>File Providers</h1>
+      <h1 className="text-lg font-bold">File Providers</h1>
       <BaseTable
         data={fileProviderRowData}
         columns={fileProviderColumns(

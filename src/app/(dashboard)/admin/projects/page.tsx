@@ -1,7 +1,5 @@
 "use client";
 
-import { ProjectColumn, columns } from "./columns";
-import { ProjectDataTable } from "./data-table";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -10,9 +8,12 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { Separator } from "@/components/ui/separator";
 import { getProjects } from "@/lib/sdkActions";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { ProjectColumn, columns } from "./columns";
+import { ProjectDataTable } from "./data-table";
 
 export default function ProjectsPage() {
   const [projectData, setProjectData] = useState<ProjectColumn[]>([]);
@@ -61,7 +62,7 @@ export default function ProjectsPage() {
   };
 
   return (
-    <div className="container mx-auto px-10 py-10">
+    <div className="flex flex-col">
       <Breadcrumb className="mb-4">
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -73,9 +74,8 @@ export default function ProjectsPage() {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-
-      <h1>Projects</h1>
-
+      <Separator className="mb-8" />
+      <h2 className="text-lg font-bold">Projects</h2>
       <ProjectDataTable<ProjectColumn, unknown>
         columns={columns(handleProjectAction)}
         data={projectData}

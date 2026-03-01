@@ -1,7 +1,8 @@
 import { ProjectSidebar } from "@/components/sidebar/project-sidebar";
+import { TopBar } from "@/components/top-bar";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import "../../../globals.css";
 import { getProjectById } from "@/lib/project";
+import "../../../globals.css";
 
 export default async function ProjectLayout({
   children,
@@ -15,11 +16,14 @@ export default async function ProjectLayout({
 
   return (
     <SidebarProvider>
+      <TopBar />
       <ProjectSidebar
         currProjName={project.name}
         projectId={Number(projectId)}
       />
-      <main>{children}</main>
+      <div className="flex flex-col w-screen mt-11">
+        <main className="m-7">{children}</main>
+      </div>
     </SidebarProvider>
   );
 }

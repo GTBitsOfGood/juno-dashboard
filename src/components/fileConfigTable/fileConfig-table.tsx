@@ -132,7 +132,7 @@ export function FileConfigTable({ projectId }: FileConfigTableProps) {
         </DialogContent>
       </Dialog>
 
-      <h1>File Configurations</h1>
+      <h1 className="text-lg font-bold">File Configurations</h1>
       <BaseTable
         data={fileConfigRowData}
         columns={fileConfigColumns}

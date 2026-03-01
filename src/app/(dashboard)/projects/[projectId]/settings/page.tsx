@@ -11,6 +11,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { Separator } from "@/components/ui/separator";
 import { getProjectById } from "@/lib/project";
 import { useQuery } from "@tanstack/react-query";
 import { ProjectResponse } from "juno-sdk/build/main/internal/api";
@@ -38,7 +39,7 @@ const ProjectSettingsPage = () => {
   }
 
   return (
-    <div className="container mx-auto px-10 py-10 md:w-[85vw] sm:w-full">
+    <div className="flex flex-col">
       <Breadcrumb className="mb-4">
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -56,7 +57,7 @@ const ProjectSettingsPage = () => {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-
+      <Separator className="mb-8" />
       <div className="flex flex-col gap-8">
         <FileConfigTable projectId={projectId} />
         <EmailConfigTable projectId={projectId} />

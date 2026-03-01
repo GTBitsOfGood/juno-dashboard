@@ -1,7 +1,6 @@
 "use client";
 
 import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -21,6 +20,7 @@ import {
 } from "@tanstack/react-table";
 import { useState } from "react";
 import { twMerge } from "tailwind-merge";
+import SkeletonRows from "./table/SkeletonRows";
 import { Button } from "./ui/button";
 
 interface BaseTableProps<TData, TValue> {
@@ -59,15 +59,6 @@ export function BaseTable<TData, TValue>({
   });
 
   const selectedRows = table.getSelectedRowModel().rows;
-
-  if (isLoading) {
-    return (
-      <div className="flex flex-col gap-2">
-        <Skeleton className="h-4 w-[250px]" />
-        <Skeleton className="h-4 w-[200px]" />
-      </div>
-    );
-  }
 
   return (
     <div className={twMerge(className, "flex flex-col gap-3")}>
@@ -141,6 +132,8 @@ export function BaseTable<TData, TValue>({
                   ))}
                 </TableRow>
               ))
+            ) : isLoading ? (
+              <SkeletonRows numRows={5} numCells={columns.length} />
             ) : (
               <TableRow>
                 <TableCell

@@ -2,14 +2,14 @@
 import { getJunoInstance } from "@/lib/juno";
 import { cookies } from "next/headers";
 
-import { SetUserTypeModel } from "juno-sdk/build/main/internal/api";
+import { SetUserTypeModelTypeEnum } from "juno-sdk/build/main/internal/index";
 import { APIKey } from "@/components/forms/CreateAPIKeyForm";
 import { getSession } from "./session";
 import { requireSuperAdmin, requireAdmin, hasProjectAccess } from "./auth";
 
 export async function setUserTypeAction(data: {
   email: string;
-  type: SetUserTypeModel.TypeEnum;
+  type: SetUserTypeModelTypeEnum;
 }) {
   const session = await getSession();
   if (!session) {
@@ -66,9 +66,9 @@ export async function createUserAction(data: {
 
   try {
     const user = await junoClient.user.createUser({
-      name,
-      email,
-      password,
+      name: name,
+      email: email,
+      password: password,
       credentials: session.jwt,
     });
 

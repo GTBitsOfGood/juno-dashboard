@@ -1,8 +1,6 @@
 "use client";
 
-import { ApiKeyDataTable } from "@/components/apiKeyTable/apiKey-table";
-import { ApiKeyColumn } from "@/components/apiKeyTable/columns";
-import ApiKeyRevealCard from "@/components/forms/ApiKeyRevealForm";
+
 import CreateAPIKeyForm from "@/components/forms/CreateAPIKeyForm";
 import {
   Breadcrumb,
@@ -14,56 +12,10 @@ import {
 } from "@/components/ui/breadcrumb";
 import { useState } from "react";
 import { toast } from "sonner";
-import { useState } from "react";
 import { ApiKeyDataTable } from "@/components/apiKeyTable/apiKey-table";
 import { ApiKeyColumn } from "@/components/apiKeyTable/columns";
-import ApiKeyRevealCard from "@/components/ApiKeyRevealCard";
+import ApiKeyRevealCard from "@/components/forms/ApiKeyRevealForm";
 
-const mockApiKeys: ApiKeyColumn[] = [
-  {
-    id: 1,
-    description: "Email check-ins",
-    dateCreated: "2026-01-31",
-    linkedProject: "Juno Dashboard",
-    environment: "SIT",
-  },
-  {
-    id: 2,
-    description: "Spreadsheet uploads to bucket storage",
-    dateCreated: "N/A",
-    linkedProject: "Hope for Haiti",
-    environment: "SIT",
-  },
-  {
-    id: 3,
-    description: "Configuration management",
-    dateCreated: "2026-01-31",
-    linkedProject: "Juno Dashboard",
-    environment: "SIT",
-  },
-  {
-    id: 4,
-    description: "Application Logging",
-    dateCreated: "N/A",
-    linkedProject: "Juno Dashboard",
-    environment: "SIT",
-  },
-  {
-    id: 5,
-    description: "Application Logging",
-    dateCreated: "2026-01-31",
-    linkedProject: "Juno Dashboard",
-    environment: "SIT",
-  },
-];
-
-type CreatedKeyInfo = {
-  value: string;
-  description: string;
-  environment: string;
-  project: string;
-  dateCreated: string;
-};
 
 const mockApiKeys: ApiKeyColumn[] = [
   {

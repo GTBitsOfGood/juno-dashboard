@@ -52,7 +52,6 @@ export async function requestNewAccount(data: RequestNewAccountInput): Promise<{
       success: true,
     };
   } catch (error) {
-    console.error("Error requesting new account:", error.body);
     return {
       success: false,
       error:
@@ -97,7 +96,6 @@ export async function getAccountRequests(): Promise<{
       })),
     };
   } catch (error) {
-    console.error("Error fetching account requests:", error);
     return {
       success: false,
       requests: [],
@@ -132,7 +130,6 @@ export async function deleteAccountRequest(id: string): Promise<{
     });
     return { success: true };
   } catch (error) {
-    console.error("Error deleting account request:", error);
     return {
       success: false,
       error:
@@ -181,7 +178,6 @@ export async function acceptAccountRequest(
         : undefined,
     };
   } catch (error) {
-    console.error("Error accepting account request:", error);
     return {
       success: false,
       error:

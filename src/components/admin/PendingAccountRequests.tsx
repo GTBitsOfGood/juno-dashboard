@@ -3,7 +3,7 @@
 import { CheckCircle, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -33,7 +33,7 @@ export function PendingAccountRequests() {
   const [processingIds, setProcessingIds] = useState<Set<string>>(new Set());
   const queryClient = useQueryClient();
 
-  const { data, isLoading, isError, error } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["accountRequests"],
     queryFn: getAccountRequests,
   });
@@ -48,21 +48,6 @@ export function PendingAccountRequests() {
         : [],
     [data],
   );
-
-  useEffect(() => {
-    if (isError) {
-      toast.error("Error", {
-        description: `Failed to fetch account requests: ${JSON.stringify(error)}`,
-      });
-      return;
-    }
-
-    if (data && !data.success && data.error) {
-      toast.error("Failed to Fetch Account Requests", {
-        description: data.error,
-      });
-    }
-  }, [data, error, isError]);
 
   const setProcessing = (id: string, processing: boolean) => {
     setProcessingIds((prev) => {

@@ -66,9 +66,9 @@ export async function createUserAction(data: {
 
   try {
     const user = await junoClient.user.createUser({
-      name: name,
-      email: email,
-      password: password,
+      name,
+      email,
+      password,
       credentials: session.jwt,
     });
 

@@ -1,18 +1,18 @@
 "use client";
 
+import { ProjectColumn } from "@/app/(dashboard)/admin/projects/columns";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { UserAvatar } from "@/components/ui/user-avatar";
 import { ColumnDef } from "@tanstack/react-table";
-import { SetUserTypeModel } from "juno-sdk/build/main/internal/api";
+import { SetUserTypeModelTypeEnum } from "juno-sdk/build/main/internal/index";
 import { UserActionsCell } from "./user-actions-cell";
-import { ProjectColumn } from "@/app/(dashboard)/admin/projects/columns";
 
 export type UserColumn = {
   id: number;
   name: string;
   email: string;
-  role: SetUserTypeModel.TypeEnum;
+  role: SetUserTypeModelTypeEnum;
   projects: number[];
 };
 

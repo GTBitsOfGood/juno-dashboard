@@ -14,7 +14,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { getProjectById } from "@/lib/project";
 import { useQuery } from "@tanstack/react-query";
-import { ProjectResponse } from "juno-sdk/build/main/internal/api";
+import { ProjectResponse } from "juno-sdk/build/main/internal/index";
 import { useParams } from "next/navigation";
 import { toast } from "sonner";
 

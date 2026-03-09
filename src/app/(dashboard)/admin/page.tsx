@@ -162,8 +162,8 @@ const AdminPage = () => {
         </Card>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-7">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-8">
+        <Card className="col-span-4">
           <CardHeader>
             <CardTitle>API Requests</CardTitle>
             <CardDescription>API requests over time.</CardDescription>
@@ -208,17 +208,7 @@ const AdminPage = () => {
           </CardContent>
         </Card>
 
-        <Card className="col-span-7">
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>Recent Juno events.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-sm text-muted-foreground">placeholder</div>
-          </CardContent>
-        </Card>
-
-        <Card className="col-span-7">
+        <Card className="col-span-4">
           <CardHeader>
             <CardTitle>Projects Onboarded</CardTitle>
             <CardDescription>
@@ -242,6 +232,16 @@ const AdminPage = () => {
                 <Bar dataKey="onboardedProjects" fill="#cdcdcd" radius={8} />
               </BarChart>
             </ChartContainer>
+          </CardContent>
+        </Card>
+
+        <Card className="col-span-8">
+          <CardHeader>
+            <CardTitle>Recent Activity</CardTitle>
+            <CardDescription>Recent Juno events.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-sm text-muted-foreground">placeholder</div>
           </CardContent>
         </Card>
       </div>

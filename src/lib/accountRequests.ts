@@ -24,6 +24,22 @@ export type AccountRequest = {
   createdAt: string;
 };
 
+type AcceptAccountRequestResult = {
+  success: boolean;
+  error?: string;
+  user?: {
+    id: number;
+    email: string;
+    name: string;
+    type: AccountRequestRole;
+    projectIds?: number[];
+  };
+  project?: {
+    id: number;
+    name: string;
+  };
+};
+
 export async function requestNewAccount(data: RequestNewAccountInput): Promise<{
   success: boolean;
   error?: string;
@@ -127,21 +143,51 @@ export async function deleteAccountRequest(id: string): Promise<{
   }
 }
 
-export async function acceptAccountRequest(request: AccountRequest): Promise<{
-  success: boolean;
-  error?: string;
-}> {
-  console.log("acceptAccountRequest", request);
-  return {
-    success: false,
-    error:
-      "Accepting account requests is not supported yet because the API does not expose an approval route or the stored request password.",
-  };
-}
+export async function acceptAccountRequest(
+  request: AccountRequest,
+): Promise<AcceptAccountRequestResult> {
+  const session = await getSession();
+  if (!session) return { success: false, error: "Unauthorized" };
 
-export async function declineAccountRequest(id: string): Promise<{
-  success: boolean;
-  error?: string;
-}> {
-  return deleteAccountRequest(id);
+  if (!requireAdmin(session.user)) {
+    return { success: false, error: "Only admins can manage account requests" };
+  }
+
+  if (!request.id.trim()) {
+    return { success: false, error: "Account request ID is required" };
+  }
+
+  try {
+    const juno = getJunoInstance();
+    const result = await juno.auth.acceptAccountRequest({
+      id: request.id,
+      credentials: session.jwt,
+    });
+
+    return {
+      success: true,
+      user: {
+        id: result.user.id,
+        email: result.user.email,
+        name: result.user.name,
+        type: String(result.user.type) as unknown as AccountRequestRole,
+        projectIds: result.user.projectIds,
+      },
+      project: result.project
+        ? {
+            id: result.project.id,
+            name: result.project.name,
+          }
+        : undefined,
+    };
+  } catch (error) {
+    console.error("Error accepting account request:", error);
+    return {
+      success: false,
+      error:
+        error?.body?.message ||
+        error?.message ||
+        "Failed to accept account request.",
+    };
+  }
 }

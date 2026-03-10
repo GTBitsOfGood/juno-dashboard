@@ -4,7 +4,7 @@ import {
   FileBucket,
   FileProvider,
   FileProviderPartial,
-} from "juno-sdk/build/main/internal/api";
+} from "juno-sdk/build/main/internal/index";
 import { hasProjectAccess } from "./auth";
 import { getJunoInstance } from "./juno";
 import { getSession } from "./session";

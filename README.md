@@ -44,6 +44,28 @@ bun dev
 
 The site is served at [http://localhost:3000](http://localhost:3000).
 
+### Setting up Environment for File or Email Configurations
+
+In order to be authorized locally for file or email configurations, you must change your `.env` `JUNO_API_KEY`.
+
+First, ensure that you have the `JUNO_BASE_URL=http://localhost:8888`.
+
+Second, you'll need to start juno, then visit `localhost:8888/docs#` in your browser. This should bring you to the juno docs page. You will want to scroll down to `/auth/key` path, and click it and then click 'try it out'.
+
+Now, you should be able to enter API request fields. The username and password should be `test-superadmin@test.com` and `test-password`. For the POST request body,
+
+```json
+{
+  "description": "string",
+  "environment": "string",
+  "project": {
+    "name": "test-seed-project"
+  }
+}
+```
+
+or if you are using a different project, then replace with that project name.
+
 ### Components 
 
 This repository uses [shadcn/ui](https://ui.shadcn.com/) for streamlining component development.

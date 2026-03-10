@@ -16,7 +16,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { getProjectById } from "@/lib/project";
 import { getEmailAnalytics, getEmailConfig } from "@/lib/settings";
 import { useQuery } from "@tanstack/react-query";
-import { ProjectResponse } from "juno-sdk/build/main/internal/api";
+import { ProjectResponse } from "juno-sdk/build/main/internal/index";
 import { Mail, Settings } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";

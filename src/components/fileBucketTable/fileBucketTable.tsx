@@ -19,7 +19,7 @@ import {
 import { getAllFileProviders } from "@/lib/fileProvider";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Row } from "@tanstack/react-table";
-import { FileBucket, FileProvider } from "juno-sdk/build/main/internal/api";
+import { FileBucket, FileProvider } from "juno-sdk/build/main/internal/index";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { BaseTable } from "../baseTable";

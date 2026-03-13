@@ -9,7 +9,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/auth/ui";
-import { Alert } from "@/components/ui/alert";
 import {
   Form,
   FormControl,
@@ -19,11 +18,14 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { requestNewAccount } from "@/lib/accountRequests";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CheckCircle2, CircleX, Loader2 } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
+import { CheckCircle2, Loader2 } from "lucide-react";
 import Link from "next/link";
-import React, { useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 const requestAccountSchema = z
@@ -52,9 +54,7 @@ const requestAccountSchema = z
 type RequestAccountValues = z.infer<typeof requestAccountSchema>;
 
 const RequestAccountPage = () => {
-  const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
-  const [loading, setLoading] = useState(false);
 
   const form = useForm<RequestAccountValues>({
     resolver: zodResolver(requestAccountSchema),
@@ -69,29 +69,30 @@ const RequestAccountPage = () => {
 
   const userType = form.watch("userType");
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  const requestAccountMutation = useMutation({
+    mutationFn: async (values: RequestAccountValues) => {
+      const result = await requestNewAccount({
+        name: values.name,
+        email: values.email,
+        password: values.password,
+        userType: values.userType === "Admin" ? "ADMIN" : "USER",
+        projectName:
+          values.userType === "Admin" ? values.projectName : undefined,
+      });
 
-    const valid = await form.trigger();
-    if (!valid) return;
+      if (!result.success) {
+        throw new Error(result.error || "Failed to request account.");
+      }
 
-    setLoading(true);
-    setError("");
-
-    /* TODO: Send request to infra team for approval
-    const values = form.getValues();
-    const payload = {
-      name: values.name,
-      email: values.email,
-      password: values.password,
-      userType: values.userType,
-      projectName: values.userType === "Admin" ? values.projectName : undefined,
-    };
-    */
-
-    setSuccess(true);
-    setLoading(false);
-  }
+      return result;
+    },
+    onSuccess: () => setSuccess(true),
+    onError: (error) => {
+      toast.error("Failed to request account", {
+        description: error.message,
+      });
+    },
+  });
 
   if (success) {
     return (
@@ -120,17 +121,14 @@ const RequestAccountPage = () => {
         Request new account
       </h2>
 
-      {error.length > 0 && (
-        <Alert className="mb-4 border-red-500/20 bg-red-500/10">
-          <div className="flex items-center gap-2 text-red-400">
-            <CircleX className="h-4 w-4" />
-            <span className="text-sm">{error}</span>
-          </div>
-        </Alert>
-      )}
-
       <Form {...form}>
-        <form onSubmit={handleSubmit} noValidate className="space-y-4">
+        <form
+          onSubmit={form.handleSubmit((values) =>
+            requestAccountMutation.mutate(values),
+          )}
+          noValidate
+          className="space-y-4"
+        >
           <FormField
             control={form.control}
             name="name"
@@ -233,8 +231,14 @@ const RequestAccountPage = () => {
             />
           )}
 
-          <Button type="submit" className="mt-2 w-full" disabled={loading}>
-            {loading && <Loader2 className="animate-spin" />}
+          <Button
+            type="submit"
+            className="mt-2 w-full"
+            disabled={requestAccountMutation.isPending}
+          >
+            {requestAccountMutation.isPending && (
+              <Loader2 className="animate-spin" />
+            )}
             Request Account
           </Button>
         </form>

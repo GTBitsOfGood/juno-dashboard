@@ -1,25 +1,67 @@
 "use server";
 
-import {
-  createUserAction,
-  createProjectAction,
-  linkUserToProject,
-} from "./actions";
+import { UserType } from "juno-sdk/build/main/lib/auth";
+import { getJunoInstance } from "./juno";
 import { getSession } from "./session";
 import { requireAdmin } from "./auth";
 
 export type AccountRequestRole = "ADMIN" | "USER" | "SUPERADMIN";
 
+type RequestNewAccountInput = {
+  email: string;
+  name: string;
+  password: string;
+  userType: UserType;
+  projectName?: string;
+};
+
 export type AccountRequest = {
   id: string;
   email: string;
   name: string;
-  password: string;
   userType: AccountRequestRole;
   projectName?: string;
+  createdAt: string;
 };
 
-// PLACEHOLDER: replace with real SDK call
+type AcceptAccountRequestResult = {
+  success: boolean;
+  error?: string;
+  user?: {
+    id: number;
+    email: string;
+    name: string;
+    type: AccountRequestRole;
+    projectIds?: number[];
+  };
+  project?: {
+    id: number;
+    name: string;
+  };
+};
+
+export async function requestNewAccount(data: RequestNewAccountInput): Promise<{
+  success: boolean;
+  error?: string;
+}> {
+  try {
+    const juno = getJunoInstance();
+    await juno.auth.requestNewAccount(data);
+
+    return {
+      success: true,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error:
+        error?.body?.message ||
+        error?.message ||
+        "Failed to request new account.",
+    };
+  }
+}
+
 export async function getAccountRequests(): Promise<{
   success: boolean;
   requests: AccountRequest[];
@@ -36,37 +78,35 @@ export async function getAccountRequests(): Promise<{
     };
   }
 
-  return {
-    success: true,
-    requests: [
-      {
-        id: "1",
-        name: "Alice Johnson",
-        email: "alice.johnson@example.com",
-        password: "placeholder",
-        userType: "ADMIN",
-        projectName: "Apollo",
-      },
-      {
-        id: "2",
-        name: "Marcus Lee",
-        email: "marcus.lee@example.com",
-        password: "placeholder",
-        userType: "USER",
-      },
-      {
-        id: "3",
-        name: "Priya Nair",
-        email: "priya.nair@example.com",
-        password: "placeholder",
-        userType: "ADMIN",
-        projectName: "Hermes",
-      },
-    ],
-  };
+  try {
+    const juno = getJunoInstance();
+    const result = await juno.auth.getAllAccountRequests({
+      credentials: session.jwt,
+    });
+
+    return {
+      success: true,
+      requests: (result.requests || []).map((request) => ({
+        id: String(request.id),
+        email: request.email,
+        name: request.name,
+        userType: String(request.userType) as unknown as AccountRequestRole,
+        projectName: request.projectName,
+        createdAt: request.createdAt,
+      })),
+    };
+  } catch (error) {
+    return {
+      success: false,
+      requests: [],
+      error:
+        error?.body?.message ||
+        error?.message ||
+        "Failed to fetch account requests.",
+    };
+  }
 }
 
-// PLACEHOLDER: replace with real SDK call
 export async function deleteAccountRequest(id: string): Promise<{
   success: boolean;
   error?: string;
@@ -78,66 +118,72 @@ export async function deleteAccountRequest(id: string): Promise<{
     return { success: false, error: "Only admins can manage account requests" };
   }
 
-  const success = id === id;
-  return { success };
+  if (!id.trim()) {
+    return { success: false, error: "Account request ID is required" };
+  }
+
+  try {
+    const juno = getJunoInstance();
+    await juno.auth.deleteAccountRequest({
+      id,
+      credentials: session.jwt,
+    });
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error:
+        error?.body?.message ||
+        error?.message ||
+        "Failed to delete account request.",
+    };
+  }
 }
 
-export async function acceptAccountRequest(request: AccountRequest): Promise<{
-  success: boolean;
-  error?: string;
-}> {
-  const userResult = await createUserAction({
-    name: request.name,
-    email: request.email,
-    password: request.password,
-  });
+export async function acceptAccountRequest(
+  request: AccountRequest,
+): Promise<AcceptAccountRequestResult> {
+  const session = await getSession();
+  if (!session) return { success: false, error: "Unauthorized" };
 
-  if (!userResult.success) {
-    const raw = String(userResult.error ?? "");
-    const errorMessage = raw.includes("ALREADY_EXISTS")
-      ? `An account with the email ${request.email} already exists.`
-      : "An unexpected error occurred while creating the account. Please try again.";
-    return { success: false, error: errorMessage };
+  if (!requireAdmin(session.user)) {
+    return { success: false, error: "Only admins can manage account requests" };
   }
 
-  if (request.userType === "ADMIN" && request.projectName) {
-    const projectResult = await createProjectAction({
-      projectName: request.projectName,
+  if (!request.id.trim()) {
+    return { success: false, error: "Account request ID is required" };
+  }
+
+  try {
+    const juno = getJunoInstance();
+    const result = await juno.auth.acceptAccountRequest({
+      id: request.id,
+      credentials: session.jwt,
     });
 
-    if (!projectResult.success) {
-      return {
-        success: false,
-        error: `User created but failed to create project: ${projectResult.error}`,
-      };
-    }
-
-    const linkResult = await linkUserToProject({
-      projectName: request.projectName,
-      userId: String(userResult.user.id),
-    });
-
-    if (!linkResult.success) {
-      return {
-        success: false,
-        error: `User and project created but failed to link them: ${linkResult.error}`,
-      };
-    }
+    return {
+      success: true,
+      user: {
+        id: result.user.id,
+        email: result.user.email,
+        name: result.user.name,
+        type: String(result.user.type) as unknown as AccountRequestRole,
+        projectIds: result.user.projectIds,
+      },
+      project: result.project
+        ? {
+            id: result.project.id,
+            name: result.project.name,
+          }
+        : undefined,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error:
+        error?.body?.message ||
+        error?.message ||
+        "Failed to accept account request.",
+    };
   }
-
-  const deleteResult = await deleteAccountRequest(request.id);
-  if (!deleteResult.success) {
-    console.error(
-      `Failed to delete account request ${request.id}: ${deleteResult.error}`,
-    );
-  }
-
-  return { success: true };
-}
-
-export async function declineAccountRequest(id: string): Promise<{
-  success: boolean;
-  error?: string;
-}> {
-  return deleteAccountRequest(id);
 }

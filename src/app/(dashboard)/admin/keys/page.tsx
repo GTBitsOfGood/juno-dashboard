@@ -1,6 +1,5 @@
 "use client";
 
-
 import CreateAPIKeyForm from "@/components/forms/CreateAPIKeyForm";
 import {
   Breadcrumb,
@@ -10,50 +9,13 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ApiKeyDataTable } from "@/components/apiKeyTable/apiKey-table";
 import { ApiKeyColumn } from "@/components/apiKeyTable/columns";
 import ApiKeyRevealCard from "@/components/forms/ApiKeyRevealForm";
-
-
-const mockApiKeys: ApiKeyColumn[] = [
-  {
-    id: 1,
-    description: "Email check-ins",
-    dateCreated: "2026-01-31",
-    linkedProject: "Juno Dashboard",
-    environment: "SIT",
-  },
-  {
-    id: 2,
-    description: "Spreadsheet uploads to bucket storage",
-    dateCreated: "N/A",
-    linkedProject: "Hope for Haiti",
-    environment: "SIT",
-  },
-  {
-    id: 3,
-    description: "Configuration management",
-    dateCreated: "2026-01-31",
-    linkedProject: "Juno Dashboard",
-    environment: "SIT",
-  },
-  {
-    id: 4,
-    description: "Application Logging",
-    dateCreated: "N/A",
-    linkedProject: "Juno Dashboard",
-    environment: "SIT",
-  },
-  {
-    id: 5,
-    description: "Application Logging",
-    dateCreated: "2026-01-31",
-    linkedProject: "Juno Dashboard",
-    environment: "SIT",
-  },
-];
+import { getApiKeysAction, deleteApiKeyAction } from "@/lib/actions";
+import { getProjects } from "@/lib/sdkActions";
 
 type CreatedKeyInfo = {
   value: string;
@@ -64,8 +26,69 @@ type CreatedKeyInfo = {
 };
 
 export default function KeyPage() {
-  const [apiKeys, setApiKeys] = useState<ApiKeyColumn[]>(mockApiKeys);
+  const [apiKeys, setApiKeys] = useState<ApiKeyColumn[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [createdKey, setCreatedKey] = useState<CreatedKeyInfo | null>(null);
+  const [projectNames, setProjectNames] = useState<string[]>([]);
+
+  useEffect(() => {
+    async function fetchProjects() {
+      const result = await getProjects();
+      if (result.success) {
+        setProjectNames(
+          result.projects.map(
+            (p: Record<string, unknown>) => (p.name as string) ?? "",
+          ),
+        );
+      }
+    }
+    fetchProjects();
+  }, []);
+
+  const fetchApiKeys = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const result = await getApiKeysAction();
+      if (result.success) {
+        const mapped: ApiKeyColumn[] = result.keys.map(
+          (key: Record<string, unknown>) => ({
+            id: key.id as number,
+            description: (key.description as string) ?? "",
+            dateCreated: key.createdAt
+              ? new Date(key.createdAt as string).toISOString().split("T")[0]
+              : "N/A",
+            linkedProject:
+              (key.projectName as string) ??
+              (typeof key.project === "object" && key.project !== null
+                ? (key.project as Record<string, unknown>).name as string
+                : (key.project as string)) ??
+              "Unknown",
+            environment: (key.environment as string) ?? "N/A",
+          }),
+        );
+        setApiKeys(mapped);
+      } else {
+        toast.error(result.error ?? "Failed to fetch API keys");
+      }
+    } catch {
+      toast.error("Failed to fetch API keys");
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchApiKeys();
+  }, [fetchApiKeys]);
+
+  const handleDelete = async (key: ApiKeyColumn) => {
+    const result = await deleteApiKeyAction(String(key.id));
+    if (result.success) {
+      setApiKeys((prev) => prev.filter((k) => k.id !== key.id));
+    } else {
+      toast.error(result.error ?? "Failed to delete API key");
+    }
+  };
 
   return (
     <div className="container mx-auto">
@@ -80,55 +103,38 @@ export default function KeyPage() {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      {/* Top section: form (left) + reveal card (right) — always side by side */}
       <div className="flex flex-col gap-8">
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 items-start">
           <CreateAPIKeyForm
+            projects={projectNames}
             onKeyAdd={(newKey) => {
-              const dateCreated = new Date().toISOString().split("T")[0];
-              const apiKeyRow: ApiKeyColumn = {
-                id:
-                  apiKeys.length > 0
-                    ? Math.max(...apiKeys.map((k) => k.id)) + 1
-                    : 1,
-                description: newKey.description,
-                dateCreated,
-                linkedProject: newKey.project.name ?? "",
-                environment: newKey.environment,
-              };
-              setApiKeys((prev) => [apiKeyRow, ...prev]);
               setCreatedKey({
                 value: newKey.value,
                 description: newKey.description,
                 environment: newKey.environment,
-                project: newKey.project.name ?? "",
-                dateCreated,
+                project: newKey.project.name,
+                dateCreated: new Date().toISOString().split("T")[0],
               });
               toast.success("Successfully created API key");
+              fetchApiKeys();
             }}
           />
 
-          {/* Preview: reveal card with mock key data */}
           <ApiKeyRevealCard
-            keyValue={
-              createdKey != undefined
-                ? createdKey.value
-                : "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c3ItcGxhY2Vob2xkZXIiLCJpYXQiOjE3MDgzMjgwMDB9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
-            }
-            description="Email check-ins"
-            environment="SIT"
-            project="Juno Dashboard"
-            dateCreated="2026-01-31"
+            keyValue={createdKey?.value ?? null}
+            description={createdKey?.description ?? ""}
+            environment={createdKey?.environment ?? ""}
+            project={createdKey?.project ?? ""}
+            dateCreated={createdKey?.dateCreated ?? ""}
           />
         </div>
 
-        {/* Table card */}
         <ApiKeyDataTable
           data={apiKeys}
-          isLoading={false}
+          isLoading={isLoading}
           onKeyAction={(key, action) => {
             if (action === "delete") {
-              setApiKeys((prev) => prev.filter((k) => k.id !== key.id));
+              handleDelete(key);
             }
           }}
         />

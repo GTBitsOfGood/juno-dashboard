@@ -1,13 +1,23 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { createKeyAction } from "@/lib/actions";
 import { ProjectIdentifier } from "juno-sdk/build/main/lib/identifiers";
-import { Loader2 } from "lucide-react";
+import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardDescription, CardTitle } from "../ui/card";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "../ui/command";
 import {
   Form,
   FormControl,
@@ -18,6 +28,7 @@ import {
   FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import {
   Select,
   SelectContent,
@@ -27,8 +38,8 @@ import {
 } from "../ui/select";
 
 export enum Environment {
-  Dev = "Dev",
-  Prod = "Prod",
+  dev = "dev",
+  prod = "prod",
 }
 
 const createAPIKeySchema = z.object({
@@ -47,36 +58,49 @@ export type APIKey = {
 type CreateAPIKeyFormProps = {
   onKeyAdd: (newKey: APIKey) => void;
   onClose?: () => void;
+  projects?: string[];
 };
 
-const CreateAPIKeyForm = ({ onKeyAdd, onClose }: CreateAPIKeyFormProps) => {
-  const createUserForm = useForm({
+const CreateAPIKeyForm = ({
+  onKeyAdd,
+  onClose,
+  projects = [],
+}: CreateAPIKeyFormProps) => {
+  const createApiKeyForm = useForm({
     resolver: zodResolver(createAPIKeySchema),
     defaultValues: {
       description: "",
-      environment: Environment.Dev,
+      environment: Environment.dev,
       projectName: "",
     },
   });
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [comboboxOpen, setComboboxOpen] = useState(false);
 
-  const handleCreateUser = async (
+  const handleCreateApiKey = async (
     data: Required<z.infer<typeof createAPIKeySchema>>,
   ) => {
     setLoading(true);
     try {
-      // TODO: Placeholder until SDK has createKey authentication added
-      const placeholderValue =
-        "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9." +
-        "eyJzdWIiOiJ1c3ItcGxhY2Vob2xkZXIiLCJpYXQiOjE3MDgzMjgwMDB9." +
-        "SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
+      const result = await createKeyAction({
+        projectName: data.projectName,
+        environment: data.environment,
+        description: data.description,
+      });
+
+      if (!result.success) {
+        setError(result.error ?? "Failed to create API key");
+        setLoading(false);
+        return;
+      }
+
       const key: APIKey = {
         environment: data.environment,
         description: data.description,
         project: { name: data.projectName },
-        value: placeholderValue,
+        value: result.apiKey,
       };
 
       onKeyAdd(key);
@@ -100,23 +124,71 @@ const CreateAPIKeyForm = ({ onKeyAdd, onClose }: CreateAPIKeyFormProps) => {
         </CardDescription>
       </div>
       <CardContent>
-        <Form {...createUserForm}>
+        <Form {...createApiKeyForm}>
           {error.length > 0 && (
             <p className="text-xs text-red-400">Error: {error}</p>
           )}
           <form
-            onSubmit={createUserForm.handleSubmit(handleCreateUser)}
+            onSubmit={createApiKeyForm.handleSubmit(handleCreateApiKey)}
             className="flex flex-col gap-8"
           >
             <FormField
-              control={createUserForm.control}
+              control={createApiKeyForm.control}
               name="projectName"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="flex flex-col">
                   <FormLabel>Project Name</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
+                  <Popover
+                    open={comboboxOpen}
+                    onOpenChange={setComboboxOpen}
+                  >
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={comboboxOpen}
+                          className={cn(
+                            "w-full justify-between",
+                            !field.value && "text-muted-foreground",
+                          )}
+                        >
+                          {field.value || "Select a project"}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                      <Command>
+                        <CommandInput placeholder="Search projects..." />
+                        <CommandList>
+                          <CommandEmpty>No projects found.</CommandEmpty>
+                          <CommandGroup>
+                            {projects.map((project) => (
+                              <CommandItem
+                                key={project}
+                                value={project}
+                                onSelect={() => {
+                                  field.onChange(project);
+                                  setComboboxOpen(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    field.value === project
+                                      ? "opacity-100"
+                                      : "opacity-0",
+                                  )}
+                                />
+                                {project}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                   <FormMessage />
                   <FormDescription>
                     Name of the project to add an API key
@@ -125,7 +197,7 @@ const CreateAPIKeyForm = ({ onKeyAdd, onClose }: CreateAPIKeyFormProps) => {
               )}
             />
             <FormField
-              control={createUserForm.control}
+              control={createApiKeyForm.control}
               name="description"
               render={({ field }) => (
                 <FormItem>
@@ -141,7 +213,7 @@ const CreateAPIKeyForm = ({ onKeyAdd, onClose }: CreateAPIKeyFormProps) => {
               )}
             />
             <FormField
-              control={createUserForm.control}
+              control={createApiKeyForm.control}
               name="environment"
               render={({ field }) => (
                 <FormItem>

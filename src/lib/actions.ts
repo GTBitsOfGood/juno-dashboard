@@ -2,13 +2,13 @@
 import { getJunoInstance } from "@/lib/juno";
 import { cookies } from "next/headers";
 
-import { SetUserTypeModel } from "juno-sdk/build/main/internal/models/setUserTypeModel";
+import type { SetUserTypeModel } from "juno-sdk/build/main/internal/models/setUserTypeModel";
 import { getSession } from "./session";
 import { requireSuperAdmin, requireAdmin, hasProjectAccess } from "./auth";
 
 export async function setUserTypeAction(data: {
   email: string;
-  type: SetUserTypeModelTypeEnum;
+  type: SetUserTypeModel.TypeEnum;
 }) {
   const session = await getSession();
   if (!session) {

@@ -138,10 +138,7 @@ const CreateAPIKeyForm = ({
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Project Name</FormLabel>
-                  <Popover
-                    open={comboboxOpen}
-                    onOpenChange={setComboboxOpen}
-                  >
+                  <Popover open={comboboxOpen} onOpenChange={setComboboxOpen}>
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button

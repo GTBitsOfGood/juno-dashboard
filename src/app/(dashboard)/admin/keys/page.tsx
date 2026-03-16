@@ -60,7 +60,7 @@ export default function KeyPage() {
             linkedProject:
               (key.projectName as string) ??
               (typeof key.project === "object" && key.project !== null
-                ? (key.project as Record<string, unknown>).name as string
+                ? ((key.project as Record<string, unknown>).name as string)
                 : (key.project as string)) ??
               "Unknown",
             environment: (key.environment as string) ?? "N/A",

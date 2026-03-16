@@ -169,7 +169,9 @@ const ApiKeyRevealCard = ({
                       key={line.num}
                       className={`flex font-mono font-semibold text-sm min-h-6 whitespace-nowrap ${line.num === 4 ? "bg-[#2a2d2e]" : ""}`}
                     >
-                      <span className={`sticky left-0 w-8 min-w-8 text-right pr-2 text-[#858585] ${line.num === 4 ? "bg-[#2a2d2e]" : "bg-[#1e1e1e]"}`}>
+                      <span
+                        className={`sticky left-0 w-8 min-w-8 text-right pr-2 text-[#858585] ${line.num === 4 ? "bg-[#2a2d2e]" : "bg-[#1e1e1e]"}`}
+                      >
                         {line.num}
                       </span>
                       <span className="pl-1">{line.content ?? "\u00A0"}</span>

@@ -5,14 +5,14 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { UserAvatar } from "@/components/ui/user-avatar";
 import { ColumnDef } from "@tanstack/react-table";
-import { SetUserTypeModelTypeEnum } from "juno-sdk/build/main/internal/index";
+import { SetUserTypeModel } from "juno-sdk/build/main/internal/models/setUserTypeModel";
 import { UserActionsCell } from "./user-actions-cell";
 
 export type UserColumn = {
   id: number;
   name: string;
   email: string;
-  role: SetUserTypeModelTypeEnum;
+  role: SetUserTypeModel.TypeEnum;
   projects: number[];
 };
 

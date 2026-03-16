@@ -8,7 +8,7 @@ import { requireSuperAdmin, requireAdmin, hasProjectAccess } from "./auth";
 
 export async function setUserTypeAction(data: {
   email: string;
-  type: SetUserTypeModelTypeEnum;
+  type: SetUserTypeModel.TypeEnum;
 }) {
   const session = await getSession();
   if (!session) {

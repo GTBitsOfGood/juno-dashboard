@@ -10,7 +10,6 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
-import { Separator } from "@/components/ui/separator";
 import { getProjects, getUsers } from "@/lib/sdkActions";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ProjectResponse } from "juno-sdk/build/main/internal/api";
@@ -63,7 +62,6 @@ export default function UsersPage() {
 
   return (
     <div className="flex flex-col">
-    <div className="flex flex-col">
       <Breadcrumb className="mb-4">
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -77,7 +75,6 @@ export default function UsersPage() {
       </Breadcrumb>
       <PendingAccountRequests />
       <Separator className="my-8" />
-      <h2 className="text-lg font-semibold">Users</h2>
       <h2 className="text-lg font-semibold">Users</h2>
       <UserDataTable
         data={userData}

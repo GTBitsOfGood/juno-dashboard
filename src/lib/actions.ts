@@ -3,7 +3,6 @@ import { getJunoInstance } from "@/lib/juno";
 import { cookies } from "next/headers";
 
 import { SetUserTypeModel } from "juno-sdk/build/main/internal/api";
-import { APIKey } from "@/components/forms/CreateAPIKeyForm";
 import { getSession } from "./session";
 import { requireSuperAdmin, requireAdmin, hasProjectAccess } from "./auth";
 

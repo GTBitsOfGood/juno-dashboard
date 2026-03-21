@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { UserAvatar } from "@/components/ui/user-avatar";
 import { ColumnDef } from "@tanstack/react-table";
-import { SetUserTypeModel } from "juno-sdk/build/main/internal/models/setUserTypeModel";
+import type { SetUserTypeModel } from "juno-sdk/build/main/internal/index";
 import { UserActionsCell } from "./user-actions-cell";
 
 export type UserColumn = {

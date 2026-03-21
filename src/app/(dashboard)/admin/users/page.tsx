@@ -12,7 +12,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { getProjects, getUsers } from "@/lib/sdkActions";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ProjectResponse } from "juno-sdk/build/main/internal/models/projectResponse";
+import type { ProjectResponse } from "juno-sdk/build/main/internal/index";
 import { toast } from "sonner";
 import { UserColumn } from "../../../../components/usertable/columns";
 import { UserDataTable } from "../../../../components/usertable/data-table";

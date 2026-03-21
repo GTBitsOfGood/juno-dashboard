@@ -2,7 +2,7 @@
 import { getJunoInstance } from "@/lib/juno";
 import { cookies } from "next/headers";
 
-import type { SetUserTypeModel } from "juno-sdk/build/main/internal/models/setUserTypeModel";
+import type { SetUserTypeModel } from "juno-sdk/build/main/internal/index";
 import { getSession } from "./session";
 import { requireSuperAdmin, requireAdmin, hasProjectAccess } from "./auth";
 

@@ -6,7 +6,7 @@ import {
   unlinkUserFromProject,
 } from "@/lib/actions";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { SetUserTypeModel } from "juno-sdk/build/main/internal/models/setUserTypeModel";
+import type { SetUserTypeModel } from "juno-sdk/build/main/internal/index";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";

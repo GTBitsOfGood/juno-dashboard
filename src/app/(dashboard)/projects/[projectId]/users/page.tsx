@@ -13,7 +13,7 @@ import { UserColumn } from "@/components/usertable/columns";
 import { UserDataTable } from "@/components/usertable/data-table";
 import { getProjectUsers } from "@/lib/actions";
 import { getProjects } from "@/lib/sdkActions";
-import { ProjectResponse } from "juno-sdk/build/main/internal/models/projectResponse";
+import type { ProjectResponse } from "juno-sdk/build/main/internal/index";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";

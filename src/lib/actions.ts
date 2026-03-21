@@ -2,14 +2,13 @@
 import { getJunoInstance } from "@/lib/juno";
 import { cookies } from "next/headers";
 
-import { SetUserTypeModelTypeEnum } from "juno-sdk/build/main/internal/index";
-import { APIKey } from "@/components/forms/CreateAPIKeyForm";
+import type { SetUserTypeModel } from "juno-sdk/build/main/internal/index";
 import { getSession } from "./session";
 import { requireSuperAdmin, requireAdmin, hasProjectAccess } from "./auth";
 
 export async function setUserTypeAction(data: {
   email: string;
-  type: SetUserTypeModelTypeEnum;
+  type: SetUserTypeModel.TypeEnum;
 }) {
   const session = await getSession();
   if (!session) {
@@ -88,9 +87,123 @@ export async function createUserAction(data: {
   }
 }
 
-export async function createKeyAction(data: APIKey) {
-  // TODO: Create key requires JWT credential changes to the SDK. These should be done as soon as possible.
-  return data;
+export async function createKeyAction(data: {
+  projectName: string;
+  environment: string;
+  description: string;
+}) {
+  const session = await getSession();
+  if (!session) {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  if (!requireAdmin(session.user)) {
+    return { success: false, error: "Only admins can create API keys" };
+  }
+
+  const credentials = await getUserCredentials();
+  if (!credentials) {
+    return { success: false, error: "Missing credentials" };
+  }
+
+  const junoClient = getJunoInstance();
+
+  try {
+    const result = await junoClient.auth.createKey({
+      email: credentials.email,
+      password: credentials.password,
+      project: data.projectName,
+      environment: data.environment,
+      description: data.description,
+    });
+    return { success: true, apiKey: result.apiKey };
+  } catch (error) {
+    console.error("Error creating API key:", error);
+    return { success: false, error: "Failed to create API key" };
+  }
+}
+
+async function getUserCredentials(): Promise<{
+  email: string;
+  password: string;
+} | null> {
+  const cookieStore = await cookies();
+  const email = cookieStore.get("user-email")?.value;
+  const password = cookieStore.get("user-password")?.value;
+  if (!email || !password) return null;
+  return { email, password };
+}
+
+export async function getApiKeysAction() {
+  const session = await getSession();
+  if (!session) {
+    return { success: false, error: "Unauthorized", keys: [] };
+  }
+
+  if (!requireSuperAdmin(session.user)) {
+    return {
+      success: false,
+      error: "Only superadmins can view API keys",
+      keys: [],
+    };
+  }
+
+  const credentials = await getUserCredentials();
+  if (!credentials) {
+    return { success: false, error: "Missing credentials", keys: [] };
+  }
+
+  const junoClient = getJunoInstance();
+
+  try {
+    const result = await junoClient.auth.getAllApiKeys({
+      email: credentials.email,
+      password: credentials.password,
+    });
+    return { success: true, keys: result.keys ?? [] };
+  } catch (error) {
+    console.error("Error fetching API keys:", error);
+    return { success: false, error: "Failed to fetch API keys", keys: [] };
+  }
+}
+
+export async function deleteApiKeyAction(keyId: string) {
+  const session = await getSession();
+  if (!session) {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  if (!requireSuperAdmin(session.user)) {
+    return { success: false, error: "Only superadmins can delete API keys" };
+  }
+
+  const credentials = await getUserCredentials();
+  if (!credentials) {
+    return { success: false, error: "Missing credentials" };
+  }
+
+  const baseURL = process.env.JUNO_BASE_URL || "http://localhost:8888";
+
+  try {
+    const response = await fetch(`${baseURL}/auth/key/${keyId}`, {
+      method: "DELETE",
+      headers: {
+        "X-User-Email": credentials.email,
+        "X-User-Password": credentials.password,
+      },
+    });
+
+    if (!response.ok) {
+      const body = await response.text();
+      console.error("Delete API key failed:", response.status, body);
+      return { success: false, error: "Failed to delete API key" };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting API key:", error);
+    return { success: false, error: "Failed to delete API key" };
+  }
 }
 
 export async function createProjectAction(data: { projectName: string }) {
@@ -235,14 +348,32 @@ export async function createJWTAuthentication(data: {
       email: data.email,
       password: data.password,
     });
-    //Token needs to be put in a cookie and stuff
-    (await cookies()).set({
+    const cookieStore = await cookies();
+    cookieStore.set({
       name: "jwt-token",
       value: result.token,
       secure: true,
       sameSite: "strict",
       maxAge: 60 * 60, //One hour
       path: "/",
+    });
+    cookieStore.set({
+      name: "user-email",
+      value: data.email,
+      secure: true,
+      sameSite: "strict",
+      maxAge: 60 * 60,
+      path: "/",
+      httpOnly: true,
+    });
+    cookieStore.set({
+      name: "user-password",
+      value: data.password,
+      secure: true,
+      sameSite: "strict",
+      maxAge: 60 * 60,
+      path: "/",
+      httpOnly: true,
     });
     return { success: true };
   } catch (error) {
@@ -257,6 +388,8 @@ export async function createJWTAuthentication(data: {
 export async function deleteJWT() {
   const cookieStore = await cookies();
   cookieStore.delete("jwt-token");
+  cookieStore.delete("user-email");
+  cookieStore.delete("user-password");
 }
 
 export async function deleteUserAction(userId: string) {

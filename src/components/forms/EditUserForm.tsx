@@ -7,7 +7,7 @@ import {
 } from "@/lib/actions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
-import { SetUserTypeModel  } from "juno-sdk/build/main/internal";
+import { SetUserTypeModel } from "juno-sdk/build/main/internal";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";

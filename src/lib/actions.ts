@@ -117,8 +117,6 @@ export async function createKeyAction(data: {
   }
 }
 
-
-
 export async function getApiKeysAction() {
   const session = await getSession();
   if (!session) {
@@ -137,9 +135,9 @@ export async function getApiKeysAction() {
 
   try {
     const result = await junoClient.auth.getAllApiKeysRequest({
-      offset: '0',
-      limit: '5',
-      credentials: session.jwt
+      offset: "0",
+      limit: "5",
+      credentials: session.jwt,
     });
     return { success: true, keys: result.keys ?? [] };
   } catch (error) {
@@ -161,7 +159,10 @@ export async function deleteApiKeyAction(keyId: string) {
   const junoClient = getJunoInstance();
 
   try {
-    const response = await junoClient.auth.deleteApiKeyByIdRequest({keyId: keyId, credentials: session.jwt});
+    const response = await junoClient.auth.deleteApiKeyByIdRequest({
+      keyId: keyId,
+      credentials: session.jwt,
+    });
 
     if (!response.success) {
       return { success: false, error: "Failed to delete API key" };

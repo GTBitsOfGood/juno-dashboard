@@ -209,9 +209,18 @@ const DashboardPage = () => {
     refetchOnWindowFocus: true,
   });
 
-  const clickData: Event[] = useMemo(() => clickEventsResponse?.events?.events || [], [clickEventsResponse]);
-  const inputData: Event[] = useMemo(() => inputEventsResponse?.events?.events || [], [inputEventsResponse]);
-  const visitData: Event[] = useMemo(() => visitEventsResponse?.events?.events || [], [visitEventsResponse]);
+  const clickData: Event[] = useMemo(
+    () => clickEventsResponse?.events?.events || [],
+    [clickEventsResponse],
+  );
+  const inputData: Event[] = useMemo(
+    () => inputEventsResponse?.events?.events || [],
+    [inputEventsResponse],
+  );
+  const visitData: Event[] = useMemo(
+    () => visitEventsResponse?.events?.events || [],
+    [visitEventsResponse],
+  );
 
   const customEventTypes: CustomEventType[] = (() => {
     const types = customEventTypesResponse?.eventTypes;

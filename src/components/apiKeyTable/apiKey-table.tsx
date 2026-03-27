@@ -45,7 +45,6 @@ import {
 } from "@/components/ui/table";
 import { ChevronDown } from "lucide-react";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
 import SkeletonRows from "../table/SkeletonRows";
 import { Card, CardDescription, CardTitle } from "../ui/card";
 import { ApiKeyColumn, apiKeyColumns } from "./columns";
@@ -108,7 +107,6 @@ export function ApiKeyDataTable({
   const confirmSingleDelete = () => {
     if (pendingDeleteKey) {
       onKeyAction(pendingDeleteKey, "delete");
-      toast.success("API key deleted successfully.");
     }
     setPendingDeleteKey(null);
     setIsDeleteDialogOpen(false);
@@ -118,9 +116,6 @@ export function ApiKeyDataTable({
     selectedRows.forEach((row) => {
       onKeyAction(row.original as ApiKeyColumn, "delete");
     });
-    toast.success(
-      `Successfully deleted ${selectedRows.length} API key${selectedRows.length > 1 ? "s" : ""}.`,
-    );
     table.resetRowSelection();
     setIsBulkDeleteDialogOpen(false);
   };

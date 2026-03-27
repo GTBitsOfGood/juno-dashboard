@@ -2,13 +2,13 @@
 import { getJunoInstance } from "@/lib/juno";
 import { cookies } from "next/headers";
 
-import type { SetUserTypeModel } from "juno-sdk/build/main/internal/index";
 import { getSession } from "./session";
 import { requireSuperAdmin, requireAdmin, hasProjectAccess } from "./auth";
+import { SetUserTypeModelTypeEnum } from "juno-sdk/build/main/internal";
 
 export async function setUserTypeAction(data: {
   email: string;
-  type: SetUserTypeModel.TypeEnum;
+  type: SetUserTypeModelTypeEnum;
 }) {
   const session = await getSession();
   if (!session) {
@@ -101,20 +101,14 @@ export async function createKeyAction(data: {
     return { success: false, error: "Only admins can create API keys" };
   }
 
-  const credentials = await getUserCredentials();
-  if (!credentials) {
-    return { success: false, error: "Missing credentials" };
-  }
-
   const junoClient = getJunoInstance();
 
   try {
     const result = await junoClient.auth.createKey({
-      email: credentials.email,
-      password: credentials.password,
       project: data.projectName,
       environment: data.environment,
       description: data.description,
+      credentials: session.jwt,
     });
     return { success: true, apiKey: result.apiKey };
   } catch (error) {
@@ -123,16 +117,7 @@ export async function createKeyAction(data: {
   }
 }
 
-async function getUserCredentials(): Promise<{
-  email: string;
-  password: string;
-} | null> {
-  const cookieStore = await cookies();
-  const email = cookieStore.get("user-email")?.value;
-  const password = cookieStore.get("user-password")?.value;
-  if (!email || !password) return null;
-  return { email, password };
-}
+
 
 export async function getApiKeysAction() {
   const session = await getSession();
@@ -140,25 +125,21 @@ export async function getApiKeysAction() {
     return { success: false, error: "Unauthorized", keys: [] };
   }
 
-  if (!requireSuperAdmin(session.user)) {
+  if (!requireAdmin(session.user)) {
     return {
       success: false,
-      error: "Only superadmins can view API keys",
+      error: "Only admins and superadmins can view API keys",
       keys: [],
     };
-  }
-
-  const credentials = await getUserCredentials();
-  if (!credentials) {
-    return { success: false, error: "Missing credentials", keys: [] };
   }
 
   const junoClient = getJunoInstance();
 
   try {
-    const result = await junoClient.auth.getAllApiKeys({
-      email: credentials.email,
-      password: credentials.password,
+    const result = await junoClient.auth.getAllApiKeysRequest({
+      offset: '0',
+      limit: '5',
+      credentials: session.jwt
     });
     return { success: true, keys: result.keys ?? [] };
   } catch (error) {
@@ -173,29 +154,16 @@ export async function deleteApiKeyAction(keyId: string) {
     return { success: false, error: "Unauthorized" };
   }
 
-  if (!requireSuperAdmin(session.user)) {
-    return { success: false, error: "Only superadmins can delete API keys" };
+  if (!requireAdmin(session.user)) {
+    return { success: false, error: "Only admins can delete API keys" };
   }
 
-  const credentials = await getUserCredentials();
-  if (!credentials) {
-    return { success: false, error: "Missing credentials" };
-  }
-
-  const baseURL = process.env.JUNO_BASE_URL || "http://localhost:8888";
+  const junoClient = getJunoInstance();
 
   try {
-    const response = await fetch(`${baseURL}/auth/key/${keyId}`, {
-      method: "DELETE",
-      headers: {
-        "X-User-Email": credentials.email,
-        "X-User-Password": credentials.password,
-      },
-    });
+    const response = await junoClient.auth.deleteApiKeyByIdRequest({keyId: keyId, credentials: session.jwt});
 
-    if (!response.ok) {
-      const body = await response.text();
-      console.error("Delete API key failed:", response.status, body);
+    if (!response.success) {
       return { success: false, error: "Failed to delete API key" };
     }
 
@@ -360,15 +328,6 @@ export async function createJWTAuthentication(data: {
     cookieStore.set({
       name: "user-email",
       value: data.email,
-      secure: true,
-      sameSite: "strict",
-      maxAge: 60 * 60,
-      path: "/",
-      httpOnly: true,
-    });
-    cookieStore.set({
-      name: "user-password",
-      value: data.password,
       secure: true,
       sameSite: "strict",
       maxAge: 60 * 60,

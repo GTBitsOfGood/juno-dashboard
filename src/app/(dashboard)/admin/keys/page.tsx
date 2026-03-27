@@ -85,6 +85,7 @@ export default function KeyPage() {
     const result = await deleteApiKeyAction(String(key.id));
     if (result.success) {
       setApiKeys((prev) => prev.filter((k) => k.id !== key.id));
+      toast.success("API key deleted successfully.");
     } else {
       toast.error(result.error ?? "Failed to delete API key");
     }

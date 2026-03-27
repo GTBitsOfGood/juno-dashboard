@@ -103,6 +103,7 @@ const CreateAPIKeyForm = ({
         value: result.apiKey,
       };
 
+      setError("");
       onKeyAdd(key);
       setLoading(false);
 

@@ -29,7 +29,7 @@ const ApiKeyRevealCard = ({
   const [revealed, setRevealed] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const maskedValue = keyValue ? "ey" + "*".repeat(6) : null;
+  const maskedValue = keyValue ? "*".repeat(6) : null;
   const displayValue = keyValue ? (revealed ? keyValue : maskedValue) : null;
 
   const handleCopy = async () => {

@@ -92,7 +92,7 @@ export default function KeyPage() {
   };
 
   return (
-    <div className="container mx-auto px-10 py-10 flex flex-col gap-[18px]">
+    <div className="flex flex-col gap-[18px]">
       <Breadcrumb className="mb-4">
         <BreadcrumbList>
           <BreadcrumbItem>

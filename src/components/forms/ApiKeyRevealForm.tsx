@@ -148,7 +148,7 @@ const ApiKeyRevealCard = ({
                     <div className="w-px h-6 bg-[#3c3c3c] mx-1" />
                     <button
                       onClick={handleCopy}
-                      className="flex items-center gap-2 px-2 py-1 text-white hover:text-slate-200 transition-colors"
+                      className="flex items-center gap-2 px-2 py-1 text-slate-400 hover:text-slate-200 transition-colors"
                       title="Copy key to clipboard"
                     >
                       {copied ? (

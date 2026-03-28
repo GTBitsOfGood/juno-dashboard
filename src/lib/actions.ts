@@ -134,7 +134,7 @@ export async function getApiKeysAction() {
   const junoClient = getJunoInstance();
 
   try {
-    const result = await junoClient.auth.getAllApiKeysRequest({
+    const result = await junoClient.auth.getAllApiKeys({
       offset: "0",
       limit: "5",
       credentials: session.jwt,
@@ -159,7 +159,7 @@ export async function deleteApiKeyAction(keyId: string) {
   const junoClient = getJunoInstance();
 
   try {
-    const response = await junoClient.auth.deleteApiKeyByIdRequest({
+    const response = await junoClient.auth.deleteApiKeyById({
       keyId: keyId,
       credentials: session.jwt,
     });

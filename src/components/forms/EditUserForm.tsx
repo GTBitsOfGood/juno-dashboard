@@ -7,7 +7,7 @@ import {
 } from "@/lib/actions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
-import { SetUserTypeModel } from "juno-sdk/build/main/internal";
+import { SetUserTypeModelTypeEnum } from "juno-sdk/build/main/internal";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
@@ -73,7 +73,7 @@ const EditUserForm = ({
     try {
       // Update user type
       const result = await setUserTypeAction({
-        type: data.userType as unknown as SetUserTypeModel.TypeEnum,
+        type: data.userType as unknown as SetUserTypeModelTypeEnum,
         email: data.userEmail,
       });
 

@@ -6,13 +6,13 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { UserAvatar } from "@/components/ui/user-avatar";
 import { ColumnDef } from "@tanstack/react-table";
 import { UserActionsCell } from "./user-actions-cell";
-import { SetUserTypeModel } from "juno-sdk/build/main/internal";
+import { SetUserTypeModelTypeEnum } from "juno-sdk/build/main/internal";
 
 export type UserColumn = {
   id: number;
   name: string;
   email: string;
-  role: SetUserTypeModel.TypeEnum;
+  role: SetUserTypeModelTypeEnum;
   projects: number[];
 };
 

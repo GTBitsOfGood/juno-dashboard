@@ -1,8 +1,9 @@
 "use client";
 
 import {
-  FileBucketColumn,
-  columns as fileBucketColumns,
+  FileDirectoryRow,
+  FileStatus,
+  columns as fileDirectoryColumns,
 } from "@/components/fileBucketTable/columns";
 import {
   Dialog,
@@ -48,7 +49,7 @@ function isValidId(projectId: string | null, configId: number | undefined) {
 export function FileBucketTable({ projectId, configId }: FileBucketTableProps) {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [selectedRows, setSelectedRows] = useState<Row<FileBucketColumn>[]>([]);
+  const [selectedRows, setSelectedRows] = useState<Row<FileDirectoryRow>[]>([]);
 
   const queryClient = useQueryClient();
 
@@ -101,17 +102,30 @@ export function FileBucketTable({ projectId, configId }: FileBucketTableProps) {
 
   const isLoading = isBucketLoading && isProviderLoading;
 
-  const fileBucketRowData = (buckets ?? ([] as FileBucket[]))
+  const mockStatuses: FileStatus[] = ["NOT UPLOADED", "UPLOADED", "EXTERNAL"];
+
+  const fileDirectoryRowData: FileDirectoryRow[] = (
+    buckets ?? ([] as FileBucket[])
+  )
     .filter((bucket) => bucket)
-    .map((bucket) => ({
-      name: bucket.name,
-      configId: bucket.configId,
-      configEnv: bucket.configEnv,
-      providerName: bucket.fileProviderName,
-      fileNames: (bucket.fileServiceFile?.map(
+    .map((bucket) => {
+      const fileNames = (bucket.fileServiceFile?.map(
         (file) => (file as unknown as File)?.fileId?.path ?? "Unknown file",
-      ) ?? []) as string[],
-    }));
+      ) ?? []) as string[];
+
+      return {
+        type: "bucket" as const,
+        name: bucket.name,
+        configId: bucket.configId,
+        configEnv: bucket.configEnv,
+        providerName: bucket.fileProviderName,
+        subRows: fileNames.map((fileName, index) => ({
+          type: "file" as const,
+          name: fileName,
+          status: mockStatuses[index % mockStatuses.length],
+        })),
+      };
+    });
 
   const fileProviderNames = (providers ?? ([] as FileProvider[]))
     .filter((provider) => provider)
@@ -119,29 +133,44 @@ export function FileBucketTable({ projectId, configId }: FileBucketTableProps) {
 
   const deleteFileBucketHandler = useMutation({
     mutationFn: () => {
-      const deletePromises = selectedRows.map(async (row) => {
+      const bucketRows = selectedRows.filter(
+        (row) => row.original.type === "bucket",
+      );
+      const fileRows = selectedRows.filter(
+        (row) => row.original.type === "file",
+      );
+
+      const deletePromises = bucketRows.map(async (row) => {
         return deleteBucket(
           {
             name: row.original.name,
-            configId: row.original.configId,
-            fileProviderName: row.original.providerName,
+            configId: row.original.configId!,
+            fileProviderName: row.original.providerName!,
           },
           projectId,
         );
       });
 
+      // TODO: Add file deletion API call when backend supports it
+      if (fileRows.length > 0) {
+        toast.info(
+          `${fileRows.length} file(s) selected for deletion (frontend only, backend not yet connected).`,
+        );
+      }
+
       return Promise.all(deletePromises);
     },
     onSuccess: () => {
       toast.success("Success", {
-        description: `Successfully deleted file buckets.`,
+        description: `Successfully deleted selected items.`,
       });
       queryClient.invalidateQueries({
         queryKey: ["fileBucket", projectId, configId],
       });
     },
     onSettled: () => setIsDeleteDialogOpen(false),
-    onError: () => toast.error("An error occurred while deleting buckets."),
+    onError: () =>
+      toast.error("An error occurred while deleting selected items."),
   });
 
   const addFileBucketHandler = useMutation({
@@ -193,10 +222,10 @@ export function FileBucketTable({ projectId, configId }: FileBucketTableProps) {
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Selected File Buckets</DialogTitle>
+            <DialogTitle>Delete Selected Items</DialogTitle>
             <DialogDescription>
               Are you sure you want to delete {selectedRows.length} selected
-              bucket{selectedRows.length > 1 ? "s" : ""}? This action cannot be
+              item{selectedRows.length > 1 ? "s" : ""}? This action cannot be
               undone.
             </DialogDescription>
           </DialogHeader>
@@ -219,13 +248,14 @@ export function FileBucketTable({ projectId, configId }: FileBucketTableProps) {
         </DialogContent>
       </Dialog>
 
-      <h1 className="text-lg font-bold">File Buckets</h1>
+      <h1 className="text-lg font-bold">File Directory</h1>
       <BaseTable
-        data={fileBucketRowData}
-        columns={fileBucketColumns}
+        data={fileDirectoryRowData}
+        columns={fileDirectoryColumns}
         isLoading={isLoading}
+        expandable={true}
         filterParams={{
-          placeholder: "Filter by name...",
+          placeholder: "Filter by bucket name...",
           filterColumn: "name",
         }}
         onAddNewRow={() => {

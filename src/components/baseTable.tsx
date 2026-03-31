@@ -11,8 +11,10 @@ import {
 } from "@/components/ui/table";
 import {
   ColumnDef,
+  ExpandedState,
   flexRender,
   getCoreRowModel,
+  getExpandedRowModel,
   getFilteredRowModel,
   Row,
   RowSelectionState,
@@ -34,6 +36,7 @@ interface BaseTableProps<TData, TValue> {
   };
   onAddNewRow?: () => void;
   onDeleteRow?: (rows: Row<TData>[]) => void;
+  expandable?: boolean;
 }
 
 export function BaseTable<TData, TValue>({
@@ -44,17 +47,26 @@ export function BaseTable<TData, TValue>({
   filterParams,
   onAddNewRow,
   onDeleteRow,
+  expandable = false,
 }: BaseTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+  const [expanded, setExpanded] = useState<ExpandedState>({});
 
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    ...(expandable && {
+      getExpandedRowModel: getExpandedRowModel(),
+      onExpandedChange: setExpanded,
+      getSubRows: (row: TData) =>
+        (row as TData & { subRows?: TData[] }).subRows,
+    }),
     onRowSelectionChange: setRowSelection,
     state: {
       rowSelection,
+      ...(expandable && { expanded }),
     },
   });
 
@@ -121,6 +133,7 @@ export function BaseTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  className={row.depth > 0 ? "bg-muted/30" : ""}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>

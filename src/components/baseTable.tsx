@@ -53,7 +53,7 @@ export function BaseTable<TData, TValue>({
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [expanded, setExpanded] = useState<ExpandedState>({});
   const isReadOnly = useReadOnlyMode();
-
+  
   const table = useReactTable({
     data,
     columns,

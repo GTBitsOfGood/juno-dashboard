@@ -37,7 +37,6 @@ export const getFileBucketColumns = (
       <Checkbox
         className="ms-2 align-middle mr-5"
         checked={table.getIsAllPageRowsSelected()}
-        disabled={isReadOnly}
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
       />
     ),
@@ -45,7 +44,6 @@ export const getFileBucketColumns = (
       <Checkbox
         className="ms-2 align-middle"
         checked={row.getIsSelected()}
-        disabled={isReadOnly}
         onCheckedChange={(value) => row.toggleSelected(!!value)}
       />
     ),

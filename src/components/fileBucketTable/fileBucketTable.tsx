@@ -24,12 +24,10 @@ import { Row } from "@tanstack/react-table";
 import type { FileProvider } from "juno-sdk/build/main/internal/index";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { useReadOnlyMode } from "../providers/SessionProvider";
 import { BaseTable } from "../baseTable";
 import AddFileBucketForm from "../forms/AddFileBucketForm";
 import { Button } from "../ui/button";
 import { DialogHeader } from "../ui/dialog";
-import { getFileBucketColumns } from "./columns";
 
 interface FileBucketTableProps {
   projectId: string;
@@ -354,9 +352,10 @@ export function FileBucketTable({ projectId, configId }: FileBucketTableProps) {
         data={fileBucketRowData}
         columns={getFileBucketColumns(isReadOnly)}
         isLoading={isLoading}
+        expandable={true}
         filterParams={{
           placeholder: "Filter by bucket or file name...",
-          filterColumn: "name",
+           filterColumn: "name",
         }}
         onAddNewRow={() => {
           if (isValidId(projectId, configId)) {

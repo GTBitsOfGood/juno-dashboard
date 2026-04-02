@@ -37,7 +37,11 @@ export const ProviderActionsCell = ({
       <Dialog modal={false}>
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0" disabled={isReadOnly}>
+            <Button
+              variant="ghost"
+              className="h-8 w-8 p-0"
+              disabled={isReadOnly}
+            >
               <span className="sr-only">Open menu</span>
               <MoreHorizontal className="h-4 w-4" />
             </Button>

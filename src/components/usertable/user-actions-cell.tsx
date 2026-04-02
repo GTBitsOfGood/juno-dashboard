@@ -29,12 +29,14 @@ interface UserActionsCellProps {
   user: UserColumn;
   projectData: ProjectColumn[];
   onUserUpdate: (user: UserColumn, action: "add" | "update" | "delete") => void;
+  isReadOnly: boolean;
 }
 
 export const UserActionsCell = ({
   user,
   projectData,
   onUserUpdate,
+  isReadOnly,
 }: UserActionsCellProps) => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -67,7 +69,7 @@ export const UserActionsCell = ({
     <>
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
+          <Button variant="ghost" className="h-8 w-8 p-0" disabled={isReadOnly}>
             <span className="sr-only">Open menu</span>
             <MoreHorizontal className="h-4 w-4" />
           </Button>
@@ -115,7 +117,11 @@ export const UserActionsCell = ({
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+      <Dialog
+        open={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+        modal={false}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Edit User</DialogTitle>

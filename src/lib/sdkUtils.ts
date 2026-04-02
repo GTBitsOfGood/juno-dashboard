@@ -2,7 +2,7 @@
 
 import { getJunoInstance } from "./juno";
 import { getSession } from "./session";
-import { requireAdmin } from "./auth";
+import { hasProjectAccess, requireAdmin } from "./auth";
 
 export async function setupJunoEmail(sendgridKey: string, projectId: string) {
   const session = await getSession();
@@ -14,6 +14,13 @@ export async function setupJunoEmail(sendgridKey: string, projectId: string) {
     return {
       success: false,
       message: "Only admins and superadmins can set up email service",
+    };
+  }
+
+  if (!hasProjectAccess(session.user, Number(projectId))) {
+    return {
+      success: false,
+      message: "You don't have access to this project",
     };
   }
 

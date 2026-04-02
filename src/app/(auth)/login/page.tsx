@@ -38,6 +38,7 @@ const LoginPage = () => {
 
   async function handleLoginSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    setError("");
     setLoading(true);
 
     const values = loginForm.getValues();
@@ -45,8 +46,8 @@ const LoginPage = () => {
       email: values.email,
       password: values.password,
     });
-    if (result.success) {
-      router.push("/admin");
+    if (result.success && result.redirectPath) {
+      router.push(result.redirectPath);
     } else {
       setError(result.error);
       setLoading(false);

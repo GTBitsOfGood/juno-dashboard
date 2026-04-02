@@ -20,6 +20,7 @@ import {
 } from "@tanstack/react-table";
 import { useState } from "react";
 import { twMerge } from "tailwind-merge";
+import { useReadOnlyMode } from "./providers/SessionProvider";
 import SkeletonRows from "./table/SkeletonRows";
 import { Button } from "./ui/button";
 
@@ -46,6 +47,7 @@ export function BaseTable<TData, TValue>({
   onDeleteRow,
 }: BaseTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+  const isReadOnly = useReadOnlyMode();
 
   const table = useReactTable({
     data,
@@ -81,7 +83,9 @@ export function BaseTable<TData, TValue>({
         {selectedRows.length > 0 && onDeleteRow && (
           <Button
             variant="destructive"
+            disabled={isReadOnly}
             onClick={() => {
+              if (isReadOnly) return;
               onDeleteRow(selectedRows);
               table.resetRowSelection();
             }}
@@ -90,7 +94,11 @@ export function BaseTable<TData, TValue>({
             {selectedRows.length > 1 ? "s" : ""}
           </Button>
         )}
-        {onAddNewRow && <Button onClick={onAddNewRow}>Add New</Button>}
+        {onAddNewRow && (
+          <Button disabled={isReadOnly} onClick={onAddNewRow}>
+            Add New
+          </Button>
+        )}
       </div>
       <div className="rounded-md border">
         <Table>

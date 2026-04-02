@@ -76,5 +76,9 @@ export const useUserSession = () => {
 export const useReadOnlyMode = () => {
   const context = useUserSession();
 
-  return context?.loading || context?.user?.type === UserType.USER;
+  if (!context) {
+    return true;
+  }
+
+  return context.loading || context.user?.type === UserType.USER;
 };

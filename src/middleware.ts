@@ -19,13 +19,25 @@ export async function middleware(req: NextRequest) {
 
   const redirectPath = getDefaultRouteForUser(verifiedUser);
 
-  if (pathname === "/" || verifiedUser.type === UserType.USER) {
+  if (pathname === "/") {
     return NextResponse.redirect(new URL(redirectPath ?? "/login", req.url));
+  }
+
+  // only allow users to access their own projects
+  if (verifiedUser.type === UserType.USER) {
+    const isAllowedProjectPath = verifiedUser.projectIds.some((projectId) => {
+      const projectPath = `/projects/${projectId}`;
+      return pathname === projectPath || pathname.startsWith(`${projectPath}/`);
+    });
+
+    if (!isAllowedProjectPath) {
+      return NextResponse.redirect(new URL(redirectPath ?? "/login", req.url));
+    }
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/", "/admin", "/admin/:path*"],
+  matcher: ["/", "/admin", "/admin/:path*", "/projects/:path*"],
 };

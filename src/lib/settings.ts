@@ -8,7 +8,7 @@ import {
   SetupFileServiceResponse,
   UpdateAnalyticsConfigModel,
 } from "juno-sdk/build/main/internal/index";
-import { hasProjectAccess } from "./auth";
+import { hasProjectAccess, requireAdmin } from "./auth";
 import { getJunoInstance } from "./juno";
 import { getSession } from "./session";
 
@@ -50,6 +50,12 @@ export async function createFileConfig(
     throw new Error("Unauthorized");
   }
 
+  if (!requireAdmin(session.user)) {
+    throw new Error(
+      "Only admins and superadmins can create file configurations",
+    );
+  }
+
   if (!hasProjectAccess(session.user, Number(projectId))) {
     throw new Error("You don't have access to this project");
   }
@@ -68,6 +74,12 @@ export async function deleteFileConfig(
   const session = await getSession();
   if (!session) {
     throw new Error("Unauthorized");
+  }
+
+  if (!requireAdmin(session.user)) {
+    throw new Error(
+      "Only admins and superadmins can delete file configurations",
+    );
   }
 
   if (!hasProjectAccess(session.user, Number(projectId))) {
@@ -150,6 +162,12 @@ export async function deleteAnalyticsConfig(
     throw new Error("Unauthorized");
   }
 
+  if (!requireAdmin(session.user)) {
+    throw new Error(
+      "Only admins and superadmins can delete analytics configurations",
+    );
+  }
+
   if (!hasProjectAccess(session.user, Number(projectId))) {
     throw new Error("You don't have access to this project");
   }
@@ -167,6 +185,12 @@ export async function updateAnalyticsConfig(
   const session = await getSession();
   if (!session) {
     throw new Error("Unauthorized");
+  }
+
+  if (!requireAdmin(session.user)) {
+    throw new Error(
+      "Only admins and superadmins can update analytics configurations",
+    );
   }
 
   if (!hasProjectAccess(session.user, projectId)) {
@@ -192,6 +216,16 @@ export async function createAnalyticsConfig(
   const session = await getSession();
   if (!session) {
     throw new Error("Unauthorized");
+  }
+
+  if (!requireAdmin(session.user)) {
+    throw new Error(
+      "Only admins and superadmins can create analytics configurations",
+    );
+  }
+
+  if (!hasProjectAccess(session.user, Number(projectId))) {
+    throw new Error("You don't have access to this project");
   }
 
   const config: CreateAnalyticsConfigModel = {

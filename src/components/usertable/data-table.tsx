@@ -37,6 +37,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import CreateUserForm from "@/components/forms/AddUserForm";
+import { useReadOnlyMode } from "@/components/providers/SessionProvider";
 import { ProjectColumn } from "../../app/(dashboard)/admin/projects/columns";
 import { userColumns, UserColumn } from "./columns";
 import { deleteUserAction } from "@/lib/actions";
@@ -58,13 +59,14 @@ export function UserDataTable<TData>({
   isLoading,
   onUserAction,
 }: DataTableProps<TData>) {
+  const isReadOnly = useReadOnlyMode();
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [isAddUserDialogOpen, setIsAddUserDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [hasSelectedRows, setHasSelectedRows] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const columns = userColumns(projectData, onUserAction);
+  const columns = userColumns(projectData, onUserAction, isReadOnly);
 
   const table = useReactTable({
     data,
@@ -154,6 +156,7 @@ export function UserDataTable<TData>({
           {hasSelectedRows && (
             <Button
               variant="destructive"
+              disabled={isReadOnly}
               onClick={() => setIsDeleteDialogOpen(true)}
             >
               Delete {selectedRows.length} selected user
@@ -165,7 +168,7 @@ export function UserDataTable<TData>({
             onOpenChange={setIsAddUserDialogOpen}
           >
             <DialogTrigger asChild>
-              <Button>Add User</Button>
+              <Button disabled={isReadOnly}>Add User</Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>

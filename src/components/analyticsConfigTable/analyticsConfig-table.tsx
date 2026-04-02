@@ -15,6 +15,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useReadOnlyMode } from "../providers/SessionProvider";
 import { BaseTable } from "../baseTable";
 import AddAnalyticsConfigForm from "../forms/AddAnalyticsConfigForm";
 import { Button } from "../ui/button";
@@ -29,6 +30,7 @@ export function AnalyticsConfigTable({ projectId }: AnalyticsConfigTableProps) {
   const [isAddConfigDialogOpen, setIsAddConfigDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedRows, setSelectedRows] = useState([]);
+  const isReadOnly = useReadOnlyMode();
 
   const queryClient = useQueryClient();
 
@@ -181,6 +183,7 @@ export function AnalyticsConfigTable({ projectId }: AnalyticsConfigTableProps) {
             });
             setIsAddConfigDialogOpen(false);
           },
+          isReadOnly,
         )}
         isLoading={isLoading}
         filterParams={{

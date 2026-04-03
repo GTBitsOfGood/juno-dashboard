@@ -5,8 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { UserAvatar } from "@/components/ui/user-avatar";
 import { ColumnDef } from "@tanstack/react-table";
-import { SetUserTypeModelTypeEnum } from "juno-sdk/build/main/internal/index";
 import { UserActionsCell } from "./user-actions-cell";
+import { SetUserTypeModelTypeEnum } from "juno-sdk/build/main/internal";
 
 export type UserColumn = {
   id: number;

@@ -30,7 +30,7 @@ import {
   getCustomEventTypes,
 } from "@/lib/settings";
 import { useQuery } from "@tanstack/react-query";
-import { ProjectResponse } from "juno-sdk/build/main/internal/index";
+import type { ProjectResponse } from "juno-sdk/build/main/internal/index";
 import { BarChart3, Settings } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -209,9 +209,18 @@ const DashboardPage = () => {
     refetchOnWindowFocus: true,
   });
 
-  const clickData: Event[] = clickEventsResponse?.events?.events || [];
-  const inputData: Event[] = inputEventsResponse?.events?.events || [];
-  const visitData: Event[] = visitEventsResponse?.events?.events || [];
+  const clickData: Event[] = useMemo(
+    () => clickEventsResponse?.events?.events || [],
+    [clickEventsResponse],
+  );
+  const inputData: Event[] = useMemo(
+    () => inputEventsResponse?.events?.events || [],
+    [inputEventsResponse],
+  );
+  const visitData: Event[] = useMemo(
+    () => visitEventsResponse?.events?.events || [],
+    [visitEventsResponse],
+  );
 
   const customEventTypes: CustomEventType[] = (() => {
     const types = customEventTypesResponse?.eventTypes;
@@ -289,7 +298,7 @@ const DashboardPage = () => {
     };
 
     fetchAllCustomEvents();
-  }, [projectName, customEventTypesJson]);
+  }, [projectName, projectId, customEventTypesJson]);
 
   const customEventTypesById = useMemo(
     () =>

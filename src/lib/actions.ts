@@ -10,6 +10,7 @@ import {
   hasProjectAccess,
 } from "./auth";
 import { getDefaultRouteForUser } from "./userRouting";
+import { SetUserTypeModelTypeEnum } from "juno-sdk/build/main/internal";
 
 export async function setUserTypeAction(data: {
   email: string;

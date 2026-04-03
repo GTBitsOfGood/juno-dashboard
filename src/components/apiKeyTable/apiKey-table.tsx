@@ -59,7 +59,7 @@ export type PaginationLinks = {
 interface ApiKeyDataTableProps {
   data: ApiKeyColumn[];
   isLoading: boolean;
-  onKeyAction: (key: ApiKeyColumn, action: "delete") => void;
+  onKeyAction: (key: ApiKeyColumn, action: "delete") => Promise<void>;
   pageIndex: number;
   pageSize: number;
   paginationLinks: PaginationLinks;
@@ -135,18 +135,20 @@ export function ApiKeyDataTable({
     setHasSelectedRows(selectedRows.length > 0);
   }, [selectedRows]);
 
-  const confirmSingleDelete = () => {
+  const confirmSingleDelete = async () => {
     if (pendingDeleteKey) {
-      onKeyAction(pendingDeleteKey, "delete");
+      await onKeyAction(pendingDeleteKey, "delete");
     }
     setPendingDeleteKey(null);
     setIsDeleteDialogOpen(false);
   };
 
-  const handleBulkDelete = () => {
-    selectedRows.forEach((row) => {
-      onKeyAction(row.original as ApiKeyColumn, "delete");
-    });
+  const handleBulkDelete = async () => {
+    await Promise.all(
+      selectedRows.map((row) =>
+        onKeyAction(row.original as ApiKeyColumn, "delete"),
+      ),
+    );
     table.resetRowSelection();
     setIsBulkDeleteDialogOpen(false);
   };

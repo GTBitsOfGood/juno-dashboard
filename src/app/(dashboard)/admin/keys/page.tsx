@@ -149,9 +149,9 @@ export default function KeyPage() {
           paginationLinks={paginationLinks}
           onPageIndexChange={setPageIndex}
           onPageSizeChange={setPageSize}
-          onKeyAction={(key, action) => {
+          onKeyAction={async (key, action) => {
             if (action === "delete") {
-              handleDelete(key);
+              await handleDelete(key);
             }
           }}
         />

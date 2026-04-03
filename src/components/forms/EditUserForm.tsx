@@ -1,4 +1,16 @@
+import { ProjectColumn } from "@/app/(dashboard)/admin/projects/columns";
+import { UserColumn } from "@/components/usertable/columns";
+import {
+  linkUserToProject,
+  setUserTypeAction,
+  unlinkUserFromProject,
+} from "@/lib/actions";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { SetUserTypeModelTypeEnum } from "juno-sdk/build/main/internal/index";
+import { useState, useMemo } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import * as z from "zod";
 import { Button } from "../ui/button";
 import {
   Form,
@@ -9,13 +21,7 @@ import {
   FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
-import * as z from "zod";
-import { useForm } from "react-hook-form";
-import {
-  linkUserToProject,
-  setUserTypeAction,
-  unlinkUserFromProject,
-} from "@/lib/actions";
+import { InputMultiSelect, InputMultiSelectTrigger } from "../ui/multiselect";
 import {
   Select,
   SelectContent,
@@ -23,12 +29,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { toast } from "sonner";
-import { InputMultiSelect, InputMultiSelectTrigger } from "../ui/multiselect";
-import { useState, useMemo } from "react";
-import { UserColumn } from "@/components/usertable/columns";
-import { SetUserTypeModel } from "juno-sdk/build/main/internal/api";
-import { ProjectColumn } from "@/app/(dashboard)/admin/projects/columns";
 import { useUserSession, UserType } from "../providers/SessionProvider";
 
 export const userTypeMap = {
@@ -91,7 +91,7 @@ const EditUserForm = ({
     try {
       // Update user type
       const result = await setUserTypeAction({
-        type: data.userType as unknown as SetUserTypeModel.TypeEnum,
+        type: data.userType as unknown as SetUserTypeModelTypeEnum,
         email: data.userEmail,
       });
 

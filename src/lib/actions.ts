@@ -2,14 +2,20 @@
 import { getJunoInstance } from "@/lib/juno";
 import { cookies } from "next/headers";
 
-import { SetUserTypeModel } from "juno-sdk/build/main/internal/api";
+import { SetUserTypeModelTypeEnum } from "juno-sdk/build/main/internal/index";
 import { APIKey } from "@/components/forms/CreateAPIKeyForm";
 import { getSession } from "./session";
-import { requireSuperAdmin, requireAdmin, hasProjectAccess } from "./auth";
+import {
+  verifyJWT,
+  requireSuperAdmin,
+  requireAdmin,
+  hasProjectAccess,
+} from "./auth";
+import { getDefaultRouteForUser } from "./userRouting";
 
 export async function setUserTypeAction(data: {
   email: string;
-  type: SetUserTypeModel.TypeEnum;
+  type: SetUserTypeModelTypeEnum;
 }) {
   const session = await getSession();
   if (!session) {
@@ -235,7 +241,25 @@ export async function createJWTAuthentication(data: {
       email: data.email,
       password: data.password,
     });
-    //Token needs to be put in a cookie and stuff
+    const verifiedUser = await verifyJWT(result.token);
+
+    if (!verifiedUser) {
+      return {
+        success: false,
+        error: "Unable to verify your account after login.",
+      };
+    }
+
+    const redirectPath = getDefaultRouteForUser(verifiedUser);
+
+    if (!redirectPath) {
+      return {
+        success: false,
+        error:
+          "Your account is not assigned to a project yet. Please ask your EM or Infra team to add you to the correct project.",
+      };
+    }
+
     (await cookies()).set({
       name: "jwt-token",
       value: result.token,
@@ -244,7 +268,7 @@ export async function createJWTAuthentication(data: {
       maxAge: 60 * 60, //One hour
       path: "/",
     });
-    return { success: true };
+    return { success: true, redirectPath };
   } catch (error) {
     if (error.code === "ECONNREFUSED") {
       return { success: false, error: "Failed to connect to Juno instance." };

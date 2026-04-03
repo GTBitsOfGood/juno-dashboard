@@ -1,23 +1,25 @@
 "use client";
 
+import { ProjectColumn } from "@/app/(dashboard)/admin/projects/columns";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { UserAvatar } from "@/components/ui/user-avatar";
 import { ColumnDef } from "@tanstack/react-table";
-import { SetUserTypeModel } from "juno-sdk/build/main/internal/api";
+import { SetUserTypeModelTypeEnum } from "juno-sdk/build/main/internal/index";
 import { UserActionsCell } from "./user-actions-cell";
-import Link from "next/link";
-import { ProjectColumn } from "@/app/(dashboard)/admin/projects/columns";
+
 export type UserColumn = {
   id: number;
   name: string;
   email: string;
-  role: SetUserTypeModel.TypeEnum;
+  role: SetUserTypeModelTypeEnum;
   projects: number[];
 };
 
 export const userColumns = (
   projectData: ProjectColumn[],
   onUserAction: (user: UserColumn, action: "add" | "update" | "delete") => void,
+  isReadOnly: boolean,
 ): ColumnDef<UserColumn>[] => {
   return [
     {
@@ -26,6 +28,7 @@ export const userColumns = (
         <Checkbox
           className="ms-2 align-middle mr-5"
           checked={table.getIsAllPageRowsSelected()}
+          disabled={isReadOnly}
           onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         />
       ),
@@ -33,66 +36,55 @@ export const userColumns = (
         <Checkbox
           className="ms-2 align-middle"
           checked={row.getIsSelected()}
+          disabled={isReadOnly}
           onCheckedChange={(value) => row.toggleSelected(!!value)}
         />
       ),
       size: 50,
     },
     {
-      accessorKey: "id",
-      header: "ID",
-    },
-    {
       accessorKey: "name",
       header: "Name",
-      size: 400,
+      size: 250,
+      cell: ({ row }) => (
+        <div className="flex items-center gap-3">
+          <UserAvatar name={row.original.name} />
+          <span>{row.original.name}</span>
+        </div>
+      ),
     },
     {
       accessorKey: "email",
       header: "Email",
-      size: 400,
+      size: 300,
     },
     {
       accessorKey: "role",
       header: "Role",
-      cell: ({ row }) => <Badge>{row.original.role}</Badge>,
+      cell: ({ row }) => <Badge variant="outline">{row.original.role}</Badge>,
     },
     {
       accessorKey: "projects",
-      header: "Projects",
-      size: 500,
+      header: "Project",
+      size: 200,
       cell: ({ row }) => {
-        const projects = row.original.projects || [];
-        return projects.length > 0 ? (
-          <div className="flex flex-wrap gap-1">
-            {projects.map((projectId) => (
-              <Link
-                href={`/projects/${projectId}`}
-                key={projectId}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Badge variant="secondary">{projectId}</Badge>
-              </Link>
-            ))}
-          </div>
-        ) : (
-          <Badge variant="secondary">None</Badge>
-        );
+        const ids = row.original.projects || [];
+        if (ids.length === 0) return <Badge variant="secondary">None</Badge>;
+        if (ids.length > 1) return <Badge variant="secondary">Multiple</Badge>;
+        const name = projectData.find((p) => p.id === ids[0].toString())?.name;
+        return <Badge variant="secondary">{name ?? ids[0]}</Badge>;
       },
     },
     {
       id: "actions",
-      cell: ({ row }) => {
-        const user = row.original;
-        return (
-          <UserActionsCell
-            user={user}
-            projectData={projectData}
-            onUserUpdate={onUserAction}
-          />
-        );
-      },
+      cell: ({ row }) => (
+        <UserActionsCell
+          user={row.original}
+          projectData={projectData}
+          onUserUpdate={onUserAction}
+          isReadOnly={isReadOnly}
+        />
+      ),
     },
   ];
 };

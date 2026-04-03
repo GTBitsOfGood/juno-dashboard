@@ -19,6 +19,13 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useState, useEffect } from "react";
 import {
   Dialog,
@@ -30,11 +37,14 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import CreateUserForm from "@/components/forms/AddUserForm";
+import { useReadOnlyMode } from "@/components/providers/SessionProvider";
 import { ProjectColumn } from "../../app/(dashboard)/admin/projects/columns";
 import { userColumns, UserColumn } from "./columns";
 import { deleteUserAction } from "@/lib/actions";
 import { toast } from "sonner";
 import SkeletonRows from "../table/SkeletonRows";
+
+const ROLE_OPTIONS = ["SUPERADMIN", "ADMIN", "USER"] as const;
 
 interface DataTableProps<TData> {
   data: TData[];
@@ -49,13 +59,14 @@ export function UserDataTable<TData>({
   isLoading,
   onUserAction,
 }: DataTableProps<TData>) {
+  const isReadOnly = useReadOnlyMode();
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [isAddUserDialogOpen, setIsAddUserDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [hasSelectedRows, setHasSelectedRows] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const columns = userColumns(projectData, onUserAction);
+  const columns = userColumns(projectData, onUserAction, isReadOnly);
 
   const table = useReactTable({
     data,
@@ -63,9 +74,7 @@ export function UserDataTable<TData>({
     getCoreRowModel: getCoreRowModel(),
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
-    state: {
-      columnFilters,
-    },
+    state: { columnFilters },
   });
 
   const selectedRows = table.getSelectedRowModel().rows;
@@ -82,26 +91,22 @@ export function UserDataTable<TData>({
         if (result.success) {
           onUserAction(user, "delete");
           return { success: true, user };
-        } else {
-          return { success: false, user, error: result.error };
         }
+        return { success: false, user, error: result.error };
       });
 
       const results = await Promise.all(deletePromises);
       const successfulDeletes = results.filter((r) => r.success).length;
       const failedDeletes = results.filter((r) => !r.success).length;
 
-      if (successfulDeletes > 0) {
+      if (successfulDeletes > 0)
         toast.success("Success", {
           description: `Successfully deleted ${successfulDeletes} user${successfulDeletes > 1 ? "s" : ""}.`,
         });
-      }
-
-      if (failedDeletes > 0) {
+      if (failedDeletes > 0)
         toast.error("Error", {
           description: `Failed to delete ${failedDeletes} user${failedDeletes > 1 ? "s" : ""}.`,
         });
-      }
 
       table.resetRowSelection();
     } catch (error) {
@@ -113,22 +118,45 @@ export function UserDataTable<TData>({
     }
   };
 
-  // TODO: skeleton animation
   return (
     <>
       <div className="items-center flex justify-between py-4 gap-3">
-        <Input
-          placeholder="Filter users..."
-          value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
-          onChange={(event) => {
-            table.getColumn("email")?.setFilterValue(event.target.value);
-          }}
-        />
+        <div className="flex gap-2 flex-1">
+          <Input
+            placeholder="Search by name..."
+            value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+            onChange={(e) =>
+              table.getColumn("name")?.setFilterValue(e.target.value)
+            }
+            className="max-w-xs"
+          />
+          <Select
+            value={
+              (table.getColumn("role")?.getFilterValue() as string) ?? "all"
+            }
+            onValueChange={(val) =>
+              table.getColumn("role")?.setFilterValue(val === "all" ? "" : val)
+            }
+          >
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="All roles" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All roles</SelectItem>
+              {ROLE_OPTIONS.map((role) => (
+                <SelectItem key={role} value={role}>
+                  {role}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
         <div className="flex gap-2">
           {hasSelectedRows && (
             <Button
               variant="destructive"
+              disabled={isReadOnly}
               onClick={() => setIsDeleteDialogOpen(true)}
             >
               Delete {selectedRows.length} selected user
@@ -140,9 +168,8 @@ export function UserDataTable<TData>({
             onOpenChange={setIsAddUserDialogOpen}
           >
             <DialogTrigger asChild>
-              <Button>Add User</Button>
+              <Button disabled={isReadOnly}>Add User</Button>
             </DialogTrigger>
-
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Add User</DialogTitle>
@@ -193,21 +220,19 @@ export function UserDataTable<TData>({
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead
-                      style={{ width: header.getSize() }}
-                      key={header.id}
-                    >
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
-                    </TableHead>
-                  );
-                })}
+                {headerGroup.headers.map((header) => (
+                  <TableHead
+                    style={{ width: header.getSize() }}
+                    key={header.id}
+                  >
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
+                  </TableHead>
+                ))}
               </TableRow>
             ))}
           </TableHeader>

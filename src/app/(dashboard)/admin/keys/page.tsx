@@ -13,7 +13,7 @@ import { toast } from "sonner";
 
 export default function KeyPage() {
   return (
-    <div className="container mx-auto px-10 py-10">
+    <div className="flex flex-col">
       <Breadcrumb className="mb-4">
         <BreadcrumbList>
           <BreadcrumbItem>

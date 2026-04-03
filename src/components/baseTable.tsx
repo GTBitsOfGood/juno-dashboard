@@ -1,7 +1,6 @@
 "use client";
 
 import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -21,6 +20,8 @@ import {
 } from "@tanstack/react-table";
 import { useState } from "react";
 import { twMerge } from "tailwind-merge";
+import { useReadOnlyMode } from "./providers/SessionProvider";
+import SkeletonRows from "./table/SkeletonRows";
 import { Button } from "./ui/button";
 
 interface BaseTableProps<TData, TValue> {
@@ -46,6 +47,7 @@ export function BaseTable<TData, TValue>({
   onDeleteRow,
 }: BaseTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+  const isReadOnly = useReadOnlyMode();
 
   const table = useReactTable({
     data,
@@ -59,15 +61,6 @@ export function BaseTable<TData, TValue>({
   });
 
   const selectedRows = table.getSelectedRowModel().rows;
-
-  if (isLoading) {
-    return (
-      <div className="flex flex-col gap-2">
-        <Skeleton className="h-4 w-[250px]" />
-        <Skeleton className="h-4 w-[200px]" />
-      </div>
-    );
-  }
 
   return (
     <div className={twMerge(className, "flex flex-col gap-3")}>
@@ -90,16 +83,22 @@ export function BaseTable<TData, TValue>({
         {selectedRows.length > 0 && onDeleteRow && (
           <Button
             variant="destructive"
+            disabled={isReadOnly}
             onClick={() => {
+              if (isReadOnly) return;
               onDeleteRow(selectedRows);
               table.resetRowSelection();
             }}
           >
-            Delete {selectedRows.length} selected config
+            Delete {selectedRows.length} selected item
             {selectedRows.length > 1 ? "s" : ""}
           </Button>
         )}
-        {onAddNewRow && <Button onClick={onAddNewRow}>Add New</Button>}
+        {onAddNewRow && (
+          <Button disabled={isReadOnly} onClick={onAddNewRow}>
+            Add New
+          </Button>
+        )}
       </div>
       <div className="rounded-md border">
         <Table>
@@ -141,6 +140,8 @@ export function BaseTable<TData, TValue>({
                   ))}
                 </TableRow>
               ))
+            ) : isLoading ? (
+              <SkeletonRows numRows={5} numCells={columns.length} />
             ) : (
               <TableRow>
                 <TableCell

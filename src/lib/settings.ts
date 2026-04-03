@@ -5,11 +5,12 @@ import {
   CreateAnalyticsConfigModel,
   EmailConfigResponse,
   FileConfigResponse,
+  SetupFileServiceResponse,
   UpdateAnalyticsConfigModel,
-} from "juno-sdk/build/main/internal/api";
+} from "juno-sdk/build/main/internal/index";
+import { hasProjectAccess, requireAdmin } from "./auth";
 import { getJunoInstance } from "./juno";
 import { getSession } from "./session";
-import { hasProjectAccess } from "./auth";
 
 export async function getFileConfig(
   projectId: string,
@@ -26,7 +27,10 @@ export async function getFileConfig(
   const junoClient = getJunoInstance();
 
   try {
-    const fileConfig = await junoClient.settings.getFileConfig(projectId);
+    const fileConfig = await junoClient.file.getConfig(projectId, {
+      userJwt: session.jwt,
+      projectId: projectId,
+    });
 
     return JSON.parse(JSON.stringify(fileConfig));
   } catch (e) {
@@ -36,6 +40,58 @@ export async function getFileConfig(
 
     throw e;
   }
+}
+
+export async function createFileConfig(
+  projectId: string,
+): Promise<SetupFileServiceResponse> {
+  const session = await getSession();
+  if (!session) {
+    throw new Error("Unauthorized");
+  }
+
+  if (!requireAdmin(session.user)) {
+    throw new Error(
+      "Only admins and superadmins can create file configurations",
+    );
+  }
+
+  if (!hasProjectAccess(session.user, Number(projectId))) {
+    throw new Error("You don't have access to this project");
+  }
+
+  const junoClient = getJunoInstance();
+  const response = await junoClient.file.setup({
+    userJwt: session.jwt,
+    projectId: projectId,
+  });
+  return JSON.parse(JSON.stringify(response));
+}
+
+export async function deleteFileConfig(
+  projectId: string,
+): Promise<FileConfigResponse> {
+  const session = await getSession();
+  if (!session) {
+    throw new Error("Unauthorized");
+  }
+
+  if (!requireAdmin(session.user)) {
+    throw new Error(
+      "Only admins and superadmins can delete file configurations",
+    );
+  }
+
+  if (!hasProjectAccess(session.user, Number(projectId))) {
+    throw new Error("You don't have access to this project");
+  }
+
+  const junoClient = getJunoInstance();
+  const fileConfig = await junoClient.file.deleteConfig(projectId, {
+    userJwt: session.jwt,
+    projectId: projectId,
+  });
+  return JSON.parse(JSON.stringify(fileConfig));
 }
 
 export async function getEmailConfig(
@@ -53,7 +109,10 @@ export async function getEmailConfig(
   const junoClient = getJunoInstance();
 
   try {
-    const emailConfig = await junoClient.settings.getEmailConfig(projectId);
+    const emailConfig = await junoClient.email.getEmailConfig(projectId, {
+      userJwt: session.jwt,
+      projectId: projectId,
+    });
 
     return JSON.parse(JSON.stringify(emailConfig));
   } catch (e) {
@@ -103,6 +162,12 @@ export async function deleteAnalyticsConfig(
     throw new Error("Unauthorized");
   }
 
+  if (!requireAdmin(session.user)) {
+    throw new Error(
+      "Only admins and superadmins can delete analytics configurations",
+    );
+  }
+
   if (!hasProjectAccess(session.user, Number(projectId))) {
     throw new Error("You don't have access to this project");
   }
@@ -120,6 +185,12 @@ export async function updateAnalyticsConfig(
   const session = await getSession();
   if (!session) {
     throw new Error("Unauthorized");
+  }
+
+  if (!requireAdmin(session.user)) {
+    throw new Error(
+      "Only admins and superadmins can update analytics configurations",
+    );
   }
 
   if (!hasProjectAccess(session.user, projectId)) {
@@ -145,6 +216,16 @@ export async function createAnalyticsConfig(
   const session = await getSession();
   if (!session) {
     throw new Error("Unauthorized");
+  }
+
+  if (!requireAdmin(session.user)) {
+    throw new Error(
+      "Only admins and superadmins can create analytics configurations",
+    );
+  }
+
+  if (!hasProjectAccess(session.user, Number(projectId))) {
+    throw new Error("You don't have access to this project");
   }
 
   const config: CreateAnalyticsConfigModel = {
@@ -197,7 +278,7 @@ export async function getEmailAnalytics(
       };
     }
 
-    const emailConfig = await junoClient.settings.getEmailConfig(projectId, {
+    const emailConfig = await junoClient.email.getEmailConfig(projectId, {
       userJwt: session.jwt,
       projectId: projectId,
     });

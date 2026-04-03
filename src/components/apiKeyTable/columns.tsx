@@ -59,13 +59,15 @@ export const apiKeyColumns = (
     {
       accessorKey: "id",
       header: ({ column }) => (
-        <div className="text-center">
+        <div className="flex justify-center">
+          <span className="text-center">ID</span>
           <Button
             variant="ghost"
+            size="icon"
+            className="h-6 w-6 ml-1"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
-            ID
-            <ArrowUpDown className="ml-1 h-4 w-4" />
+            <ArrowUpDown className="h-4 w-4" />
           </Button>
         </div>
       ),
@@ -74,13 +76,15 @@ export const apiKeyColumns = (
     {
       accessorKey: "description",
       header: ({ column }) => (
-        <div className="text-left">
+        <div className="flex items-center">
+          <span className="pl-4 text-left">Description</span>
           <Button
             variant="ghost"
+            size="icon"
+            className="h-6 w-6 ml-1"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
-            Description
-            <ArrowUpDown className="ml-1 h-4 w-4" />
+            <ArrowUpDown className="h-4 w-4" />
           </Button>
         </div>
       ),
@@ -92,13 +96,15 @@ export const apiKeyColumns = (
     {
       accessorKey: "dateCreated",
       header: ({ column }) => (
-        <div className="text-center">
+        <div className="flex justify-center items-center">
+          <span className="text-center">Date Created</span>
           <Button
             variant="ghost"
+            size="icon"
+            className="h-6 w-6 ml-1"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
-            Date Created
-            <ArrowUpDown className="ml-1 h-4 w-4" />
+            <ArrowUpDown className="h-4 w-4" />
           </Button>
         </div>
       ),
@@ -113,13 +119,15 @@ export const apiKeyColumns = (
     {
       accessorKey: "linkedProject",
       header: ({ column }) => (
-        <div className="text-center">
+        <div className="flex justify-center items-center">
+          <span className="text-center">Linked Project</span>
           <Button
             variant="ghost"
+            size="icon"
+            className="h-6 w-6 ml-1"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
-            Linked Project
-            <ArrowUpDown className="ml-1 h-4 w-4" />
+            <ArrowUpDown className="h-4 w-4" />
           </Button>
         </div>
       ),
@@ -140,13 +148,15 @@ export const apiKeyColumns = (
     {
       accessorKey: "environment",
       header: ({ column }) => (
-        <div className="text-center">
+        <div className="flex justify-center items-center">
+          <span className="text-center">Environment</span>
           <Button
             variant="ghost"
+            size="icon"
+            className="h-6 w-6 ml-1"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
-            Environment
-            <ArrowUpDown className="ml-1 h-4 w-4" />
+            <ArrowUpDown className="h-4 w-4" />
           </Button>
         </div>
       ),

@@ -49,16 +49,43 @@ import SkeletonRows from "../table/SkeletonRows";
 import { Card, CardDescription, CardTitle } from "../ui/card";
 import { ApiKeyColumn, apiKeyColumns } from "./columns";
 
+export type PaginationLinks = {
+  first: string;
+  prev: string;
+  next: string;
+  last: string;
+};
+
 interface ApiKeyDataTableProps {
   data: ApiKeyColumn[];
   isLoading: boolean;
   onKeyAction: (key: ApiKeyColumn, action: "delete") => void;
+  pageIndex: number;
+  pageSize: number;
+  paginationLinks: PaginationLinks;
+  onPageIndexChange: (pageIndex: number) => void;
+  onPageSizeChange: (pageSize: number) => void;
+}
+
+function parseOffsetFromLink(link: string, pageSize: number): number {
+  try {
+    const url = new URL(link, "http://placeholder");
+    const offset = Number(url.searchParams.get("offset") ?? 0);
+    return Math.floor(offset / pageSize);
+  } catch {
+    return 0;
+  }
 }
 
 export function ApiKeyDataTable({
   data,
   isLoading,
   onKeyAction,
+  pageIndex,
+  pageSize,
+  paginationLinks,
+  onPageIndexChange,
+  onPageSizeChange,
 }: ApiKeyDataTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -87,15 +114,19 @@ export function ApiKeyDataTable({
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
+    onPaginationChange: (updater) => {
+      const next =
+        typeof updater === "function"
+          ? updater({ pageIndex, pageSize })
+          : updater;
+      onPageIndexChange(next.pageIndex);
+      onPageSizeChange(next.pageSize);
+    },
     state: {
       sorting,
       columnFilters,
       columnVisibility,
-    },
-    initialState: {
-      pagination: {
-        pageSize: 10,
-      },
+      pagination: { pageIndex, pageSize },
     },
   });
 
@@ -312,18 +343,50 @@ export function ApiKeyDataTable({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
+              onClick={() =>
+                onPageIndexChange(
+                  parseOffsetFromLink(paginationLinks.first, pageSize),
+                )
+              }
+              disabled={!paginationLinks.first}
+            >
+              First
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                onPageIndexChange(
+                  parseOffsetFromLink(paginationLinks.prev, pageSize),
+                )
+              }
+              disabled={!paginationLinks.prev}
             >
               Previous
             </Button>
             <Button
               variant="outline"
               size="sm"
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
+              onClick={() =>
+                onPageIndexChange(
+                  parseOffsetFromLink(paginationLinks.next, pageSize),
+                )
+              }
+              disabled={!paginationLinks.next}
             >
               Next
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                onPageIndexChange(
+                  parseOffsetFromLink(paginationLinks.last, pageSize),
+                )
+              }
+              disabled={!paginationLinks.last}
+            >
+              Last
             </Button>
           </div>
         </div>

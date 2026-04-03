@@ -14,7 +14,7 @@ import { toast } from "sonner";
 import { ApiKeyDataTable } from "@/components/apiKeyTable/apiKey-table";
 import { ApiKeyColumn } from "@/components/apiKeyTable/columns";
 import ApiKeyRevealCard from "@/components/forms/ApiKeyRevealForm";
-import { getApiKeysAction, deleteApiKeyAction } from "@/lib/actions";
+import { getApiKeysAction, deleteApiKeyByIdAction } from "@/lib/actions";
 import { getProjects } from "@/lib/sdkActions";
 
 type CreatedKeyInfo = {
@@ -30,6 +30,14 @@ export default function KeyPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [createdKey, setCreatedKey] = useState<CreatedKeyInfo | null>(null);
   const [projectNames, setProjectNames] = useState<string[]>([]);
+  const [pageIndex, setPageIndex] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+  const [paginationLinks, setPaginationLinks] = useState({
+    first: "",
+    prev: "",
+    next: "",
+    last: "",
+  });
 
   useEffect(() => {
     async function fetchProjects() {
@@ -48,25 +56,28 @@ export default function KeyPage() {
   const fetchApiKeys = useCallback(async () => {
     setIsLoading(true);
     try {
-      const result = await getApiKeysAction();
+      const result = await getApiKeysAction({
+        offset: pageIndex * pageSize,
+        limit: pageSize,
+      });
       if (result.success) {
-        const mapped: ApiKeyColumn[] = result.keys.map(
-          (key: Record<string, unknown>) => ({
-            id: key.id as number,
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+        const mapped: ApiKeyColumn[] = (result.keys as any[]).map(
+          (key: Record<string, any>) => ({
+            id: Number(key.id),
             description: (key.description as string) ?? "",
             dateCreated: key.createdAt
               ? new Date(key.createdAt as string).toISOString().split("T")[0]
               : "N/A",
             linkedProject:
-              (key.projectName as string) ??
-              (typeof key.project === "object" && key.project !== null
-                ? ((key.project as Record<string, unknown>).name as string)
-                : (key.project as string)) ??
-              "Unknown",
+              typeof key.project === "object" && key.project !== null
+                ? (key.project.name as string)
+                : "Unknown",
             environment: (key.environment as string) ?? "N/A",
           }),
         );
         setApiKeys(mapped);
+        setPaginationLinks(result.links);
       } else {
         toast.error(result.error ?? "Failed to fetch API keys");
       }
@@ -75,14 +86,14 @@ export default function KeyPage() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [pageIndex, pageSize]);
 
   useEffect(() => {
     fetchApiKeys();
   }, [fetchApiKeys]);
 
   const handleDelete = async (key: ApiKeyColumn) => {
-    const result = await deleteApiKeyAction(String(key.id));
+    const result = await deleteApiKeyByIdAction(String(key.id));
     if (result.success) {
       setApiKeys((prev) => prev.filter((k) => k.id !== key.id));
       toast.success("API key deleted successfully.");
@@ -133,6 +144,11 @@ export default function KeyPage() {
         <ApiKeyDataTable
           data={apiKeys}
           isLoading={isLoading}
+          pageIndex={pageIndex}
+          pageSize={pageSize}
+          paginationLinks={paginationLinks}
+          onPageIndexChange={setPageIndex}
+          onPageSizeChange={setPageSize}
           onKeyAction={(key, action) => {
             if (action === "delete") {
               handleDelete(key);

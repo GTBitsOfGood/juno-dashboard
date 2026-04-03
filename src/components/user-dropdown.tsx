@@ -20,7 +20,8 @@ export function UserDropdown({ name }: UserDropdownProps) {
 
   async function logOut() {
     await deleteJWT();
-    router.push("/admin");
+    router.replace("/login");
+    router.refresh();
   }
 
   return (

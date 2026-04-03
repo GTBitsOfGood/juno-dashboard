@@ -19,6 +19,7 @@ export type UserColumn = {
 export const userColumns = (
   projectData: ProjectColumn[],
   onUserAction: (user: UserColumn, action: "add" | "update" | "delete") => void,
+  isReadOnly: boolean,
 ): ColumnDef<UserColumn>[] => {
   return [
     {
@@ -27,6 +28,7 @@ export const userColumns = (
         <Checkbox
           className="ms-2 align-middle mr-5"
           checked={table.getIsAllPageRowsSelected()}
+          disabled={isReadOnly}
           onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         />
       ),
@@ -34,6 +36,7 @@ export const userColumns = (
         <Checkbox
           className="ms-2 align-middle"
           checked={row.getIsSelected()}
+          disabled={isReadOnly}
           onCheckedChange={(value) => row.toggleSelected(!!value)}
         />
       ),
@@ -79,6 +82,7 @@ export const userColumns = (
           user={row.original}
           projectData={projectData}
           onUserUpdate={onUserAction}
+          isReadOnly={isReadOnly}
         />
       ),
     },

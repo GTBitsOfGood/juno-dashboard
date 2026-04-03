@@ -16,6 +16,7 @@ export type FileProviderColumn = {
 export const fileProviderColumns = (
   isPending: boolean,
   onAddProvider: (options: FileProviderColumn) => void,
+  isReadOnly: boolean,
 ): ColumnDef<FileProviderColumn>[] => [
   {
     id: "select",
@@ -23,6 +24,7 @@ export const fileProviderColumns = (
       <Checkbox
         className="ms-2 align-middle mr-5"
         checked={table.getIsAllPageRowsSelected()}
+        disabled={isReadOnly}
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
       />
     ),
@@ -30,6 +32,7 @@ export const fileProviderColumns = (
       <Checkbox
         className="ms-2 align-middle"
         checked={row.getIsSelected()}
+        disabled={isReadOnly}
         onCheckedChange={(value) => row.toggleSelected(!!value)}
       />
     ),
@@ -88,6 +91,7 @@ export const fileProviderColumns = (
           provider={provider}
           onAddProvider={onAddProvider}
           isPending={isPending}
+          isReadOnly={isReadOnly}
         />
       );
     },

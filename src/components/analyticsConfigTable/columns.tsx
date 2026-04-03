@@ -21,6 +21,7 @@ export const analyticsConfigColumns = (
       clientAnalyticsKey: string;
     },
   ) => void,
+  isReadOnly: boolean,
 ): ColumnDef<AnalyticsConfig>[] => {
   return [
     {
@@ -29,6 +30,7 @@ export const analyticsConfigColumns = (
         <Checkbox
           className="ms-2 align-middle mr-5"
           checked={table.getIsAllPageRowsSelected()}
+          disabled={isReadOnly}
           onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         />
       ),
@@ -36,6 +38,7 @@ export const analyticsConfigColumns = (
         <Checkbox
           className="ms-2 align-middle"
           checked={row.getIsSelected()}
+          disabled={isReadOnly}
           onCheckedChange={(value) => row.toggleSelected(!!value)}
         />
       ),
@@ -68,6 +71,7 @@ export const analyticsConfigColumns = (
             projectId={projectId}
             onUpdateConfig={onUpdateConfig}
             isPending={isPending}
+            isReadOnly={isReadOnly}
           />
         );
       },

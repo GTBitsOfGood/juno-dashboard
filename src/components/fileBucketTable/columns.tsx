@@ -135,8 +135,14 @@ export const columns: ColumnDef<FileDirectoryRow>[] = [
             size="sm"
             className="h-8 w-8 p-0"
             onClick={() => {
-              navigator.clipboard.writeText(row.original.name);
-              toast.success("Copied file name to clipboard");
+              navigator.clipboard
+                .writeText(row.original.name)
+                .then(() => {
+                  toast.success("Copied file name to clipboard");
+                })
+                .catch(() => {
+                  toast.error("Failed to copy file name to clipboard");
+                });
             }}
           >
             <Copy className="h-4 w-4" />

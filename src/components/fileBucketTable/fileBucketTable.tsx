@@ -165,8 +165,7 @@ export function FileBucketTable({ projectId, configId }: FileBucketTableProps) {
         .filter((bucket) => bucket)
         .map((bucket) => {
           const fileNames = (bucket.fileServiceFile?.map(
-            (file) =>
-              (file as unknown as File)?.fileId?.path ?? "Unknown file",
+            (file) => (file as unknown as File)?.fileId?.path ?? "Unknown file",
           ) ?? []) as string[];
 
           const mockStatuses: FileStatus[] = [

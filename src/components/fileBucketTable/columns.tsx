@@ -27,132 +27,133 @@ const statusStyles: Record<FileStatus, string> = {
   EXTERNAL: `${statusPill} bg-amber-400/70 text-black`,
 };
 
-
 export const getFileBucketColumns = (
   isReadOnly: boolean,
-): ColumnDef<FileDirectoryRow>[] => {return [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        className="ms-2 align-middle mr-5"
-        disabled={isReadOnly}
-        checked={table.getIsAllPageRowsSelected()}
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        className="ms-2 align-middle"
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-      />
-    ),
-    size: 50,
-  },
-  {
-    id: "expand",
-    header: () => null,
-    cell: ({ row }) =>
-      row.getCanExpand() ? (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={row.getToggleExpandedHandler()}
-          className="p-0 h-6 w-6"
-        >
-          {row.getIsExpanded() ? (
-            <ChevronDown className="h-4 w-4" />
-          ) : (
-            <ChevronRight className="h-4 w-4" />
-          )}
-        </Button>
-      ) : null,
-    size: 40,
-  },
-  {
-    accessorKey: "name",
-    header: "Name",
-    filterFn: (row, _columnId, filterValue: string) => {
-      const search = filterValue.toLowerCase();
-      if (row.original.name.toLowerCase().includes(search)) return true;
-      return (
-        row.original.subRows?.some((file) =>
-          file.name.toLowerCase().includes(search),
-        ) ?? false
-      );
+): ColumnDef<FileDirectoryRow>[] => {
+  return [
+    {
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          className="ms-2 align-middle mr-5"
+          disabled={isReadOnly}
+          checked={table.getIsAllPageRowsSelected()}
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          className="ms-2 align-middle"
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+        />
+      ),
+      size: 50,
     },
-    cell: ({ row }) => (
-      <div
-        className={`flex items-center gap-2 ${row.original.type === "file" ? "pl-8" : ""}`}
-      >
-        {row.original.type === "bucket" ? (
-          <Folder className="h-4 w-4 text-muted-foreground" />
-        ) : (
-          <File className="h-4 w-4 text-muted-foreground" />
-        )}
-        <span>{row.original.name}</span>
-      </div>
-    ),
-  },
-  {
-    accessorKey: "configId",
-    header: "Config ID",
-    cell: ({ row }) =>
-      row.original.type === "bucket" ? row.original.configId : null,
-  },
-  {
-    accessorKey: "configEnv",
-    header: "Config Env",
-    cell: ({ row }) =>
-      row.original.type === "bucket" ? row.original.configEnv : null,
-  },
-  {
-    accessorKey: "providerName",
-    header: "Provider Name",
-    cell: ({ row }) =>
-      row.original.type === "bucket" ? row.original.providerName : null,
-  },
-  {
-    id: "status",
-    header: () => <div className="text-center">Status</div>,
-    cell: ({ row }) => {
-      if (row.original.type !== "file" || !row.original.status) return null;
-      return (
-        <div className="flex justify-center">
-          <span className={statusStyles[row.original.status]}>
-            {row.original.status}
-          </span>
-        </div>
-      );
-    },
-  },
-  {
-    id: "actions",
-    header: () => <div className="text-center">Actions</div>,
-    cell: ({ row }) => {
-      if (row.original.type !== "file") return null;
-      return (
-        <div className="flex justify-center">
+    {
+      id: "expand",
+      header: () => null,
+      cell: ({ row }) =>
+        row.getCanExpand() ? (
           <Button
             variant="ghost"
             size="sm"
-            className="h-8 w-8 p-0"
-            onClick={() => {
-              navigator.clipboard
-                .writeText(row.original.name)
-                .then(() => {
-                  toast.success("Copied file name to clipboard");
-                })
-                .catch(() => {
-                  toast.error("Failed to copy file name to clipboard");
-                });
-            }}
+            onClick={row.getToggleExpandedHandler()}
+            className="p-0 h-6 w-6"
           >
-            <Copy className="h-4 w-4" />
+            {row.getIsExpanded() ? (
+              <ChevronDown className="h-4 w-4" />
+            ) : (
+              <ChevronRight className="h-4 w-4" />
+            )}
           </Button>
-        </div>
-      );
+        ) : null,
+      size: 40,
     },
-  },
-]};
+    {
+      accessorKey: "name",
+      header: "Name",
+      filterFn: (row, _columnId, filterValue: string) => {
+        const search = filterValue.toLowerCase();
+        if (row.original.name.toLowerCase().includes(search)) return true;
+        return (
+          row.original.subRows?.some((file) =>
+            file.name.toLowerCase().includes(search),
+          ) ?? false
+        );
+      },
+      cell: ({ row }) => (
+        <div
+          className={`flex items-center gap-2 ${row.original.type === "file" ? "pl-8" : ""}`}
+        >
+          {row.original.type === "bucket" ? (
+            <Folder className="h-4 w-4 text-muted-foreground" />
+          ) : (
+            <File className="h-4 w-4 text-muted-foreground" />
+          )}
+          <span>{row.original.name}</span>
+        </div>
+      ),
+    },
+    {
+      accessorKey: "configId",
+      header: "Config ID",
+      cell: ({ row }) =>
+        row.original.type === "bucket" ? row.original.configId : null,
+    },
+    {
+      accessorKey: "configEnv",
+      header: "Config Env",
+      cell: ({ row }) =>
+        row.original.type === "bucket" ? row.original.configEnv : null,
+    },
+    {
+      accessorKey: "providerName",
+      header: "Provider Name",
+      cell: ({ row }) =>
+        row.original.type === "bucket" ? row.original.providerName : null,
+    },
+    {
+      id: "status",
+      header: () => <div className="text-center">Status</div>,
+      cell: ({ row }) => {
+        if (row.original.type !== "file" || !row.original.status) return null;
+        return (
+          <div className="flex justify-center">
+            <span className={statusStyles[row.original.status]}>
+              {row.original.status}
+            </span>
+          </div>
+        );
+      },
+    },
+    {
+      id: "actions",
+      header: () => <div className="text-center">Actions</div>,
+      cell: ({ row }) => {
+        if (row.original.type !== "file") return null;
+        return (
+          <div className="flex justify-center">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0"
+              onClick={() => {
+                navigator.clipboard
+                  .writeText(row.original.name)
+                  .then(() => {
+                    toast.success("Copied file name to clipboard");
+                  })
+                  .catch(() => {
+                    toast.error("Failed to copy file name to clipboard");
+                  });
+              }}
+            >
+              <Copy className="h-4 w-4" />
+            </Button>
+          </div>
+        );
+      },
+    },
+  ];
+};

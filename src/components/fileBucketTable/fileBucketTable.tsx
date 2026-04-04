@@ -350,7 +350,7 @@ export function FileBucketTable({ projectId, configId }: FileBucketTableProps) {
         columns={getFileBucketColumns(isReadOnly)}
         filterParams={{
           placeholder: "Filter by bucket or file name...",
-           filterColumn: "name",
+          filterColumn: "name",
         }}
         onAddNewRow={() => {
           if (isValidId(projectId, configId)) {

@@ -3,9 +3,8 @@
 import {
   FileDirectoryRow,
   FileStatus,
-  columns as fileDirectoryColumns,
 } from "@/components/fileBucketTable/columns";
-import { FileBucketColumn } from "@/components/fileBucketTable/columns";
+import { getFileBucketColumns } from "@/components/fileBucketTable/columns";
 import {
   Dialog,
   DialogContent,
@@ -28,6 +27,7 @@ import { BaseTable } from "../baseTable";
 import AddFileBucketForm from "../forms/AddFileBucketForm";
 import { Button } from "../ui/button";
 import { DialogHeader } from "../ui/dialog";
+import { useReadOnlyMode } from "../providers/SessionProvider";
 
 interface FileBucketTableProps {
   projectId: string;
@@ -51,7 +51,6 @@ export function FileBucketTable({ projectId, configId }: FileBucketTableProps) {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedRows, setSelectedRows] = useState<Row<FileDirectoryRow>[]>([]);
-  const [selectedRows, setSelectedRows] = useState<Row<FileBucketColumn>[]>([]);
   const isReadOnly = useReadOnlyMode();
 
   const queryClient = useQueryClient();
@@ -346,13 +345,9 @@ export function FileBucketTable({ projectId, configId }: FileBucketTableProps) {
       <h1 className="text-lg font-bold">File Directory</h1>
       <BaseTable
         data={fileDirectoryRowData}
-        columns={fileDirectoryColumns}
         isLoading={isLoading && fileDirectoryRowData.length === 0}
         expandable={true}
-        data={fileBucketRowData}
         columns={getFileBucketColumns(isReadOnly)}
-        isLoading={isLoading}
-        expandable={true}
         filterParams={{
           placeholder: "Filter by bucket or file name...",
            filterColumn: "name",

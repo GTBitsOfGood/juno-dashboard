@@ -27,15 +27,16 @@ const statusStyles: Record<FileStatus, string> = {
   EXTERNAL: `${statusPill} bg-amber-400/70 text-black`,
 };
 
-export const columns: ColumnDef<FileDirectoryRow>[] = [
+
 export const getFileBucketColumns = (
   isReadOnly: boolean,
-): ColumnDef<FileBucketColumn>[] => [
+): ColumnDef<FileDirectoryRow>[] => {return [
   {
     id: "select",
     header: ({ table }) => (
       <Checkbox
         className="ms-2 align-middle mr-5"
+        disabled={isReadOnly}
         checked={table.getIsAllPageRowsSelected()}
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
       />
@@ -154,4 +155,4 @@ export const getFileBucketColumns = (
       );
     },
   },
-];
+]};

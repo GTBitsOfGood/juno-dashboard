@@ -20,7 +20,7 @@ import {
 import { getAllFileProviders } from "@/lib/fileProvider";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Row } from "@tanstack/react-table";
-import { FileBucket, FileProvider } from "juno-sdk/build/main/internal/index";
+import type { FileProvider } from "juno-sdk/build/main/internal/index";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { BaseTable } from "../baseTable";
@@ -102,30 +102,91 @@ export function FileBucketTable({ projectId, configId }: FileBucketTableProps) {
 
   const isLoading = isBucketLoading && isProviderLoading;
 
-  const mockStatuses: FileStatus[] = ["NOT UPLOADED", "UPLOADED", "EXTERNAL"];
+  // TODO: Remove mock data once backend integration is complete
+  const mockData: FileDirectoryRow[] = [
+    {
+      type: "bucket",
+      name: "user-uploads",
+      configId: 1,
+      configEnv: "production",
+      providerName: "aws-s3",
+      subRows: [
+        { type: "file", name: "profile-photo.png", status: "UPLOADED" },
+        { type: "file", name: "resume.pdf", status: "UPLOADED" },
+        { type: "file", name: "cover-letter.docx", status: "NOT UPLOADED" },
+        { type: "file", name: "avatar-backup.jpg", status: "EXTERNAL" },
+      ],
+    },
+    {
+      type: "bucket",
+      name: "project-assets",
+      configId: 2,
+      configEnv: "production",
+      providerName: "aws-s3",
+      subRows: [
+        { type: "file", name: "logo.svg", status: "UPLOADED" },
+        { type: "file", name: "banner-v2.png", status: "NOT UPLOADED" },
+        { type: "file", name: "favicon.ico", status: "UPLOADED" },
+      ],
+    },
+    {
+      type: "bucket",
+      name: "temp-staging",
+      configId: 3,
+      configEnv: "staging",
+      providerName: "gcp-storage",
+      subRows: [
+        { type: "file", name: "test-data.csv", status: "EXTERNAL" },
+        { type: "file", name: "debug-log.txt", status: "NOT UPLOADED" },
+        { type: "file", name: "migration-backup.sql", status: "EXTERNAL" },
+        { type: "file", name: "config-snapshot.json", status: "UPLOADED" },
+        { type: "file", name: "seed-records.json", status: "NOT UPLOADED" },
+      ],
+    },
+    {
+      type: "bucket",
+      name: "media-library",
+      configId: 1,
+      configEnv: "production",
+      providerName: "aws-s3",
+      subRows: [
+        { type: "file", name: "hero-video.mp4", status: "UPLOADED" },
+        { type: "file", name: "thumbnail-001.webp", status: "UPLOADED" },
+        { type: "file", name: "podcast-ep12.mp3", status: "EXTERNAL" },
+      ],
+    },
+  ];
 
-  const fileDirectoryRowData: FileDirectoryRow[] = (
-    buckets ?? ([] as FileBucket[])
-  )
-    .filter((bucket) => bucket)
-    .map((bucket) => {
-      const fileNames = (bucket.fileServiceFile?.map(
-        (file) => (file as unknown as File)?.fileId?.path ?? "Unknown file",
-      ) ?? []) as string[];
+  const fileDirectoryRowData: FileDirectoryRow[] =
+    buckets && buckets.length > 0
+      ? buckets
+          .filter((bucket) => bucket)
+          .map((bucket) => {
+            const fileNames = (bucket.fileServiceFile?.map(
+              (file) =>
+                (file as unknown as File)?.fileId?.path ?? "Unknown file",
+            ) ?? []) as string[];
 
-      return {
-        type: "bucket" as const,
-        name: bucket.name,
-        configId: bucket.configId,
-        configEnv: bucket.configEnv,
-        providerName: bucket.fileProviderName,
-        subRows: fileNames.map((fileName, index) => ({
-          type: "file" as const,
-          name: fileName,
-          status: mockStatuses[index % mockStatuses.length],
-        })),
-      };
-    });
+            const mockStatuses: FileStatus[] = [
+              "NOT UPLOADED",
+              "UPLOADED",
+              "EXTERNAL",
+            ];
+
+            return {
+              type: "bucket" as const,
+              name: bucket.name,
+              configId: bucket.configId,
+              configEnv: bucket.configEnv,
+              providerName: bucket.fileProviderName,
+              subRows: fileNames.map((fileName, index) => ({
+                type: "file" as const,
+                name: fileName,
+                status: mockStatuses[index % mockStatuses.length],
+              })),
+            };
+          })
+      : mockData;
 
   const fileProviderNames = (providers ?? ([] as FileProvider[]))
     .filter((provider) => provider)
@@ -252,7 +313,7 @@ export function FileBucketTable({ projectId, configId }: FileBucketTableProps) {
       <BaseTable
         data={fileDirectoryRowData}
         columns={fileDirectoryColumns}
-        isLoading={isLoading}
+        isLoading={isLoading && fileDirectoryRowData.length === 0}
         expandable={true}
         filterParams={{
           placeholder: "Filter by bucket name...",

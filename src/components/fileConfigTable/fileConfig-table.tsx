@@ -1,6 +1,7 @@
 "use client";
 
-import { columns as fileConfigColumns } from "@/components/fileConfigTable/columns";
+import { getFileConfigColumns } from "@/components/fileConfigTable/columns";
+import { useReadOnlyMode } from "@/components/providers/SessionProvider";
 import {
   Dialog,
   DialogContent,
@@ -33,6 +34,7 @@ export function FileConfigTable({ projectId }: FileConfigTableProps) {
   const [isAddConfigDialogOpen, setIsAddConfigDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedRows, setSelectedRows] = useState([]);
+  const isReadOnly = useReadOnlyMode();
 
   const queryClient = useQueryClient();
 
@@ -135,7 +137,7 @@ export function FileConfigTable({ projectId }: FileConfigTableProps) {
       <h1 className="text-lg font-bold">File Configurations</h1>
       <BaseTable
         data={fileConfigRowData}
-        columns={fileConfigColumns}
+        columns={getFileConfigColumns(isReadOnly)}
         isLoading={isLoading}
         filterParams={{
           placeholder: "Filter by environment...",

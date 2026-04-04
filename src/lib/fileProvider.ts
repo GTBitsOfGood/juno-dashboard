@@ -5,7 +5,7 @@ import {
   FileProvider,
   FileProviderPartial,
 } from "juno-sdk/build/main/internal/index";
-import { hasProjectAccess } from "./auth";
+import { hasProjectAccess, requireAdmin } from "./auth";
 import { getJunoInstance } from "./juno";
 import { getSession } from "./session";
 
@@ -51,6 +51,10 @@ export async function registerProvider(
     throw new Error("Unauthorized");
   }
 
+  if (!requireAdmin(session.user)) {
+    throw new Error("Only admins and superadmins can register file providers");
+  }
+
   if (!hasProjectAccess(session.user, Number(projectId))) {
     throw new Error("You don't have access to this project");
   }
@@ -71,6 +75,10 @@ export async function deleteProvider(
   const session = await getSession();
   if (!session) {
     throw new Error("Unauthorized");
+  }
+
+  if (!requireAdmin(session.user)) {
+    throw new Error("Only admins and superadmins can delete file providers");
   }
 
   if (!hasProjectAccess(session.user, Number(projectId))) {

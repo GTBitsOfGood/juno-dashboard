@@ -1,5 +1,4 @@
-import { redirect } from "next/navigation";
-
 export default function Home() {
-  redirect("/admin");
+  // middleware handles redirect to correct route
+  return null;
 }

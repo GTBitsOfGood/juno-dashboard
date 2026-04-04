@@ -5,6 +5,7 @@ import {
   FileStatus,
   columns as fileDirectoryColumns,
 } from "@/components/fileBucketTable/columns";
+import { FileBucketColumn } from "@/components/fileBucketTable/columns";
 import {
   Dialog,
   DialogContent,
@@ -23,10 +24,12 @@ import { Row } from "@tanstack/react-table";
 import type { FileProvider } from "juno-sdk/build/main/internal/index";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { useReadOnlyMode } from "../providers/SessionProvider";
 import { BaseTable } from "../baseTable";
 import AddFileBucketForm from "../forms/AddFileBucketForm";
 import { Button } from "../ui/button";
 import { DialogHeader } from "../ui/dialog";
+import { getFileBucketColumns } from "./columns";
 
 interface FileBucketTableProps {
   projectId: string;
@@ -50,6 +53,8 @@ export function FileBucketTable({ projectId, configId }: FileBucketTableProps) {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedRows, setSelectedRows] = useState<Row<FileDirectoryRow>[]>([]);
+  const [selectedRows, setSelectedRows] = useState<Row<FileBucketColumn>[]>([]);
+  const isReadOnly = useReadOnlyMode();
 
   const queryClient = useQueryClient();
 
@@ -346,6 +351,9 @@ export function FileBucketTable({ projectId, configId }: FileBucketTableProps) {
         columns={fileDirectoryColumns}
         isLoading={isLoading && fileDirectoryRowData.length === 0}
         expandable={true}
+        data={fileBucketRowData}
+        columns={getFileBucketColumns(isReadOnly)}
+        isLoading={isLoading}
         filterParams={{
           placeholder: "Filter by bucket or file name...",
           filterColumn: "name",

@@ -28,12 +28,16 @@ const statusStyles: Record<FileStatus, string> = {
 };
 
 export const columns: ColumnDef<FileDirectoryRow>[] = [
+export const getFileBucketColumns = (
+  isReadOnly: boolean,
+): ColumnDef<FileBucketColumn>[] => [
   {
     id: "select",
     header: ({ table }) => (
       <Checkbox
         className="ms-2 align-middle mr-5"
         checked={table.getIsAllPageRowsSelected()}
+        disabled={isReadOnly}
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
       />
     ),
@@ -41,6 +45,7 @@ export const columns: ColumnDef<FileDirectoryRow>[] = [
       <Checkbox
         className="ms-2 align-middle"
         checked={row.getIsSelected()}
+        disabled={isReadOnly}
         onCheckedChange={(value) => row.toggleSelected(!!value)}
       />
     ),

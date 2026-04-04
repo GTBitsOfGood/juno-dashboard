@@ -17,6 +17,7 @@ export const emailConfigColumns = (
   projectId: number,
   isPending: boolean,
   onAddConfig: (sendgridKey: string) => void,
+  isReadOnly: boolean,
 ): ColumnDef<EmailConfig>[] => {
   return [
     {
@@ -25,6 +26,7 @@ export const emailConfigColumns = (
         <Checkbox
           className="ms-2 align-middle mr-5"
           checked={table.getIsAllPageRowsSelected()}
+          disabled={isReadOnly}
           onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         />
       ),
@@ -32,6 +34,7 @@ export const emailConfigColumns = (
         <Checkbox
           className="ms-2 align-middle"
           checked={row.getIsSelected()}
+          disabled={isReadOnly}
           onCheckedChange={(value) => row.toggleSelected(!!value)}
         />
       ),
@@ -75,6 +78,7 @@ export const emailConfigColumns = (
             projectId={projectId}
             onAddConfig={onAddConfig}
             isPending={isPending}
+            isReadOnly={isReadOnly}
           />
         );
       },

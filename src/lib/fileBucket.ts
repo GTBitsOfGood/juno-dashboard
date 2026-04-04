@@ -4,7 +4,7 @@ import {
   DeleteFileBucketModel,
   FileBucket,
 } from "juno-sdk/build/main/internal/index";
-import { hasProjectAccess } from "./auth";
+import { hasProjectAccess, requireAdmin } from "./auth";
 import { getJunoInstance } from "./juno";
 import { getSession } from "./session";
 
@@ -54,6 +54,10 @@ export async function registerBucket(
     throw new Error("Unauthorized");
   }
 
+  if (!requireAdmin(session.user)) {
+    throw new Error("Only admins and superadmins can register file buckets");
+  }
+
   if (!hasProjectAccess(session.user, Number(projectId))) {
     throw new Error("You don't have access to this project");
   }
@@ -73,6 +77,10 @@ export async function deleteBucket(
   const session = await getSession();
   if (!session) {
     throw new Error("Unauthorized");
+  }
+
+  if (!requireAdmin(session.user)) {
+    throw new Error("Only admins and superadmins can delete file buckets");
   }
 
   if (!hasProjectAccess(session.user, Number(projectId))) {

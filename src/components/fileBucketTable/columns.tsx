@@ -1,6 +1,5 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ColumnDef } from "@tanstack/react-table";
@@ -19,13 +18,13 @@ export type FileDirectoryRow = {
   subRows?: FileDirectoryRow[];
 };
 
+const statusPill =
+  "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium text-white";
+
 const statusStyles: Record<FileStatus, string> = {
-  "NOT UPLOADED":
-    "border-transparent bg-red-500 text-white hover:bg-red-500/80",
-  UPLOADED:
-    "border-transparent bg-green-500 text-white hover:bg-green-500/80",
-  EXTERNAL:
-    "border-transparent bg-yellow-500 text-black hover:bg-yellow-500/80",
+  "NOT UPLOADED": `${statusPill} bg-red-400/70`,
+  UPLOADED: `${statusPill} bg-emerald-400/70`,
+  EXTERNAL: `${statusPill} bg-amber-400/70 text-black`,
 };
 
 export const columns: ColumnDef<FileDirectoryRow>[] = [
@@ -70,6 +69,15 @@ export const columns: ColumnDef<FileDirectoryRow>[] = [
   {
     accessorKey: "name",
     header: "Name",
+    filterFn: (row, _columnId, filterValue: string) => {
+      const search = filterValue.toLowerCase();
+      if (row.original.name.toLowerCase().includes(search)) return true;
+      return (
+        row.original.subRows?.some((file) =>
+          file.name.toLowerCase().includes(search),
+        ) ?? false
+      );
+    },
     cell: ({ row }) => (
       <div
         className={`flex items-center gap-2 ${row.original.type === "file" ? "pl-8" : ""}`}
@@ -103,33 +111,37 @@ export const columns: ColumnDef<FileDirectoryRow>[] = [
   },
   {
     id: "status",
-    header: "Status",
+    header: () => <div className="text-center">Status</div>,
     cell: ({ row }) => {
       if (row.original.type !== "file" || !row.original.status) return null;
       return (
-        <Badge className={statusStyles[row.original.status]}>
-          {row.original.status}
-        </Badge>
+        <div className="flex justify-center">
+          <span className={statusStyles[row.original.status]}>
+            {row.original.status}
+          </span>
+        </div>
       );
     },
   },
   {
     id: "actions",
-    header: () => null,
+    header: () => <div className="text-center">Actions</div>,
     cell: ({ row }) => {
       if (row.original.type !== "file") return null;
       return (
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-8 w-8 p-0"
-          onClick={() => {
-            navigator.clipboard.writeText(row.original.name);
-            toast.success("Copied file name to clipboard");
-          }}
-        >
-          <Copy className="h-4 w-4" />
-        </Button>
+        <div className="flex justify-center">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 w-8 p-0"
+            onClick={() => {
+              navigator.clipboard.writeText(row.original.name);
+              toast.success("Copied file name to clipboard");
+            }}
+          >
+            <Copy className="h-4 w-4" />
+          </Button>
+        </div>
       );
     },
   },

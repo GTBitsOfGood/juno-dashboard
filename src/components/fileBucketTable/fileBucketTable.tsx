@@ -103,7 +103,7 @@ export function FileBucketTable({ projectId, configId }: FileBucketTableProps) {
   const isLoading = isBucketLoading && isProviderLoading;
 
   // TODO: Remove mock data once backend integration is complete
-  const mockData: FileDirectoryRow[] = [
+  const [mockData, setMockData] = useState<FileDirectoryRow[]>([
     {
       type: "bucket",
       name: "user-uploads",
@@ -139,7 +139,7 @@ export function FileBucketTable({ projectId, configId }: FileBucketTableProps) {
         { type: "file", name: "test-data.csv", status: "EXTERNAL" },
         { type: "file", name: "debug-log.txt", status: "NOT UPLOADED" },
         { type: "file", name: "migration-backup.sql", status: "EXTERNAL" },
-        { type: "file", name: "config-snapshot.json", status: "UPLOADED" },
+        { type: "file", name: "hero-video.mp4", status: "UPLOADED" },
         { type: "file", name: "seed-records.json", status: "NOT UPLOADED" },
       ],
     },
@@ -155,45 +155,75 @@ export function FileBucketTable({ projectId, configId }: FileBucketTableProps) {
         { type: "file", name: "podcast-ep12.mp3", status: "EXTERNAL" },
       ],
     },
-  ];
+  ]);
 
-  const fileDirectoryRowData: FileDirectoryRow[] =
-    buckets && buckets.length > 0
-      ? buckets
-          .filter((bucket) => bucket)
-          .map((bucket) => {
-            const fileNames = (bucket.fileServiceFile?.map(
-              (file) =>
-                (file as unknown as File)?.fileId?.path ?? "Unknown file",
-            ) ?? []) as string[];
+  const usesMockData = !buckets || buckets.length === 0;
 
-            const mockStatuses: FileStatus[] = [
-              "NOT UPLOADED",
-              "UPLOADED",
-              "EXTERNAL",
-            ];
+  const fileDirectoryRowData: FileDirectoryRow[] = usesMockData
+    ? mockData
+    : buckets
+        .filter((bucket) => bucket)
+        .map((bucket) => {
+          const fileNames = (bucket.fileServiceFile?.map(
+            (file) =>
+              (file as unknown as File)?.fileId?.path ?? "Unknown file",
+          ) ?? []) as string[];
 
-            return {
-              type: "bucket" as const,
-              name: bucket.name,
-              configId: bucket.configId,
-              configEnv: bucket.configEnv,
-              providerName: bucket.fileProviderName,
-              subRows: fileNames.map((fileName, index) => ({
-                type: "file" as const,
-                name: fileName,
-                status: mockStatuses[index % mockStatuses.length],
-              })),
-            };
-          })
-      : mockData;
+          const mockStatuses: FileStatus[] = [
+            "NOT UPLOADED",
+            "UPLOADED",
+            "EXTERNAL",
+          ];
+
+          return {
+            type: "bucket" as const,
+            name: bucket.name,
+            configId: bucket.configId,
+            configEnv: bucket.configEnv,
+            providerName: bucket.fileProviderName,
+            subRows: fileNames.map((fileName, index) => ({
+              type: "file" as const,
+              name: fileName,
+              status: mockStatuses[index % mockStatuses.length],
+            })),
+          };
+        });
 
   const fileProviderNames = (providers ?? ([] as FileProvider[]))
     .filter((provider) => provider)
     .map((provider) => provider.providerName);
 
+  const deleteMockRows = () => {
+    const bucketNamesToDelete = new Set(
+      selectedRows
+        .filter((row) => row.original.type === "bucket")
+        .map((row) => row.original.name),
+    );
+    const fileNamesToDelete = new Set(
+      selectedRows
+        .filter((row) => row.original.type === "file")
+        .map((row) => row.original.name),
+    );
+
+    setMockData((prev) =>
+      prev
+        .filter((bucket) => !bucketNamesToDelete.has(bucket.name))
+        .map((bucket) => ({
+          ...bucket,
+          subRows: bucket.subRows?.filter(
+            (file) => !fileNamesToDelete.has(file.name),
+          ),
+        })),
+    );
+  };
+
   const deleteFileBucketHandler = useMutation({
-    mutationFn: () => {
+    mutationFn: async () => {
+      if (usesMockData) {
+        deleteMockRows();
+        return;
+      }
+
       const bucketRows = selectedRows.filter(
         (row) => row.original.type === "bucket",
       );
@@ -219,15 +249,17 @@ export function FileBucketTable({ projectId, configId }: FileBucketTableProps) {
         );
       }
 
-      return Promise.all(deletePromises);
+      await Promise.all(deletePromises);
     },
     onSuccess: () => {
       toast.success("Success", {
         description: `Successfully deleted selected items.`,
       });
-      queryClient.invalidateQueries({
-        queryKey: ["fileBucket", projectId, configId],
-      });
+      if (!usesMockData) {
+        queryClient.invalidateQueries({
+          queryKey: ["fileBucket", projectId, configId],
+        });
+      }
     },
     onSettled: () => setIsDeleteDialogOpen(false),
     onError: () =>
@@ -316,7 +348,7 @@ export function FileBucketTable({ projectId, configId }: FileBucketTableProps) {
         isLoading={isLoading && fileDirectoryRowData.length === 0}
         expandable={true}
         filterParams={{
-          placeholder: "Filter by bucket name...",
+          placeholder: "Filter by bucket or file name...",
           filterColumn: "name",
         }}
         onAddNewRow={() => {

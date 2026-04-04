@@ -70,7 +70,9 @@ export function BaseTable<TData, TValue>({
     },
   });
 
-  const selectedRows = table.getSelectedRowModel().rows;
+  const selectedRows = expandable
+    ? table.getSelectedRowModel().flatRows
+    : table.getSelectedRowModel().rows;
 
   return (
     <div className={twMerge(className, "flex flex-col gap-3")}>

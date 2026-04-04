@@ -11,8 +11,10 @@ import {
 } from "@/components/ui/table";
 import {
   ColumnDef,
+  ExpandedState,
   flexRender,
   getCoreRowModel,
+  getExpandedRowModel,
   getFilteredRowModel,
   Row,
   RowSelectionState,
@@ -35,6 +37,7 @@ interface BaseTableProps<TData, TValue> {
   };
   onAddNewRow?: () => void;
   onDeleteRow?: (rows: Row<TData>[]) => void;
+  expandable?: boolean;
 }
 
 export function BaseTable<TData, TValue>({
@@ -45,8 +48,10 @@ export function BaseTable<TData, TValue>({
   filterParams,
   onAddNewRow,
   onDeleteRow,
+  expandable = false,
 }: BaseTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+  const [expanded, setExpanded] = useState<ExpandedState>({});
   const isReadOnly = useReadOnlyMode();
 
   const table = useReactTable({
@@ -54,13 +59,22 @@ export function BaseTable<TData, TValue>({
     columns,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    ...(expandable && {
+      getExpandedRowModel: getExpandedRowModel(),
+      onExpandedChange: setExpanded,
+      getSubRows: (row: TData) =>
+        (row as TData & { subRows?: TData[] }).subRows,
+    }),
     onRowSelectionChange: setRowSelection,
     state: {
       rowSelection,
+      ...(expandable && { expanded }),
     },
   });
 
-  const selectedRows = table.getSelectedRowModel().rows;
+  const selectedRows = expandable
+    ? table.getSelectedRowModel().flatRows
+    : table.getSelectedRowModel().rows;
 
   return (
     <div className={twMerge(className, "flex flex-col gap-3")}>
@@ -129,6 +143,7 @@ export function BaseTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  className={row.depth > 0 ? "bg-muted/30" : ""}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>

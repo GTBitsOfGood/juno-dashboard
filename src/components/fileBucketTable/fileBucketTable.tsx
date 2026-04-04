@@ -1,6 +1,10 @@
 "use client";
 
-import { FileBucketColumn } from "@/components/fileBucketTable/columns";
+import {
+  FileDirectoryRow,
+  FileStatus,
+} from "@/components/fileBucketTable/columns";
+import { getFileBucketColumns } from "@/components/fileBucketTable/columns";
 import {
   Dialog,
   DialogContent,
@@ -16,15 +20,14 @@ import {
 import { getAllFileProviders } from "@/lib/fileProvider";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Row } from "@tanstack/react-table";
-import { FileBucket, FileProvider } from "juno-sdk/build/main/internal/index";
+import type { FileProvider } from "juno-sdk/build/main/internal/index";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { useReadOnlyMode } from "../providers/SessionProvider";
 import { BaseTable } from "../baseTable";
 import AddFileBucketForm from "../forms/AddFileBucketForm";
 import { Button } from "../ui/button";
 import { DialogHeader } from "../ui/dialog";
-import { getFileBucketColumns } from "./columns";
+import { useReadOnlyMode } from "../providers/SessionProvider";
 
 interface FileBucketTableProps {
   projectId: string;
@@ -47,7 +50,7 @@ function isValidId(projectId: string | null, configId: number | undefined) {
 export function FileBucketTable({ projectId, configId }: FileBucketTableProps) {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [selectedRows, setSelectedRows] = useState<Row<FileBucketColumn>[]>([]);
+  const [selectedRows, setSelectedRows] = useState<Row<FileDirectoryRow>[]>([]);
   const isReadOnly = useReadOnlyMode();
 
   const queryClient = useQueryClient();
@@ -101,47 +104,167 @@ export function FileBucketTable({ projectId, configId }: FileBucketTableProps) {
 
   const isLoading = isBucketLoading && isProviderLoading;
 
-  const fileBucketRowData = (buckets ?? ([] as FileBucket[]))
-    .filter((bucket) => bucket)
-    .map((bucket) => ({
-      name: bucket.name,
-      configId: bucket.configId,
-      configEnv: bucket.configEnv,
-      providerName: bucket.fileProviderName,
-      fileNames: (bucket.fileServiceFile?.map(
-        (file) => (file as unknown as File)?.fileId?.path ?? "Unknown file",
-      ) ?? []) as string[],
-    }));
+  // TODO: Remove mock data once backend integration is complete
+  const [mockData, setMockData] = useState<FileDirectoryRow[]>([
+    {
+      type: "bucket",
+      name: "user-uploads",
+      configId: 1,
+      configEnv: "production",
+      providerName: "aws-s3",
+      subRows: [
+        { type: "file", name: "profile-photo.png", status: "UPLOADED" },
+        { type: "file", name: "resume.pdf", status: "UPLOADED" },
+        { type: "file", name: "cover-letter.docx", status: "NOT UPLOADED" },
+        { type: "file", name: "avatar-backup.jpg", status: "EXTERNAL" },
+      ],
+    },
+    {
+      type: "bucket",
+      name: "project-assets",
+      configId: 2,
+      configEnv: "production",
+      providerName: "aws-s3",
+      subRows: [
+        { type: "file", name: "logo.svg", status: "UPLOADED" },
+        { type: "file", name: "banner-v2.png", status: "NOT UPLOADED" },
+        { type: "file", name: "favicon.ico", status: "UPLOADED" },
+      ],
+    },
+    {
+      type: "bucket",
+      name: "temp-staging",
+      configId: 3,
+      configEnv: "staging",
+      providerName: "gcp-storage",
+      subRows: [
+        { type: "file", name: "test-data.csv", status: "EXTERNAL" },
+        { type: "file", name: "debug-log.txt", status: "NOT UPLOADED" },
+        { type: "file", name: "migration-backup.sql", status: "EXTERNAL" },
+        { type: "file", name: "hero-video.mp4", status: "UPLOADED" },
+        { type: "file", name: "seed-records.json", status: "NOT UPLOADED" },
+      ],
+    },
+    {
+      type: "bucket",
+      name: "media-library",
+      configId: 1,
+      configEnv: "production",
+      providerName: "aws-s3",
+      subRows: [
+        { type: "file", name: "hero-video.mp4", status: "UPLOADED" },
+        { type: "file", name: "thumbnail-001.webp", status: "UPLOADED" },
+        { type: "file", name: "podcast-ep12.mp3", status: "EXTERNAL" },
+      ],
+    },
+  ]);
+
+  const usesMockData = !buckets || buckets.length === 0;
+
+  const fileDirectoryRowData: FileDirectoryRow[] = usesMockData
+    ? mockData
+    : buckets
+        .filter((bucket) => bucket)
+        .map((bucket) => {
+          const fileNames = (bucket.fileServiceFile?.map(
+            (file) => (file as unknown as File)?.fileId?.path ?? "Unknown file",
+          ) ?? []) as string[];
+
+          const mockStatuses: FileStatus[] = [
+            "NOT UPLOADED",
+            "UPLOADED",
+            "EXTERNAL",
+          ];
+
+          return {
+            type: "bucket" as const,
+            name: bucket.name,
+            configId: bucket.configId,
+            configEnv: bucket.configEnv,
+            providerName: bucket.fileProviderName,
+            subRows: fileNames.map((fileName, index) => ({
+              type: "file" as const,
+              name: fileName,
+              status: mockStatuses[index % mockStatuses.length],
+            })),
+          };
+        });
 
   const fileProviderNames = (providers ?? ([] as FileProvider[]))
     .filter((provider) => provider)
     .map((provider) => provider.providerName);
 
+  const deleteMockRows = () => {
+    const bucketNamesToDelete = new Set(
+      selectedRows
+        .filter((row) => row.original.type === "bucket")
+        .map((row) => row.original.name),
+    );
+    const fileNamesToDelete = new Set(
+      selectedRows
+        .filter((row) => row.original.type === "file")
+        .map((row) => row.original.name),
+    );
+
+    setMockData((prev) =>
+      prev
+        .filter((bucket) => !bucketNamesToDelete.has(bucket.name))
+        .map((bucket) => ({
+          ...bucket,
+          subRows: bucket.subRows?.filter(
+            (file) => !fileNamesToDelete.has(file.name),
+          ),
+        })),
+    );
+  };
+
   const deleteFileBucketHandler = useMutation({
-    mutationFn: () => {
-      const deletePromises = selectedRows.map(async (row) => {
+    mutationFn: async () => {
+      if (usesMockData) {
+        deleteMockRows();
+        return;
+      }
+
+      const bucketRows = selectedRows.filter(
+        (row) => row.original.type === "bucket",
+      );
+      const fileRows = selectedRows.filter(
+        (row) => row.original.type === "file",
+      );
+
+      const deletePromises = bucketRows.map(async (row) => {
         return deleteBucket(
           {
             name: row.original.name,
-            configId: row.original.configId,
-            fileProviderName: row.original.providerName,
+            configId: row.original.configId!,
+            fileProviderName: row.original.providerName!,
           },
           projectId,
         );
       });
 
-      return Promise.all(deletePromises);
+      // TODO: Add file deletion API call when backend supports it
+      if (fileRows.length > 0) {
+        toast.info(
+          `${fileRows.length} file(s) selected for deletion (frontend only, backend not yet connected).`,
+        );
+      }
+
+      await Promise.all(deletePromises);
     },
     onSuccess: () => {
       toast.success("Success", {
-        description: `Successfully deleted file buckets.`,
+        description: `Successfully deleted selected items.`,
       });
-      queryClient.invalidateQueries({
-        queryKey: ["fileBucket", projectId, configId],
-      });
+      if (!usesMockData) {
+        queryClient.invalidateQueries({
+          queryKey: ["fileBucket", projectId, configId],
+        });
+      }
     },
     onSettled: () => setIsDeleteDialogOpen(false),
-    onError: () => toast.error("An error occurred while deleting buckets."),
+    onError: () =>
+      toast.error("An error occurred while deleting selected items."),
   });
 
   const addFileBucketHandler = useMutation({
@@ -193,10 +316,10 @@ export function FileBucketTable({ projectId, configId }: FileBucketTableProps) {
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Selected File Buckets</DialogTitle>
+            <DialogTitle>Delete Selected Items</DialogTitle>
             <DialogDescription>
               Are you sure you want to delete {selectedRows.length} selected
-              bucket{selectedRows.length > 1 ? "s" : ""}? This action cannot be
+              item{selectedRows.length > 1 ? "s" : ""}? This action cannot be
               undone.
             </DialogDescription>
           </DialogHeader>
@@ -219,13 +342,14 @@ export function FileBucketTable({ projectId, configId }: FileBucketTableProps) {
         </DialogContent>
       </Dialog>
 
-      <h1 className="text-lg font-bold">File Buckets</h1>
+      <h1 className="text-lg font-bold">File Directory</h1>
       <BaseTable
-        data={fileBucketRowData}
+        data={fileDirectoryRowData}
+        isLoading={isLoading && fileDirectoryRowData.length === 0}
+        expandable={true}
         columns={getFileBucketColumns(isReadOnly)}
-        isLoading={isLoading}
         filterParams={{
-          placeholder: "Filter by name...",
+          placeholder: "Filter by bucket or file name...",
           filterColumn: "name",
         }}
         onAddNewRow={() => {

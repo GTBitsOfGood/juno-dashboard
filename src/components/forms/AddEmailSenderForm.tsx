@@ -15,7 +15,10 @@ import {
 import { Input } from "../ui/input";
 
 const addEmailSenderSchema = z.object({
-  email: z.string().min(1, "Email is required").email("Must be a valid email address"),
+  email: z
+    .string()
+    .min(1, "Email is required")
+    .email("Must be a valid email address"),
   name: z.string().min(1, "Name is required"),
   replyTo: z.string().email("Must be a valid email address").or(z.literal("")),
   nickname: z.string().min(1, "Nickname is required"),

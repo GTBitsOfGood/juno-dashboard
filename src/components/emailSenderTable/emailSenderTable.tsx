@@ -11,9 +11,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { getEmailSenders } from "@/lib/settings";
-import {
-  registerJunoSenderAddress,
-} from "@/lib/sdkUtils";
+import { registerJunoSenderAddress } from "@/lib/sdkUtils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -111,7 +109,9 @@ export function EmailSenderTable({ projectId }: EmailSenderTableProps) {
       setIsAddDialogOpen(false);
     },
     onError: (error) =>
-      toast.error(`An error occurred while registering sender: ${error.message}`),
+      toast.error(
+        `An error occurred while registering sender: ${error.message}`,
+      ),
   });
 
   return (

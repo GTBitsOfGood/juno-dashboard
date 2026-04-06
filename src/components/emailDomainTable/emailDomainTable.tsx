@@ -52,20 +52,17 @@ export function EmailDomainTable({ projectId }: EmailDomainTableProps) {
     }
   }, [isError, error, domainsResult]);
 
-  const domainRowData: EmailDomainColumn[] = (
-    domainsResult?.domains ?? []
-  ).map((domain: EmailDomainColumn) => ({
-    id: domain.id,
-    domain: domain.domain ?? "",
-    subdomain: domain.subdomain,
-    valid: domain.valid ?? false,
-  }));
+  const domainRowData: EmailDomainColumn[] = (domainsResult?.domains ?? []).map(
+    (domain: EmailDomainColumn) => ({
+      id: domain.id,
+      domain: domain.domain ?? "",
+      subdomain: domain.subdomain,
+      valid: domain.valid ?? false,
+    }),
+  );
 
   const addDomainHandler = useMutation({
-    mutationFn: async (options: {
-      domain: string;
-      subdomain?: string;
-    }) => {
+    mutationFn: async (options: { domain: string; subdomain?: string }) => {
       const result = await registerJunoDomain(
         options.domain,
         options.subdomain,

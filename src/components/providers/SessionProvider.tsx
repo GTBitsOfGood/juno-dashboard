@@ -12,6 +12,7 @@ import {
 import { deleteJWT } from "@/lib/actions";
 import { useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useState } from "react";
+import { toast } from "sonner";
 
 // TODO: remove duplicate userTypeMap in edit form
 export enum UserType {
@@ -23,6 +24,7 @@ export enum UserType {
 interface UserSessionContextType {
   user: User | null;
   loading: boolean;
+  logOut: () => Promise<void>;
 }
 
 // TODO: this should be aligned with UserColumn, but for now is temporarily separate
@@ -82,17 +84,25 @@ export const UserSessionProvider = ({
 
   async function logOut() {
     try {
-      setIsLoggingOut(true);
       await deleteJWT();
       router.replace("/login");
       router.refresh();
+    } catch {
+      toast.error("Failed to log out. Please try again.");
+    }
+  }
+
+  async function logOutFromExpiredSession() {
+    try {
+      setIsLoggingOut(true);
+      await logOut();
     } finally {
       setIsLoggingOut(false);
     }
   }
 
   return (
-    <UserSessionContext.Provider value={{ user, loading }}>
+    <UserSessionContext.Provider value={{ user, loading, logOut }}>
       {children}
       <AlertDialog open={isSessionExpiredOpen}>
         <AlertDialogContent>
@@ -104,7 +114,10 @@ export const UserSessionProvider = ({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogAction onClick={logOut} disabled={isLoggingOut}>
+            <AlertDialogAction
+              onClick={logOutFromExpiredSession}
+              disabled={isLoggingOut}
+            >
               {isLoggingOut ? "Logging out..." : "Log out"}
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -114,7 +127,7 @@ export const UserSessionProvider = ({
   );
 };
 
-export const useUserSession = () => {
+export const useUserSession = (): UserSessionContextType => {
   const context = useContext(UserSessionContext);
 
   // edge case: not in provider

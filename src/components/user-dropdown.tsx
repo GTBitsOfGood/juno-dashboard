@@ -1,7 +1,7 @@
 "use client";
 
+import { useUserSession } from "@/components/providers/SessionProvider";
 import { ChevronDown, LogOut } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { UserAvatar } from "@/components/ui/user-avatar";
 import {
   DropdownMenu,
@@ -9,20 +9,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { deleteJWT } from "@/lib/actions";
-
 type UserDropdownProps = {
   name: string;
 };
 
 export function UserDropdown({ name }: UserDropdownProps) {
-  const router = useRouter();
-
-  async function logOut() {
-    await deleteJWT();
-    router.replace("/login");
-    router.refresh();
-  }
+  const { logOut } = useUserSession();
 
   return (
     <DropdownMenu>

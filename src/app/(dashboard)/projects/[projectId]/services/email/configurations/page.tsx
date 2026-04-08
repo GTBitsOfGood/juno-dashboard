@@ -45,11 +45,13 @@ const EmailConfigurationsPage = () => {
     },
   });
 
-  if (isError) {
-    toast.error("Error", {
-      description: `Failed to fetch project: ${JSON.stringify(error)}`,
-    });
-  }
+  useEffect(() => {
+    if (isError) {
+      toast.error("Error", {
+        description: `Failed to fetch project: ${JSON.stringify(error)}`,
+      });
+    }
+  }, [isError, error]);
 
   useEffect(() => {
     const loadEmailConfig = async () => {

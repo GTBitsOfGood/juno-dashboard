@@ -29,7 +29,7 @@ export default function KeyPage() {
   const [apiKeys, setApiKeys] = useState<ApiKeyColumn[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [createdKey, setCreatedKey] = useState<CreatedKeyInfo | null>(null);
-  const [projectNames, setProjectNames] = useState<string[]>([]);
+  const [projectNames, setProjectNames] = useState<Record<string, string>>({});
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(10);
   const [paginationLinks, setPaginationLinks] = useState({
@@ -38,14 +38,15 @@ export default function KeyPage() {
     next: "",
     last: "",
   });
+  const [keysLoadTrigger, setKeysLoadTrigger] = useState(0);
 
   useEffect(() => {
     async function fetchProjects() {
       const result = await getProjects();
       if (result.success) {
         setProjectNames(
-          result.projects.map(
-            (p: Record<string, unknown>) => (p.name as string) ?? "",
+          Object.fromEntries(
+            result.projects.map((p) => [String(p.id), String(p.name ?? "")]),
           ),
         );
       }
@@ -61,21 +62,15 @@ export default function KeyPage() {
         limit: pageSize,
       });
       if (result.success) {
-        /* eslint-disable @typescript-eslint/no-explicit-any */
-        const mapped: ApiKeyColumn[] = (result.keys as any[]).map(
-          (key: Record<string, any>) => ({
-            id: Number(key.id),
-            description: (key.description as string) ?? "",
-            dateCreated: key.createdAt
-              ? new Date(key.createdAt as string).toISOString().split("T")[0]
-              : "N/A",
-            linkedProject:
-              typeof key.project === "object" && key.project !== null
-                ? (key.project.name as string)
-                : "Unknown",
-            environment: (key.environment as string) ?? "N/A",
-          }),
-        );
+        const mapped: ApiKeyColumn[] = (result.keys ?? []).map((key) => ({
+          id: Number(key.id),
+          description: key.description ?? "",
+          dateCreated: key.createdAt
+            ? new Date(key.createdAt).toISOString().split("T")[0]
+            : "N/A",
+          linkedProject: projectNames[String(key.project)] ?? "Unknown",
+          environment: key.environment ?? "N/A",
+        }));
         setApiKeys(mapped);
         setPaginationLinks(result.links);
       } else {
@@ -86,11 +81,11 @@ export default function KeyPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [pageIndex, pageSize]);
+  }, [pageIndex, pageSize, projectNames]);
 
   useEffect(() => {
     fetchApiKeys();
-  }, [fetchApiKeys]);
+  }, [fetchApiKeys, keysLoadTrigger]);
 
   const handleDelete = async (key: ApiKeyColumn) => {
     const result = await deleteApiKeyByIdAction(String(key.id));
@@ -118,7 +113,7 @@ export default function KeyPage() {
       <div className="flex flex-col gap-8">
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 items-start">
           <CreateAPIKeyForm
-            projects={projectNames}
+            projects={Object.values(projectNames)}
             onKeyAdd={(newKey) => {
               setCreatedKey({
                 value: newKey.value,
@@ -128,7 +123,7 @@ export default function KeyPage() {
                 dateCreated: new Date().toISOString().split("T")[0],
               });
               toast.success("Successfully created API key");
-              fetchApiKeys();
+              setKeysLoadTrigger((t) => t + 1);
             }}
           />
 

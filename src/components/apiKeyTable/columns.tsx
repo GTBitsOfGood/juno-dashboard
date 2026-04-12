@@ -4,6 +4,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, Trash2 } from "lucide-react";
+import { Badge } from "../ui/badge";
 
 export type ApiKeyColumn = {
   id: number;
@@ -110,9 +111,11 @@ export const apiKeyColumns = (
       ),
       cell: ({ row }) => (
         <div className="flex justify-center">
-          <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-zinc-600 text-white">
-            {row.original.dateCreated}
-          </span>
+          <Badge variant="outline">
+            <span className="text-xs font-medium">
+              {row.original.dateCreated}
+            </span>
+          </Badge>
         </div>
       ),
     },
@@ -136,11 +139,9 @@ export const apiKeyColumns = (
         const colorClass = getProjectColor(project);
         return (
           <div className="flex justify-center">
-            <span
-              className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium text-white ${colorClass}`}
-            >
+            <Badge variant="outline" className={`inline-flex ${colorClass}`}>
               {project}
-            </span>
+            </Badge>
           </div>
         );
       },
@@ -162,9 +163,7 @@ export const apiKeyColumns = (
       ),
       cell: ({ row }) => (
         <div className="flex justify-center">
-          <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-zinc-600 text-white">
-            {row.original.environment}
-          </span>
+          <Badge variant="outline">{row.original.environment}</Badge>
         </div>
       ),
     },

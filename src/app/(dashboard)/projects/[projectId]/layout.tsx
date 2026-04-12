@@ -21,7 +21,7 @@ export default async function ProjectLayout({
         currProjName={project.name}
         projectId={Number(projectId)}
       />
-      <div className="flex flex-col w-screen mt-12">
+      <div className="flex flex-col w-screen mt-11">
         <main className="m-7">{children}</main>
       </div>
     </SidebarProvider>

@@ -2,8 +2,6 @@
 import { getJunoInstance } from "@/lib/juno";
 import { cookies } from "next/headers";
 
-import { SetUserTypeModelTypeEnum } from "juno-sdk/build/main/internal/index";
-import { APIKey } from "@/components/forms/CreateAPIKeyForm";
 import { getSession } from "./session";
 import {
   verifyJWT,
@@ -12,6 +10,7 @@ import {
   hasProjectAccess,
 } from "./auth";
 import { getDefaultRouteForUser } from "./userRouting";
+import { SetUserTypeModelTypeEnum } from "juno-sdk/build/main/internal";
 
 export async function setUserTypeAction(data: {
   email: string;
@@ -94,9 +93,100 @@ export async function createUserAction(data: {
   }
 }
 
-export async function createKeyAction(data: APIKey) {
-  // TODO: Create key requires JWT credential changes to the SDK. These should be done as soon as possible.
-  return data;
+export async function createKeyAction(data: {
+  projectName: string;
+  environment: string;
+  description: string;
+}) {
+  const session = await getSession();
+  if (!session) {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  if (!requireAdmin(session.user)) {
+    return { success: false, error: "Only admins can create API keys" };
+  }
+
+  const junoClient = getJunoInstance();
+
+  try {
+    const result = await junoClient.auth.createKey({
+      project: data.projectName,
+      environment: data.environment,
+      description: data.description,
+      credentials: session.jwt,
+    });
+    return { success: true, apiKey: result.apiKey };
+  } catch (error) {
+    console.error("Error creating API key:", error);
+    return { success: false, error: "Failed to create API key" };
+  }
+}
+
+export async function getApiKeysAction(options: {
+  offset: number;
+  limit: number;
+}) {
+  const { offset, limit } = options;
+  const session = await getSession();
+  if (!session) {
+    return { success: false, error: "Unauthorized", keys: [] };
+  }
+
+  if (!requireAdmin(session.user)) {
+    return {
+      success: false,
+      error: "Only admins and superadmins can view API keys",
+      keys: [],
+    };
+  }
+
+  const junoClient = getJunoInstance();
+
+  try {
+    const res = await junoClient.auth.getAllApiKeys({
+      offset,
+      limit,
+      credentials: session.jwt,
+    });
+    return {
+      success: true,
+      keys: res.keys ?? [],
+      links: res.links ?? { first: "", prev: "", next: "", last: "" },
+    };
+  } catch (error) {
+    console.error("Error fetching API keys:", error);
+    return {
+      success: false,
+      error: "Failed to fetch API keys",
+      keys: [],
+      links: { first: "", prev: "", next: "", last: "" },
+    };
+  }
+}
+
+export async function deleteApiKeyByIdAction(keyId: string) {
+  const session = await getSession();
+  if (!session) {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  if (!requireAdmin(session.user)) {
+    return { success: false, error: "Only admins can delete API keys" };
+  }
+
+  const junoClient = getJunoInstance();
+
+  try {
+    await junoClient.auth.deleteApiKeyById({
+      keyId,
+      credentials: session.jwt,
+    });
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting API key:", error);
+    return { success: false, error: "Failed to delete API key" };
+  }
 }
 
 export async function createProjectAction(data: { projectName: string }) {
@@ -281,6 +371,8 @@ export async function createJWTAuthentication(data: {
 export async function deleteJWT() {
   const cookieStore = await cookies();
   cookieStore.delete("jwt-token");
+  cookieStore.delete("user-email");
+  cookieStore.delete("user-password");
 }
 
 export async function deleteUserAction(userId: string) {

@@ -34,7 +34,7 @@ export async function getFileConfig(
 
     return JSON.parse(JSON.stringify(fileConfig));
   } catch (e) {
-    if (e.response?.statusCode === 404) {
+    if (e.response?.status === 404 || e.response?.status === 401) {
       return null;
     }
 
@@ -116,7 +116,7 @@ export async function getEmailConfig(
 
     return JSON.parse(JSON.stringify(emailConfig));
   } catch (e) {
-    if (e.response?.statusCode === 404) {
+    if (e.response?.status === 404 || e.response?.status === 401) {
       return null;
     }
 
@@ -147,7 +147,7 @@ export async function getAnalyticsConfig(
     );
     return JSON.parse(JSON.stringify(analyticsConfig));
   } catch (e) {
-    if (e.response?.statusCode === 404) {
+    if (e.response?.status === 404 || e.response?.status === 401) {
       return null;
     }
     throw e;

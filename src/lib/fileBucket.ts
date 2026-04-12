@@ -55,13 +55,10 @@ export async function getAllFiles(
   const junoClient = getJunoInstance();
 
   try {
-    const files = await junoClient.file.getAllFiles(
-      configId.toString(),
-      {
-        userJwt: session.jwt,
-        projectId: projectId,
-      },
-    );
+    const files = await junoClient.file.getAllFiles(configId.toString(), {
+      userJwt: session.jwt,
+      projectId: projectId,
+    });
 
     return JSON.parse(JSON.stringify(files));
   } catch (e) {

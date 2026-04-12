@@ -2,8 +2,8 @@
 
 import {
   FileDirectoryRow,
+  getFileBucketColumns,
 } from "@/components/fileBucketTable/columns";
-import { getFileBucketColumns } from "@/components/fileBucketTable/columns";
 import {
   Dialog,
   DialogContent,
@@ -26,15 +26,14 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { BaseTable } from "../baseTable";
 import AddFileBucketForm from "../forms/AddFileBucketForm";
+import { useReadOnlyMode } from "../providers/SessionProvider";
 import { Button } from "../ui/button";
 import { DialogHeader } from "../ui/dialog";
-import { useReadOnlyMode } from "../providers/SessionProvider";
 
 interface FileBucketTableProps {
   projectId: string;
   configId: number | undefined;
 }
-
 
 function isValidId(projectId: string | null, configId: number | undefined) {
   return (
@@ -110,7 +109,14 @@ export function FileBucketTable({ projectId, configId }: FileBucketTableProps) {
         description: `Failed to fetch files: ${JSON.stringify(filesError)}`,
       });
     }
-  }, [isBucketError, isProviderError, isFilesError, bucketError, providerError, filesError]);
+  }, [
+    isBucketError,
+    isProviderError,
+    isFilesError,
+    bucketError,
+    providerError,
+    filesError,
+  ]);
 
   const isLoading = isBucketLoading || isProviderLoading || isFilesLoading;
 
@@ -123,9 +129,11 @@ export function FileBucketTable({ projectId, configId }: FileBucketTableProps) {
     .filter((bucket) => bucket)
     .map((bucket) => {
       const storedFileNames = new Set(allFilesMap[bucket.name] ?? []);
-      const registeredFileNames = (bucket.fileServiceFile?.map(
-        (file) => (file as { path?: string })?.path ?? "",
-      ) ?? []).filter(Boolean) as string[];
+      const registeredFileNames = (
+        bucket.fileServiceFile?.map(
+          (file) => (file as { path?: string })?.path ?? "",
+        ) ?? []
+      ).filter(Boolean) as string[];
 
       const registeredFileSet = new Set(registeredFileNames);
 
@@ -172,6 +180,10 @@ export function FileBucketTable({ projectId, configId }: FileBucketTableProps) {
         (row) => row.original.type === "file",
       );
 
+      const deletingBucketNames = new Set(
+        bucketRows.map((row) => row.original.name),
+      );
+
       const bucketDeletePromises = bucketRows.map((row) =>
         deleteBucket(
           {
@@ -183,21 +195,31 @@ export function FileBucketTable({ projectId, configId }: FileBucketTableProps) {
         ),
       );
 
-      const filesByBucket = new Map<string, { configId: number; fileNames: string[] }>();
+      const filesByBucket = new Map<
+        string,
+        { configId: number; fileNames: string[] }
+      >();
       for (const row of fileRows) {
         const parentRow = row.getParentRow();
         if (!parentRow) continue;
         const bucketName = parentRow.original.name;
+        if (deletingBucketNames.has(bucketName)) continue;
         const bucketConfigId = parentRow.original.configId!;
         if (!filesByBucket.has(bucketName)) {
-          filesByBucket.set(bucketName, { configId: bucketConfigId, fileNames: [] });
+          filesByBucket.set(bucketName, {
+            configId: bucketConfigId,
+            fileNames: [],
+          });
         }
         filesByBucket.get(bucketName)!.fileNames.push(row.original.name);
       }
 
       const fileDeletePromises = Array.from(filesByBucket.entries()).map(
         ([bucketName, { configId: bucketConfigId, fileNames }]) =>
-          deleteFiles({ bucketName, configId: bucketConfigId, fileNames }, projectId),
+          deleteFiles(
+            { bucketName, configId: bucketConfigId, fileNames },
+            projectId,
+          ),
       );
 
       await Promise.all([...bucketDeletePromises, ...fileDeletePromises]);

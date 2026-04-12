@@ -43,7 +43,6 @@ export function FileConfigTable({ projectId }: FileConfigTableProps) {
     queryFn: () => getFileConfig(projectId),
   });
 
-
   const fileConfigRowData = [data]
     .filter((config) => config)
     .map((config) => ({

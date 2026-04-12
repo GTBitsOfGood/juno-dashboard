@@ -2,7 +2,6 @@
 
 import {
   FileDirectoryRow,
-  FileStatus,
 } from "@/components/fileBucketTable/columns";
 import { getFileBucketColumns } from "@/components/fileBucketTable/columns";
 import {
@@ -14,6 +13,8 @@ import {
 } from "@/components/ui/dialog";
 import {
   deleteBucket,
+  deleteFiles,
+  getAllFiles,
   getBucketsByConfigIdAndEnv,
   registerBucket,
 } from "@/lib/fileBucket";
@@ -34,9 +35,6 @@ interface FileBucketTableProps {
   configId: number | undefined;
 }
 
-interface File {
-  fileId: { path: string };
-}
 
 function isValidId(projectId: string | null, configId: number | undefined) {
   return (
@@ -62,12 +60,8 @@ export function FileBucketTable({ projectId, configId }: FileBucketTableProps) {
     error: bucketError,
   } = useQuery({
     queryKey: ["fileBucket", projectId, configId],
-    queryFn: async () => {
-      if (!isValidId(projectId, configId)) {
-        throw new Error("Invalid projectId or configId");
-      }
-      return await getBucketsByConfigIdAndEnv(configId, projectId);
-    },
+    queryFn: async () => await getBucketsByConfigIdAndEnv(configId!, projectId),
+    enabled: isValidId(projectId, configId),
   });
 
   const {
@@ -89,6 +83,17 @@ export function FileBucketTable({ projectId, configId }: FileBucketTableProps) {
     },
   });
 
+  const {
+    isLoading: isFilesLoading,
+    isError: isFilesError,
+    data: allFiles,
+    error: filesError,
+  } = useQuery({
+    queryKey: ["allFiles", projectId, configId],
+    queryFn: async () => await getAllFiles(configId!, projectId),
+    enabled: isValidId(projectId, configId),
+  });
+
   useEffect(() => {
     if (isBucketError) {
       toast.error("Error", {
@@ -100,131 +105,66 @@ export function FileBucketTable({ projectId, configId }: FileBucketTableProps) {
         description: `Failed to fetch file providers: ${JSON.stringify(providerError)}`,
       });
     }
-  }, [isBucketError, isProviderError, bucketError, providerError]);
+    if (isFilesError) {
+      toast.error("Error", {
+        description: `Failed to fetch files: ${JSON.stringify(filesError)}`,
+      });
+    }
+  }, [isBucketError, isProviderError, isFilesError, bucketError, providerError, filesError]);
 
-  const isLoading = isBucketLoading && isProviderLoading;
+  const isLoading = isBucketLoading || isProviderLoading || isFilesLoading;
 
-  // TODO: Remove mock data once backend integration is complete
-  const [mockData, setMockData] = useState<FileDirectoryRow[]>([
-    {
-      type: "bucket",
-      name: "user-uploads",
-      configId: 1,
-      configEnv: "production",
-      providerName: "aws-s3",
-      subRows: [
-        { type: "file", name: "profile-photo.png", status: "UPLOADED" },
-        { type: "file", name: "resume.pdf", status: "UPLOADED" },
-        { type: "file", name: "cover-letter.docx", status: "NOT UPLOADED" },
-        { type: "file", name: "avatar-backup.jpg", status: "EXTERNAL" },
-      ],
-    },
-    {
-      type: "bucket",
-      name: "project-assets",
-      configId: 2,
-      configEnv: "production",
-      providerName: "aws-s3",
-      subRows: [
-        { type: "file", name: "logo.svg", status: "UPLOADED" },
-        { type: "file", name: "banner-v2.png", status: "NOT UPLOADED" },
-        { type: "file", name: "favicon.ico", status: "UPLOADED" },
-      ],
-    },
-    {
-      type: "bucket",
-      name: "temp-staging",
-      configId: 3,
-      configEnv: "staging",
-      providerName: "gcp-storage",
-      subRows: [
-        { type: "file", name: "test-data.csv", status: "EXTERNAL" },
-        { type: "file", name: "debug-log.txt", status: "NOT UPLOADED" },
-        { type: "file", name: "migration-backup.sql", status: "EXTERNAL" },
-        { type: "file", name: "hero-video.mp4", status: "UPLOADED" },
-        { type: "file", name: "seed-records.json", status: "NOT UPLOADED" },
-      ],
-    },
-    {
-      type: "bucket",
-      name: "media-library",
-      configId: 1,
-      configEnv: "production",
-      providerName: "aws-s3",
-      subRows: [
-        { type: "file", name: "hero-video.mp4", status: "UPLOADED" },
-        { type: "file", name: "thumbnail-001.webp", status: "UPLOADED" },
-        { type: "file", name: "podcast-ep12.mp3", status: "EXTERNAL" },
-      ],
-    },
-  ]);
+  const allFilesMap: Record<string, string[]> = Object.assign(
+    {},
+    ...(allFiles ?? []),
+  );
 
-  const usesMockData = !buckets || buckets.length === 0;
+  const fileDirectoryRowData: FileDirectoryRow[] = (buckets ?? [])
+    .filter((bucket) => bucket)
+    .map((bucket) => {
+      const storedFileNames = new Set(allFilesMap[bucket.name] ?? []);
+      const registeredFileNames = (bucket.fileServiceFile?.map(
+        (file) => (file as { path?: string })?.path ?? "",
+      ) ?? []).filter(Boolean) as string[];
 
-  const fileDirectoryRowData: FileDirectoryRow[] = usesMockData
-    ? mockData
-    : buckets
-        .filter((bucket) => bucket)
-        .map((bucket) => {
-          const fileNames = (bucket.fileServiceFile?.map(
-            (file) => (file as unknown as File)?.fileId?.path ?? "Unknown file",
-          ) ?? []) as string[];
+      const registeredFileSet = new Set(registeredFileNames);
 
-          const mockStatuses: FileStatus[] = [
-            "NOT UPLOADED",
-            "UPLOADED",
-            "EXTERNAL",
-          ];
+      const subRows: FileDirectoryRow[] = [];
 
-          return {
-            type: "bucket" as const,
-            name: bucket.name,
-            configId: bucket.configId,
-            configEnv: bucket.configEnv,
-            providerName: bucket.fileProviderName,
-            subRows: fileNames.map((fileName, index) => ({
-              type: "file" as const,
-              name: fileName,
-              status: mockStatuses[index % mockStatuses.length],
-            })),
-          };
+      storedFileNames.forEach((fileName) => {
+        subRows.push({
+          type: "file",
+          name: fileName,
+          status: registeredFileSet.has(fileName) ? "UPLOADED" : "EXTERNAL",
         });
+      });
+
+      registeredFileNames.forEach((fileName) => {
+        if (!storedFileNames.has(fileName)) {
+          subRows.push({
+            type: "file",
+            name: fileName,
+            status: "NOT UPLOADED",
+          });
+        }
+      });
+
+      return {
+        type: "bucket" as const,
+        name: bucket.name,
+        configId: bucket.configId,
+        configEnv: bucket.configEnv,
+        providerName: bucket.fileProviderName,
+        subRows,
+      };
+    });
 
   const fileProviderNames = (providers ?? ([] as FileProvider[]))
     .filter((provider) => provider)
     .map((provider) => provider.providerName);
 
-  const deleteMockRows = () => {
-    const bucketNamesToDelete = new Set(
-      selectedRows
-        .filter((row) => row.original.type === "bucket")
-        .map((row) => row.original.name),
-    );
-    const fileNamesToDelete = new Set(
-      selectedRows
-        .filter((row) => row.original.type === "file")
-        .map((row) => row.original.name),
-    );
-
-    setMockData((prev) =>
-      prev
-        .filter((bucket) => !bucketNamesToDelete.has(bucket.name))
-        .map((bucket) => ({
-          ...bucket,
-          subRows: bucket.subRows?.filter(
-            (file) => !fileNamesToDelete.has(file.name),
-          ),
-        })),
-    );
-  };
-
   const deleteFileBucketHandler = useMutation({
     mutationFn: async () => {
-      if (usesMockData) {
-        deleteMockRows();
-        return;
-      }
-
       const bucketRows = selectedRows.filter(
         (row) => row.original.type === "bucket",
       );
@@ -232,35 +172,46 @@ export function FileBucketTable({ projectId, configId }: FileBucketTableProps) {
         (row) => row.original.type === "file",
       );
 
-      const deletePromises = bucketRows.map(async (row) => {
-        return deleteBucket(
+      const bucketDeletePromises = bucketRows.map((row) =>
+        deleteBucket(
           {
             name: row.original.name,
             configId: row.original.configId!,
             fileProviderName: row.original.providerName!,
           },
           projectId,
-        );
-      });
+        ),
+      );
 
-      // TODO: Add file deletion API call when backend supports it
-      if (fileRows.length > 0) {
-        toast.info(
-          `${fileRows.length} file(s) selected for deletion (frontend only, backend not yet connected).`,
-        );
+      const filesByBucket = new Map<string, { configId: number; fileNames: string[] }>();
+      for (const row of fileRows) {
+        const parentRow = row.getParentRow();
+        if (!parentRow) continue;
+        const bucketName = parentRow.original.name;
+        const bucketConfigId = parentRow.original.configId!;
+        if (!filesByBucket.has(bucketName)) {
+          filesByBucket.set(bucketName, { configId: bucketConfigId, fileNames: [] });
+        }
+        filesByBucket.get(bucketName)!.fileNames.push(row.original.name);
       }
 
-      await Promise.all(deletePromises);
+      const fileDeletePromises = Array.from(filesByBucket.entries()).map(
+        ([bucketName, { configId: bucketConfigId, fileNames }]) =>
+          deleteFiles({ bucketName, configId: bucketConfigId, fileNames }, projectId),
+      );
+
+      await Promise.all([...bucketDeletePromises, ...fileDeletePromises]);
     },
     onSuccess: () => {
       toast.success("Success", {
         description: `Successfully deleted selected items.`,
       });
-      if (!usesMockData) {
-        queryClient.invalidateQueries({
-          queryKey: ["fileBucket", projectId, configId],
-        });
-      }
+      queryClient.invalidateQueries({
+        queryKey: ["fileBucket", projectId, configId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["allFiles", projectId, configId],
+      });
     },
     onSettled: () => setIsDeleteDialogOpen(false),
     onError: () =>

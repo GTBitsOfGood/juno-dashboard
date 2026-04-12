@@ -29,7 +29,7 @@ export async function getAllFileProviders(
 
     return JSON.parse(JSON.stringify(providers));
   } catch (e) {
-    if (e.response?.statusCode === 404) {
+    if (e.response?.status === 404 || e.response?.status === 401) {
       return [];
     }
 

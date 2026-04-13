@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -9,23 +8,24 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Legend,
-  Bar,
-  BarChart,
-} from "recharts";
-import { getJunoCounts } from "@/lib/sdkActions";
-import { HeartPulse, Layers, Users } from "lucide-react";
-import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { getJunoCounts } from "@/lib/sdkActions";
+import { HeartPulse, Layers, Users } from "lucide-react";
+import { useEffect, useState } from "react";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  XAxis,
+  YAxis,
+} from "recharts";
 
 // TODO: this needs to be pulled from juno db
 const projectServiceData = [
@@ -92,8 +92,8 @@ const AdminPage = () => {
   const [loading, setLoading] = useState(true); // TODO: add skeleton load animations instead of loading
 
   return (
-    <div className="space-x-8 space-y-8">
-      <h1 className="ml-8 mt-8 text-2xl font-bold">Admin Overview</h1>
+    <div className="flex flex-col gap-8">
+      <h1 className="text-2xl font-bold">Admin Overview</h1>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
@@ -162,8 +162,8 @@ const AdminPage = () => {
         </Card>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-7">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-8">
+        <Card className="col-span-4">
           <CardHeader>
             <CardTitle>API Requests</CardTitle>
             <CardDescription>API requests over time.</CardDescription>
@@ -208,17 +208,7 @@ const AdminPage = () => {
           </CardContent>
         </Card>
 
-        <Card className="col-span-7">
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>Recent Juno events.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-sm text-muted-foreground">placeholder</div>
-          </CardContent>
-        </Card>
-
-        <Card className="col-span-7">
+        <Card className="col-span-4">
           <CardHeader>
             <CardTitle>Projects Onboarded</CardTitle>
             <CardDescription>
@@ -242,6 +232,16 @@ const AdminPage = () => {
                 <Bar dataKey="onboardedProjects" fill="#cdcdcd" radius={8} />
               </BarChart>
             </ChartContainer>
+          </CardContent>
+        </Card>
+
+        <Card className="col-span-8">
+          <CardHeader>
+            <CardTitle>Recent Activity</CardTitle>
+            <CardDescription>Recent Juno events.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-sm text-muted-foreground">placeholder</div>
           </CardContent>
         </Card>
       </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { emailConfigColumns } from "@/components/emailConfigTable/columns";
+import { useReadOnlyMode } from "@/components/providers/SessionProvider";
 import {
   Dialog,
   DialogContent,
@@ -30,6 +31,7 @@ export function EmailConfigTable({ projectId }: EmailConfigTableProps) {
   const [isAddConfigDialogOpen, setIsAddConfigDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedRows, setSelectedRows] = useState([]);
+  const isReadOnly = useReadOnlyMode();
 
   const queryClient = useQueryClient();
 
@@ -145,13 +147,14 @@ export function EmailConfigTable({ projectId }: EmailConfigTableProps) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <h1>Email Configurations</h1>
+      <h1 className="text-lg font-bold">Email Configurations</h1>
       <BaseTable
         data={emailConfigRowData}
         columns={emailConfigColumns(
           Number(projectId),
           addEmailConfig.isPending,
           (sendgridKey) => addEmailConfig.mutate(sendgridKey),
+          isReadOnly,
         )}
         isLoading={isLoading}
         filterParams={{

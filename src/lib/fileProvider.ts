@@ -4,8 +4,8 @@ import {
   FileBucket,
   FileProvider,
   FileProviderPartial,
-} from "juno-sdk/build/main/internal/api";
-import { hasProjectAccess } from "./auth";
+} from "juno-sdk/build/main/internal/index";
+import { hasProjectAccess, requireAdmin } from "./auth";
 import { getJunoInstance } from "./juno";
 import { getSession } from "./session";
 
@@ -29,7 +29,7 @@ export async function getAllFileProviders(
 
     return JSON.parse(JSON.stringify(providers));
   } catch (e) {
-    if (e.response?.statusCode === 404) {
+    if (e.response?.status === 404 || e.response?.status === 401) {
       return [];
     }
 
@@ -49,6 +49,10 @@ export async function registerProvider(
   const session = await getSession();
   if (!session) {
     throw new Error("Unauthorized");
+  }
+
+  if (!requireAdmin(session.user)) {
+    throw new Error("Only admins and superadmins can register file providers");
   }
 
   if (!hasProjectAccess(session.user, Number(projectId))) {
@@ -71,6 +75,10 @@ export async function deleteProvider(
   const session = await getSession();
   if (!session) {
     throw new Error("Unauthorized");
+  }
+
+  if (!requireAdmin(session.user)) {
+    throw new Error("Only admins and superadmins can delete file providers");
   }
 
   if (!hasProjectAccess(session.user, Number(projectId))) {

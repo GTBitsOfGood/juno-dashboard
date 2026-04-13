@@ -30,6 +30,7 @@ interface AnalyticsActionsCellProps {
       clientAnalyticsKey: string;
     },
   ) => void;
+  isReadOnly: boolean;
 }
 
 export const AnalyticsActionsCell = ({
@@ -37,30 +38,35 @@ export const AnalyticsActionsCell = ({
   projectId,
   isPending,
   onUpdateConfig,
+  isReadOnly,
 }: AnalyticsActionsCellProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   return (
     <>
-      <DropdownMenu modal={false}>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
-            <span className="sr-only">Open menu</span>
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem
-            onClick={(e) => {
+        <DropdownMenu modal={false}>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              className="h-8 w-8 p-0"
+              disabled={isReadOnly}
+            >
+              <span className="sr-only">Open menu</span>
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem
+              onClick={(e) => {
               e.stopPropagation();
               setIsDialogOpen(true);
             }}
-            className="cursor-pointer"
-          >
-            Edit config
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+              className="cursor-pointer"
+            >
+             Edit config
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>

@@ -7,8 +7,8 @@ import {
   FileConfigResponse,
   SetupFileServiceResponse,
   UpdateAnalyticsConfigModel,
-} from "juno-sdk/build/main/internal/api";
-import { hasProjectAccess } from "./auth";
+} from "juno-sdk/build/main/internal/index";
+import { hasProjectAccess, requireAdmin } from "./auth";
 import { getJunoInstance } from "./juno";
 import { getSession } from "./session";
 
@@ -34,7 +34,7 @@ export async function getFileConfig(
 
     return JSON.parse(JSON.stringify(fileConfig));
   } catch (e) {
-    if (e.response?.statusCode === 404) {
+    if (e.response?.status === 404 || e.response?.status === 401) {
       return null;
     }
 
@@ -48,6 +48,12 @@ export async function createFileConfig(
   const session = await getSession();
   if (!session) {
     throw new Error("Unauthorized");
+  }
+
+  if (!requireAdmin(session.user)) {
+    throw new Error(
+      "Only admins and superadmins can create file configurations",
+    );
   }
 
   if (!hasProjectAccess(session.user, Number(projectId))) {
@@ -68,6 +74,12 @@ export async function deleteFileConfig(
   const session = await getSession();
   if (!session) {
     throw new Error("Unauthorized");
+  }
+
+  if (!requireAdmin(session.user)) {
+    throw new Error(
+      "Only admins and superadmins can delete file configurations",
+    );
   }
 
   if (!hasProjectAccess(session.user, Number(projectId))) {
@@ -104,7 +116,7 @@ export async function getEmailConfig(
 
     return JSON.parse(JSON.stringify(emailConfig));
   } catch (e) {
-    if (e.response?.statusCode === 404) {
+    if (e.response?.status === 404 || e.response?.status === 401) {
       return null;
     }
 
@@ -135,7 +147,7 @@ export async function getAnalyticsConfig(
     );
     return JSON.parse(JSON.stringify(analyticsConfig));
   } catch (e) {
-    if (e.response?.statusCode === 404) {
+    if (e.response?.status === 404 || e.response?.status === 401) {
       return null;
     }
     throw e;
@@ -148,6 +160,12 @@ export async function deleteAnalyticsConfig(
   const session = await getSession();
   if (!session) {
     throw new Error("Unauthorized");
+  }
+
+  if (!requireAdmin(session.user)) {
+    throw new Error(
+      "Only admins and superadmins can delete analytics configurations",
+    );
   }
 
   if (!hasProjectAccess(session.user, Number(projectId))) {
@@ -167,6 +185,12 @@ export async function updateAnalyticsConfig(
   const session = await getSession();
   if (!session) {
     throw new Error("Unauthorized");
+  }
+
+  if (!requireAdmin(session.user)) {
+    throw new Error(
+      "Only admins and superadmins can update analytics configurations",
+    );
   }
 
   if (!hasProjectAccess(session.user, projectId)) {
@@ -192,6 +216,16 @@ export async function createAnalyticsConfig(
   const session = await getSession();
   if (!session) {
     throw new Error("Unauthorized");
+  }
+
+  if (!requireAdmin(session.user)) {
+    throw new Error(
+      "Only admins and superadmins can create analytics configurations",
+    );
+  }
+
+  if (!hasProjectAccess(session.user, Number(projectId))) {
+    throw new Error("You don't have access to this project");
   }
 
   const config: CreateAnalyticsConfigModel = {

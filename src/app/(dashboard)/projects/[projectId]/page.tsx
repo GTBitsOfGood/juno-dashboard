@@ -1,5 +1,13 @@
 "use client";
 
+import CustomEventsSection from "@/components/analytics/CustomEventsSection";
+import SimpleEventsSection from "@/components/analytics/SimpleEventsSection";
+import {
+  CustomEvent,
+  CustomEventType,
+  Event,
+  EventMetric,
+} from "@/components/analytics/types";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -8,33 +16,26 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { getProjectById } from "@/lib/project";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { DEFAULT_CHART_WINDOW_DAYS } from "@/lib/date-range";
-import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState, useMemo } from "react";
-import { ProjectResponse } from "juno-sdk/build/main/internal/api";
-import { useParams } from "next/navigation";
-import { toast } from "sonner";
+import { getProjectById } from "@/lib/project";
 import {
   getAllClickEvents,
+  getAllCustomEvents,
   getAllInputEvents,
   getAllVisitEvents,
-  getCustomEventTypes,
-  getAllCustomEvents,
   getAnalyticsConfig,
+  getCustomEventTypes,
 } from "@/lib/settings";
-import SimpleEventsSection from "@/components/analytics/SimpleEventsSection";
-import CustomEventsSection from "@/components/analytics/CustomEventsSection";
-import {
-  Event,
-  EventMetric,
-  CustomEventType,
-  CustomEvent,
-} from "@/components/analytics/types";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
+import type { ProjectResponse } from "juno-sdk/build/main/internal/index";
 import { BarChart3, Settings } from "lucide-react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 
 // Window Logic
 const TIME_WINDOW_OPTIONS = [7, 14, 30, 60, 90] as const;
@@ -208,9 +209,18 @@ const DashboardPage = () => {
     refetchOnWindowFocus: true,
   });
 
-  const clickData: Event[] = clickEventsResponse?.events?.events || [];
-  const inputData: Event[] = inputEventsResponse?.events?.events || [];
-  const visitData: Event[] = visitEventsResponse?.events?.events || [];
+  const clickData: Event[] = useMemo(
+    () => clickEventsResponse?.events?.events || [],
+    [clickEventsResponse],
+  );
+  const inputData: Event[] = useMemo(
+    () => inputEventsResponse?.events?.events || [],
+    [inputEventsResponse],
+  );
+  const visitData: Event[] = useMemo(
+    () => visitEventsResponse?.events?.events || [],
+    [visitEventsResponse],
+  );
 
   const customEventTypes: CustomEventType[] = (() => {
     const types = customEventTypesResponse?.eventTypes;
@@ -288,7 +298,7 @@ const DashboardPage = () => {
     };
 
     fetchAllCustomEvents();
-  }, [projectName, customEventTypesJson]);
+  }, [projectName, projectId, customEventTypesJson]);
 
   const customEventTypesById = useMemo(
     () =>
@@ -536,7 +546,7 @@ const DashboardPage = () => {
 
   if (shouldShowEmptyState) {
     return (
-      <div className="p-6 max-w-[70%]">
+      <div className="flex flex-col">
         <Breadcrumb className="mb-4">
           <BreadcrumbList>
             <BreadcrumbItem>
@@ -550,8 +560,9 @@ const DashboardPage = () => {
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-        <h1 className="mb-6 text-xl">Dashboard</h1>
-        <Card>
+        <Separator className="mb-8" />
+        <h1 className="mb-4 text-lg font-bold">Project Dashboard</h1>
+        <Card className="max-w-[35%]">
           <CardHeader>
             <div className="flex items-center gap-3">
               <BarChart3 className="h-5 w-5 text-muted-foreground" />
@@ -576,7 +587,7 @@ const DashboardPage = () => {
   }
 
   return (
-    <div className="p-6 max-w-[70%]">
+    <div className="flex flex-col">
       <Breadcrumb className="mb-4">
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -590,7 +601,8 @@ const DashboardPage = () => {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <h1 className="mb-6 text-xl">Dashboard</h1>
+      <Separator className="mb-8" />
+      <h1 className="mb-4 text-lg font-bold">Project Dashboard</h1>
 
       <div className="space-y-6 w-full">
         <SimpleEventsSection

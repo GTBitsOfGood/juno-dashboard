@@ -1,4 +1,16 @@
+import { ProjectColumn } from "@/app/(dashboard)/admin/projects/columns";
+import { UserColumn } from "@/components/usertable/columns";
+import {
+  linkUserToProject,
+  setUserTypeAction,
+  unlinkUserFromProject,
+} from "@/lib/actions";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMemo, useState } from "react";
+import { SetUserTypeModelTypeEnum } from "juno-sdk/build/main/internal";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import * as z from "zod";
 import { Button } from "../ui/button";
 import {
   Form,
@@ -9,13 +21,7 @@ import {
   FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
-import * as z from "zod";
-import { useForm } from "react-hook-form";
-import {
-  linkUserToProject,
-  setUserTypeAction,
-  unlinkUserFromProject,
-} from "@/lib/actions";
+import { InputMultiSelect, InputMultiSelectTrigger } from "../ui/multiselect";
 import {
   Select,
   SelectContent,
@@ -23,12 +29,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { toast } from "sonner";
-import { InputMultiSelect, InputMultiSelectTrigger } from "../ui/multiselect";
-import { useState } from "react";
-import { UserColumn } from "@/components/usertable/columns";
-import { SetUserTypeModel } from "juno-sdk/build/main/internal/api";
-import { ProjectColumn } from "@/app/(dashboard)/admin/projects/columns";
+import { useUserSession, UserType } from "../providers/SessionProvider";
 
 export const userTypeMap = {
   SUPERADMIN: 0,
@@ -55,6 +56,23 @@ const EditUserForm = ({
   initialUserData: UserColumn;
   onUserUpdate?: (updatedUser: UserColumn) => void;
 }) => {
+  const { user: currentUser } = useUserSession();
+
+  // Filter available user types based on current user's permissions
+  // SUPERADMIN can set any type
+  // ADMIN can only set USER type
+  // USER shouldn't be able to edit (but we'll still filter just in case)
+  const availableUserTypes = useMemo(() => {
+    if (!currentUser) return ["USER"];
+
+    if (currentUser.type === UserType.SUPERADMIN) {
+      return Object.keys(userTypeMap);
+    } else if (currentUser.type === UserType.ADMIN) {
+      return ["USER"];
+    } else {
+      return ["USER"];
+    }
+  }, [currentUser]);
   const setUserTypeForm = useForm<z.infer<typeof setUserTypeSchema>>({
     resolver: zodResolver(setUserTypeSchema),
     defaultValues: {
@@ -73,7 +91,7 @@ const EditUserForm = ({
     try {
       // Update user type
       const result = await setUserTypeAction({
-        type: data.userType as unknown as SetUserTypeModel.TypeEnum,
+        type: data.userType as unknown as SetUserTypeModelTypeEnum,
         email: data.userEmail,
       });
 
@@ -206,7 +224,7 @@ const EditUserForm = ({
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent>
-                  {Object.keys(userTypeMap).map((type) => (
+                  {availableUserTypes.map((type) => (
                     <SelectItem key={type} value={type}>
                       {type}
                     </SelectItem>

@@ -20,6 +20,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Row } from "@tanstack/react-table";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { useReadOnlyMode } from "../providers/SessionProvider";
 import { BaseTable } from "../baseTable";
 import AddFileProviderForm from "../forms/AddFileProviderForm";
 import { Button } from "../ui/button";
@@ -41,6 +42,7 @@ export function FileProviderTable({ projectId }: FileProviderTableProps) {
   const [selectedRows, setSelectedRows] = useState<Row<FileProviderColumn>[]>(
     [],
   );
+  const isReadOnly = useReadOnlyMode();
 
   const queryClient = useQueryClient();
   const {
@@ -173,13 +175,14 @@ export function FileProviderTable({ projectId }: FileProviderTableProps) {
         </DialogContent>
       </Dialog>
 
-      <h1>File Providers</h1>
+      <h1 className="text-lg font-bold">File Providers</h1>
       <BaseTable
         data={fileProviderRowData}
         columns={fileProviderColumns(
           addFileProviderHandler.isPending,
           (options: FileProviderColumn) =>
             addFileProviderHandler.mutate(options),
+          isReadOnly,
         )}
         isLoading={isLoading}
         filterParams={{

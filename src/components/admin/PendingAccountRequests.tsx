@@ -3,7 +3,7 @@
 import { CheckCircle, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -12,7 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   acceptAccountRequest,
   AccountRequest,
-  declineAccountRequest,
+  deleteAccountRequest,
   getAccountRequests,
 } from "@/lib/accountRequests";
 
@@ -33,18 +33,21 @@ export function PendingAccountRequests() {
   const [processingIds, setProcessingIds] = useState<Set<string>>(new Set());
   const queryClient = useQueryClient();
 
-  const { data, isLoading, isError, error } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["accountRequests"],
     queryFn: getAccountRequests,
   });
 
-  const requests = data?.success ? data.requests : [];
-
-  if (isError) {
-    toast.error("Error", {
-      description: `Failed to fetch account requests: ${JSON.stringify(error)}`,
-    });
-  }
+  const requests = useMemo(
+    () =>
+      data?.success
+        ? [...data.requests].sort(
+            (a, b) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+          )
+        : [],
+    [data],
+  );
 
   const setProcessing = (id: string, processing: boolean) => {
     setProcessingIds((prev) => {
@@ -70,6 +73,7 @@ export function PendingAccountRequests() {
         });
         queryClient.invalidateQueries({ queryKey: ["accountRequests"] });
         queryClient.invalidateQueries({ queryKey: ["users"] });
+        queryClient.invalidateQueries({ queryKey: ["projects"] });
       } else {
         toast.error("Failed to Accept Request", {
           description: result.error ?? "An unexpected error occurred.",
@@ -82,9 +86,9 @@ export function PendingAccountRequests() {
     },
   });
 
-  const declineRequestHandler = useMutation({
+  const deleteRequestHandler = useMutation({
     mutationFn: async (request: AccountRequest) =>
-      declineAccountRequest(request.id),
+      deleteAccountRequest(request.id),
     onMutate: (request) => setProcessing(request.id, true),
     onSuccess: (result, request) => {
       setProcessing(request.id, false);
@@ -136,6 +140,11 @@ export function PendingAccountRequests() {
                 </div>
               ))}
             </div>
+          ) : data && !data.success ? (
+            <div className="flex flex-col items-center justify-center py-12 text-center text-sm text-muted-foreground gap-2">
+              <XCircle className="h-8 w-8 text-muted-foreground/40" />
+              <span>{data.error ?? "Failed to load account requests."}</span>
+            </div>
           ) : requests.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center text-sm text-muted-foreground gap-2">
               <CheckCircle className="h-8 w-8 text-muted-foreground/40" />
@@ -185,7 +194,7 @@ export function PendingAccountRequests() {
                         size="sm"
                         variant="outline"
                         disabled={isProcessing}
-                        onClick={() => declineRequestHandler.mutate(request)}
+                        onClick={() => deleteRequestHandler.mutate(request)}
                         className="gap-1.5 border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
                       >
                         <XCircle className="h-3.5 w-3.5" />

@@ -242,6 +242,74 @@ export async function createAnalyticsConfig(
   return JSON.parse(JSON.stringify(analyticsConfig));
 }
 
+export async function getEmailSenders(projectId: string) {
+  const session = await getSession();
+  if (!session) {
+    return { success: false, error: "Unauthorized", senders: [] };
+  }
+
+  if (!hasProjectAccess(session.user, Number(projectId))) {
+    return {
+      success: false,
+      error: "You don't have access to this project",
+      senders: [],
+    };
+  }
+
+  const junoClient = getJunoInstance();
+  try {
+    const result = await junoClient.email.getSenders({
+      userJwt: session.jwt,
+      projectId: projectId,
+    });
+    return {
+      success: true,
+      senders: JSON.parse(JSON.stringify(result.senders ?? [])),
+    };
+  } catch (error) {
+    console.error("Error fetching email senders:", error);
+    return {
+      success: false,
+      error: "Failed to fetch email senders",
+      senders: [],
+    };
+  }
+}
+
+export async function getEmailDomains(projectId: string) {
+  const session = await getSession();
+  if (!session) {
+    return { success: false, error: "Unauthorized", domains: [] };
+  }
+
+  if (!hasProjectAccess(session.user, Number(projectId))) {
+    return {
+      success: false,
+      error: "You don't have access to this project",
+      domains: [],
+    };
+  }
+
+  const junoClient = getJunoInstance();
+  try {
+    const result = await junoClient.email.getDomains({
+      userJwt: session.jwt,
+      projectId: projectId,
+    });
+    return {
+      success: true,
+      domains: JSON.parse(JSON.stringify(result.domains ?? [])),
+    };
+  } catch (error) {
+    console.error("Error fetching email domains:", error);
+    return {
+      success: false,
+      error: "Failed to fetch email domains",
+      domains: [],
+    };
+  }
+}
+
 export async function getEmailAnalytics(
   projectId: string,
   options?: {

@@ -2,6 +2,7 @@
 
 import {
   ChevronDown,
+  ChevronRight,
   Files,
   FolderKanban,
   LayoutDashboard,
@@ -9,6 +10,8 @@ import {
   Settings,
   Shield,
   User,
+  BarChart3,
+  Cog,
 } from "lucide-react";
 
 import {
@@ -21,6 +24,9 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
 import { getProjects } from "@/lib/sdkActions";
 import { useEffect, useState } from "react";
@@ -33,6 +39,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@radix-ui/react-collapsible";
 
 type ProjectSidebarProps = {
   projectId: number;
@@ -98,7 +109,7 @@ export function ProjectSidebar({
     }
   }, [user]);
 
-  // Menu items.
+  // Menu items without Email (handled separately with sub-items).
   const items = [
     {
       title: "Dashboard",
@@ -111,11 +122,6 @@ export function ProjectSidebar({
       icon: User,
     },
     {
-      title: "Email",
-      url: `/projects/${projectId}/services/email`,
-      icon: Mail,
-    },
-    {
       title: "Files",
       url: `/projects/${projectId}/services/files`,
       icon: Files,
@@ -124,6 +130,19 @@ export function ProjectSidebar({
       title: "Settings",
       url: `/projects/${projectId}/settings`,
       icon: Settings,
+    },
+  ];
+
+  const emailSubItems = [
+    {
+      title: "Analytics",
+      url: `/projects/${projectId}/services/email`,
+      icon: BarChart3,
+    },
+    {
+      title: "Configurations",
+      url: `/projects/${projectId}/services/email/configurations`,
+      icon: Cog,
     },
   ];
 
@@ -188,7 +207,44 @@ export function ProjectSidebar({
           <SidebarGroupLabel>Application</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
+              {items.slice(0, 2).map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <a href={item.url}>
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </a>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+
+              <Collapsible defaultOpen className="group/collapsible">
+                <SidebarMenuItem>
+                  <CollapsibleTrigger asChild>
+                    <SidebarMenuButton>
+                      <Mail />
+                      <span>Email</span>
+                      <ChevronRight className="ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-90" />
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <SidebarMenuSub>
+                      {emailSubItems.map((item) => (
+                        <SidebarMenuSubItem key={item.title}>
+                          <SidebarMenuSubButton asChild>
+                            <a href={item.url}>
+                              <item.icon />
+                              <span>{item.title}</span>
+                            </a>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      ))}
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
+                </SidebarMenuItem>
+              </Collapsible>
+
+              {items.slice(2).map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <a href={item.url}>

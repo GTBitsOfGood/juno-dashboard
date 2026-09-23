@@ -59,19 +59,21 @@ type CreateAPIKeyFormProps = {
   onKeyAdd: (newKey: APIKey) => void;
   onClose?: () => void;
   projects?: string[];
+  lockedProjectName?: string; 
 };
 
 const CreateAPIKeyForm = ({
   onKeyAdd,
   onClose,
   projects = [],
+  lockedProjectName,
 }: CreateAPIKeyFormProps) => {
   const createApiKeyForm = useForm({
     resolver: zodResolver(createAPIKeySchema),
     defaultValues: {
       description: "",
       environment: Environment.dev,
-      projectName: "",
+      projectName: lockedProjectName ?? "",
     },
   });
 
@@ -82,10 +84,11 @@ const CreateAPIKeyForm = ({
   const handleCreateApiKey = async (
     data: Required<z.infer<typeof createAPIKeySchema>>,
   ) => {
+    const projectName = lockedProjectName ?? data.projectName;
     setLoading(true);
     try {
       const result = await createKeyAction({
-        projectName: data.projectName,
+        projectName,
         environment: data.environment,
         description: data.description,
       });
@@ -99,7 +102,7 @@ const CreateAPIKeyForm = ({
       const key: APIKey = {
         environment: data.environment,
         description: data.description,
-        project: { name: data.projectName },
+        project: { name: projectName },
         value: result.apiKey,
       };
 

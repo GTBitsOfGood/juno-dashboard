@@ -4,6 +4,7 @@ import {
   ChevronDown,
   Files,
   FolderKanban,
+  KeyRound,
   LayoutDashboard,
   Mail,
   Settings,
@@ -119,6 +120,11 @@ export function ProjectSidebar({
       title: "Files",
       url: `/projects/${projectId}/services/files`,
       icon: Files,
+    },
+    {
+      title: "KeyRound",
+      url: `/projects/${projectId}/keys`,
+      icon: KeyRound,
     },
     {
       title: "Settings",

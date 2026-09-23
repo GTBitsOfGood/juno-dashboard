@@ -37,8 +37,9 @@ function getProjectColor(project: string): string {
 
 export const apiKeyColumns = (
   onDelete: (apiKey: ApiKeyColumn) => void,
+  options?: { hideProjectColumn?: boolean },
 ): ColumnDef<ApiKeyColumn>[] => {
-  return [
+  const columns: ColumnDef<ApiKeyColumn>[] = [
     {
       id: "select",
       header: ({ table }) => (
@@ -182,4 +183,11 @@ export const apiKeyColumns = (
       size: 50,
     },
   ];
+
+  return options?.hideProjectColumn
+    ? columns.filter(
+        (column) =>
+          !("accessorKey" in column && column.accessorKey === "linkedProject"),
+      )
+    : columns;
 };

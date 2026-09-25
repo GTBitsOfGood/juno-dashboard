@@ -122,7 +122,7 @@ export function ProjectSidebar({
       icon: Files,
     },
     {
-      title: "KeyRound",
+      title: "API Keys",
       url: `/projects/${projectId}/keys`,
       icon: KeyRound,
     },

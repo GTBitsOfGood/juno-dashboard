@@ -59,7 +59,7 @@ type CreateAPIKeyFormProps = {
   onKeyAdd: (newKey: APIKey) => void;
   onClose?: () => void;
   projects?: string[];
-  lockedProjectName?: string;
+  lockedProjectName?: string; 
 };
 
 const CreateAPIKeyForm = ({

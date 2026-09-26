@@ -78,7 +78,9 @@ const EditUserForm = ({
     defaultValues: {
       userEmail: initialUserData.email,
       userType: initialUserData.role as unknown as
-        "SUPERADMIN" | "ADMIN" | "USER",
+        | "SUPERADMIN"
+        | "ADMIN"
+        | "USER",
       projects: initialUserData.projects || [],
     },
   });

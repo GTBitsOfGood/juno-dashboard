@@ -16,10 +16,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { getApiKeysAction, deleteApiKeyByIdAction } from "@/lib/actions";
 import { getProjectById } from "@/lib/project";
-import {
-  UserType,
-  useUserSession,
-} from "@/components/providers/SessionProvider";
+import { UserType, useUserSession } from "@/components/providers/SessionProvider";
 import { useQuery } from "@tanstack/react-query";
 import { ProjectResponse } from "juno-sdk/build/main/internal/index";
 import { useParams } from "next/navigation";
@@ -41,15 +38,14 @@ export default function ProjectKeysPage() {
   const { projectId } = useParams<{ projectId: string }>();
   const { user } = useUserSession();
 
-  const { isLoading: projectLoading, data: project } =
-    useQuery<ProjectResponse>({
-      queryKey: ["project", projectId],
-      queryFn: async () => {
-        const result = await getProjectById(Number(projectId));
-        if (!result.success) throw new Error(result.error);
-        return result.project;
-      },
-    });
+  const { isLoading: projectLoading, data: project } = useQuery<ProjectResponse>({
+    queryKey: ["project", projectId],
+    queryFn: async () => {
+      const result = await getProjectById(Number(projectId));
+      if (!result.success) throw new Error(result.error);
+      return result.project;
+    },
+  });
 
   const [apiKeys, setApiKeys] = useState<ApiKeyColumn[]>([]);
   const [isLoading, setIsLoading] = useState(true);

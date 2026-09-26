@@ -23,7 +23,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { ProjectResponse } from "juno-sdk/build/main/internal/index";
 import { useParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 type CreatedKeyInfo = {
@@ -53,22 +53,36 @@ export default function ProjectKeysPage() {
 
   const [apiKeys, setApiKeys] = useState<ApiKeyColumn[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [loadError, setLoadError] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [possiblyIncomplete, setPossiblyIncomplete] = useState(false);
   const [createdKey, setCreatedKey] = useState<CreatedKeyInfo | null>(null);
   const [keysLoadTrigger, setKeysLoadTrigger] = useState(0);
 
+  const requestIdRef = useRef(0);
+
   const fetchProjectKeys = useCallback(async () => {
+    const requestId = ++requestIdRef.current;
     setIsLoading(true);
-    setLoadError(false);
+    setLoadError(null);
+    setPossiblyIncomplete(false);
     try {
       const all: ApiKeyColumn[] = [];
       let offset = 0;
+      let sawFailure = false;
+      let hitCap = true; // assume the cap was hit unless the loop breaks naturally
+
       for (let i = 0; i < MAX_PAGES; i++) {
         const result = await getApiKeysAction({ offset, limit: PAGE_SIZE });
+
+        if (requestId !== requestIdRef.current) return; // a newer fetch superseded this one
+
         if (!result.success) {
-          setLoadError(true);
+          setLoadError(result.error ?? "Failed to fetch API keys");
+          sawFailure = true;
+          hitCap = false;
           break;
         }
+
         const page = result.keys ?? [];
         for (const key of page) {
           if (String(key.project) === String(projectId)) {
@@ -83,14 +97,28 @@ export default function ProjectKeysPage() {
             });
           }
         }
-        if (!result.links?.next || page.length < PAGE_SIZE) break;
+
+        if (!result.links?.next || page.length < PAGE_SIZE) {
+          hitCap = false; // exhausted normally, not cut off
+          break;
+        }
         offset += PAGE_SIZE;
       }
-      setApiKeys(all);
+
+      if (requestId !== requestIdRef.current) return; // check again before committing
+
+      if (!sawFailure) {
+        setApiKeys(all);
+        setPossiblyIncomplete(hitCap);
+      }
     } catch {
-      setLoadError(true);
+      if (requestId === requestIdRef.current) {
+        setLoadError("Failed to fetch API keys");
+      }
     } finally {
-      setIsLoading(false);
+      if (requestId === requestIdRef.current) {
+        setIsLoading(false);
+      }
     }
   }, [projectId, project?.name]);
 
@@ -133,10 +161,13 @@ export default function ProjectKeysPage() {
       <Separator className="mb-8" />
 
       <div className="flex flex-col gap-8">
-        {loadError && (
-          <p className="text-sm text-red-400">
-            Failed to load API keys. You may not have permission to view keys
-            for this project.
+        {loadError && <p className="text-sm text-red-400">{loadError}</p>}
+
+        {possiblyIncomplete && (
+          <p className="text-sm text-yellow-500">
+            There may be more keys than shown — this project&apos;s list could
+            not be fully loaded. Contact an admin if you expect to see
+            additional keys.
           </p>
         )}
 

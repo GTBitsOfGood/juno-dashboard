@@ -121,11 +121,15 @@ export function ProjectSidebar({
       url: `/projects/${projectId}/services/files`,
       icon: Files,
     },
-    {
-      title: "API Keys",
-      url: `/projects/${projectId}/keys`,
-      icon: KeyRound,
-    },
+    ...(user && user.type !== UserType.USER
+      ? [
+          {
+            title: "API Keys",
+            url: `/projects/${projectId}/keys`,
+            icon: KeyRound,
+          },
+        ]
+      : []),
     {
       title: "Settings",
       url: `/projects/${projectId}/settings`,

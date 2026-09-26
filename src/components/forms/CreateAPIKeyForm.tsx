@@ -136,67 +136,79 @@ const CreateAPIKeyForm = ({
             onSubmit={createApiKeyForm.handleSubmit(handleCreateApiKey)}
             className="flex flex-col gap-8"
           >
-            <FormField
-              control={createApiKeyForm.control}
-              name="projectName"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Project Name</FormLabel>
-                  <Popover open={comboboxOpen} onOpenChange={setComboboxOpen}>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant="outline"
-                          role="combobox"
-                          aria-expanded={comboboxOpen}
-                          className={cn(
-                            "w-full justify-between",
-                            !field.value && "text-muted-foreground",
-                          )}
-                        >
-                          {field.value || "Select a project"}
-                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                      <Command>
-                        <CommandInput placeholder="Search projects..." />
-                        <CommandList>
-                          <CommandEmpty>No projects found.</CommandEmpty>
-                          <CommandGroup>
-                            {projects.map((project) => (
-                              <CommandItem
-                                key={project}
-                                value={project}
-                                onSelect={() => {
-                                  field.onChange(project);
-                                  setComboboxOpen(false);
-                                }}
-                              >
-                                <Check
-                                  className={cn(
-                                    "mr-2 h-4 w-4",
-                                    field.value === project
-                                      ? "opacity-100"
-                                      : "opacity-0",
-                                  )}
-                                />
-                                {project}
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
-                  <FormMessage />
-                  <FormDescription>
-                    Name of the project to add an API key
-                  </FormDescription>
-                </FormItem>
-              )}
-            />
+            {lockedProjectName ? (
+              <FormItem>
+                <FormLabel>Project</FormLabel>
+                <FormControl>
+                  <Input value={lockedProjectName} disabled />
+                </FormControl>
+                <FormDescription>
+                  This key will be scoped to the current project.
+                </FormDescription>
+              </FormItem>
+            ) : (
+              <FormField
+                control={createApiKeyForm.control}
+                name="projectName"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Project Name</FormLabel>
+                    <Popover open={comboboxOpen} onOpenChange={setComboboxOpen}>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            aria-expanded={comboboxOpen}
+                            className={cn(
+                              "w-full justify-between",
+                              !field.value && "text-muted-foreground",
+                            )}
+                          >
+                            {field.value || "Select a project"}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                        <Command>
+                          <CommandInput placeholder="Search projects..." />
+                          <CommandList>
+                            <CommandEmpty>No projects found.</CommandEmpty>
+                            <CommandGroup>
+                              {projects.map((project) => (
+                                <CommandItem
+                                  key={project}
+                                  value={project}
+                                  onSelect={() => {
+                                    field.onChange(project);
+                                    setComboboxOpen(false);
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      field.value === project
+                                        ? "opacity-100"
+                                        : "opacity-0",
+                                    )}
+                                  />
+                                  {project}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                    <FormDescription>
+                      Name of the project to add an API key
+                    </FormDescription>
+                  </FormItem>
+                )}
+              />
+            )}
             <FormField
               control={createApiKeyForm.control}
               name="description"

@@ -31,7 +31,7 @@ import {
 } from "@/lib/settings";
 import { useQuery } from "@tanstack/react-query";
 import type { ProjectResponse } from "juno-sdk/build/main/internal/index";
-import { BarChart3, Settings } from "lucide-react";
+import { BarChart3 } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
@@ -575,9 +575,9 @@ const DashboardPage = () => {
               clicks, and custom events using Juno.
             </p>
             <Button asChild>
-              <Link href={`/projects/${projectId}/settings`}>
-                <Settings className="mr-2 h-4 w-4" />
-                Go to Settings
+              <Link href={`/projects/${projectId}/analytics`}>
+                <BarChart3 className="mr-2 h-4 w-4" />
+                Set up analytics
               </Link>
             </Button>
           </CardContent>

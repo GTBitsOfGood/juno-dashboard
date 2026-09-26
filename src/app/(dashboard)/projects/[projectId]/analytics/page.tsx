@@ -1,7 +1,6 @@
 "use client";
 
-import { EmailConfigTable } from "@/components/emailConfigTable/emailConfig-table";
-import { FileConfigTable } from "@/components/fileConfigTable/fileConfig-table";
+import { AnalyticsConfigTable } from "@/components/analyticsConfigTable/analyticsConfig-table";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -17,7 +16,7 @@ import { ProjectResponse } from "juno-sdk/build/main/internal/index";
 import { useParams } from "next/navigation";
 import { toast } from "sonner";
 
-const ProjectSettingsPage = () => {
+const ProjectAnalyticsPage = () => {
   const { projectId } = useParams<{ projectId: string }>();
 
   const { isLoading, isError, data, error } = useQuery<ProjectResponse>({
@@ -52,17 +51,16 @@ const ProjectSettingsPage = () => {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Settings</BreadcrumbPage>
+            <BreadcrumbPage>Analytics</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
       <Separator className="mb-8" />
       <div className="flex flex-col gap-8">
-        <FileConfigTable projectId={projectId} />
-        <EmailConfigTable projectId={projectId} />
+        <AnalyticsConfigTable projectId={projectId} />
       </div>
     </div>
   );
 };
 
-export default ProjectSettingsPage;
+export default ProjectAnalyticsPage;

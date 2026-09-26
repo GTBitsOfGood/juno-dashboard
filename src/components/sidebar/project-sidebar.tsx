@@ -10,6 +10,7 @@ import {
   Settings,
   Shield,
   User,
+  ChartColumn,
 } from "lucide-react";
 
 import {
@@ -134,6 +135,11 @@ export function ProjectSidebar({
       title: "Settings",
       url: `/projects/${projectId}/settings`,
       icon: Settings,
+    },
+    {
+      title: "Analytics",
+      url: `/projects/${projectId}/analytics`,
+      icon: ChartColumn,
     },
   ];
 

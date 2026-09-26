@@ -13,10 +13,7 @@ export interface Event {
 }
 
 export type EventMetric =
-  | "click_events"
-  | "input_events"
-  | "visit_events"
-  | "custom_events";
+  "click_events" | "input_events" | "visit_events" | "custom_events";
 
 export interface EventProperties {
   objectId?: string;

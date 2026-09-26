@@ -64,6 +64,8 @@ interface ApiKeyDataTableProps {
   paginationLinks: PaginationLinks;
   onPageIndexChange: (pageIndex: number) => void;
   onPageSizeChange: (pageSize: number) => void;
+  hideProjectColumn?: boolean;
+  hidePagination?: boolean;
 }
 
 function parseOffsetFromLink(link: string, pageSize: number): number {
@@ -85,6 +87,8 @@ export function ApiKeyDataTable({
   paginationLinks,
   onPageIndexChange,
   onPageSizeChange,
+  hideProjectColumn,
+  hidePagination,
 }: ApiKeyDataTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -101,7 +105,7 @@ export function ApiKeyDataTable({
     setIsDeleteDialogOpen(true);
   };
 
-  const columns = apiKeyColumns(handleSingleDelete);
+  const columns = apiKeyColumns(handleSingleDelete, { hideProjectColumn });
 
   const table = useReactTable({
     data,
@@ -321,76 +325,80 @@ export function ApiKeyDataTable({
         </div>
 
         {/* Pagination footer */}
-        <div className="flex items-center justify-between py-4">
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">Rows per page</span>
-            <Select
-              value={String(table.getState().pagination.pageSize)}
-              onValueChange={(value) => table.setPageSize(Number(value))}
-            >
-              <SelectTrigger className="w-[70px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {[5, 10, 20].map((size) => (
-                  <SelectItem key={size} value={String(size)}>
-                    {size}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+        {!hidePagination && (
+          <div className="flex items-center justify-between py-4">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">
+                Rows per page
+              </span>
+              <Select
+                value={String(table.getState().pagination.pageSize)}
+                onValueChange={(value) => table.setPageSize(Number(value))}
+              >
+                <SelectTrigger className="w-[70px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {[5, 10, 20].map((size) => (
+                    <SelectItem key={size} value={String(size)}>
+                      {size}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  onPageIndexChange(
+                    parseOffsetFromLink(paginationLinks.first, pageSize),
+                  )
+                }
+                disabled={!paginationLinks.first}
+              >
+                First
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  onPageIndexChange(
+                    parseOffsetFromLink(paginationLinks.prev, pageSize),
+                  )
+                }
+                disabled={!paginationLinks.prev}
+              >
+                Previous
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  onPageIndexChange(
+                    parseOffsetFromLink(paginationLinks.next, pageSize),
+                  )
+                }
+                disabled={!paginationLinks.next}
+              >
+                Next
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  onPageIndexChange(
+                    parseOffsetFromLink(paginationLinks.last, pageSize),
+                  )
+                }
+                disabled={!paginationLinks.last}
+              >
+                Last
+              </Button>
+            </div>
           </div>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() =>
-                onPageIndexChange(
-                  parseOffsetFromLink(paginationLinks.first, pageSize),
-                )
-              }
-              disabled={!paginationLinks.first}
-            >
-              First
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() =>
-                onPageIndexChange(
-                  parseOffsetFromLink(paginationLinks.prev, pageSize),
-                )
-              }
-              disabled={!paginationLinks.prev}
-            >
-              Previous
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() =>
-                onPageIndexChange(
-                  parseOffsetFromLink(paginationLinks.next, pageSize),
-                )
-              }
-              disabled={!paginationLinks.next}
-            >
-              Next
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() =>
-                onPageIndexChange(
-                  parseOffsetFromLink(paginationLinks.last, pageSize),
-                )
-              }
-              disabled={!paginationLinks.last}
-            >
-              Last
-            </Button>
-          </div>
-        </div>
+        )}
       </div>
     </Card>
   );

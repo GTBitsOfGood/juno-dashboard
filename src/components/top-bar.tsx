@@ -19,8 +19,11 @@ function getPageTitle(pathname: string): string {
     const sub = projectMatch[1];
     if (!sub || sub === "/") return "Dashboard";
     if (sub === "/users") return "Users";
+    if (sub === "/services") return "Services";
     if (sub === "/services/email") return "Email";
     if (sub === "/services/files") return "Files";
+    if (sub === "/analytics") return "Analytics";
+    if (sub === "/keys") return "API Keys";
     if (sub === "/settings") return "Settings";
     if (sub === "/analytics") return "Analytics";
   }

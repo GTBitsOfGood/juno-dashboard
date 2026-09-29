@@ -4,6 +4,7 @@ import {
   ChevronDown,
   Files,
   FolderKanban,
+  KeyRound,
   LayoutDashboard,
   Mail,
   Settings,
@@ -120,6 +121,15 @@ export function ProjectSidebar({
       url: `/projects/${projectId}/services/files`,
       icon: Files,
     },
+    ...(user && user.type !== UserType.USER
+      ? [
+          {
+            title: "API Keys",
+            url: `/projects/${projectId}/keys`,
+            icon: KeyRound,
+          },
+        ]
+      : []),
     {
       title: "Settings",
       url: `/projects/${projectId}/settings`,

@@ -13,11 +13,15 @@ import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { getApiKeysAction } from "@/lib/actions";
-
-const NOT_CONFIGURABLE = ["API Keys"];
+import {
+  UserType,
+  useUserSession,
+} from "@/components/providers/SessionProvider";
 
 const ServicesPage = () => {
   const { projectId } = useParams<{ projectId: string }>();
+  const { user } = useUserSession();
+  const isAdmin = user && user.type !== UserType.USER;
 
   const { data: emailConfig, isLoading: emailLoading } = useQuery({
     queryKey: ["emailConfig", projectId],
@@ -51,7 +55,7 @@ const ServicesPage = () => {
     refetchOnMount: "always",
   });
 
-  const { data: apiKeyCount = 0, isLoading: apiKeysLoading } = useQuery({
+  const { data: apiKeyData, isLoading: apiKeysLoading } = useQuery({
     queryKey: ["apiKeyCount", projectId],
     queryFn: async () => {
       const limit = 100;
@@ -65,7 +69,7 @@ const ServicesPage = () => {
         });
 
         if (!result.success) {
-          throw new Error(result.error ?? "Failed to fetch API keys");
+          return { count: null, error: result.error };
         }
 
         const keys = result.keys ?? [];
@@ -81,12 +85,15 @@ const ServicesPage = () => {
         offset += limit;
       }
 
-      return count;
+      return { count, error: null };
     },
-    enabled: !!projectId,
+    enabled: !!projectId && isAdmin,
     staleTime: 0,
     refetchOnMount: "always",
   });
+
+  const apiKeyCount = apiKeyData?.count ?? null;
+  const apiKeyAccessDenied = !isAdmin || apiKeyData?.error != null;
 
   const isEmailConfigured = emailConfig !== null;
   const isFileConfigured = fileConfig !== null;
@@ -103,6 +110,7 @@ const ServicesPage = () => {
       loading: emailLoading,
       description:
         "Configure email to send messages and notifications from your project.",
+      href: `/projects/${projectId}/services/email`,
     },
     {
       name: "Files",
@@ -110,6 +118,7 @@ const ServicesPage = () => {
       loading: fileConfigLoading,
       description:
         "Configure file storage and manage buckets and uploaded files.",
+      href: `/projects/${projectId}/services/files`,
     },
     {
       name: "Analytics",
@@ -117,13 +126,16 @@ const ServicesPage = () => {
       loading: analyticsLoading,
       description:
         "Configure analytics to track user interactions, visits, clicks, and custom events.",
+      href: `/projects/${projectId}/analytics`,
     },
     {
       name: "API Keys",
-      configured: true,
+      configured: null,
       loading: false,
       description:
         "Create and manage API keys used to authenticate your project.",
+      href: `/projects/${projectId}/keys`,
+      adminOnly: true,
     },
   ];
 
@@ -132,90 +144,93 @@ const ServicesPage = () => {
       <h1 className="mb-4 text-lg font-bold">Services</h1>
       <div className="grid gap-4 lg:grid-cols-2">
         {services.map((service) => (
-          <Card key={service.name} className="flex flex-col">
-            <CardHeader>
-              <div className="flex items-center justify-between gap-3">
-                <CardTitle>{service.name}</CardTitle>
-                {NOT_CONFIGURABLE.includes(service.name) ? null : (
-                  <Badge
-                    variant={
-                      service.loading
-                        ? "secondary"
-                        : service.configured
-                          ? "default"
-                          : "secondary"
-                    }
-                  >
-                    {service.loading
-                      ? "Checking..."
-                      : service.configured
-                        ? "Configured"
-                        : "Not configured"}
-                  </Badge>
-                )}
-              </div>
-            </CardHeader>
-            <CardContent className="flex flex-1 flex-col">
-              <p className="mb-4 text-sm text-muted-foreground">
-                {service.description}
-              </p>
-              {service.name === "API Keys" && (
-                <div className="mb-4 text-sm text-muted-foreground">
-                  Number of API Keys:{" "}
-                  <span className="text-foreground">
-                    {apiKeysLoading ? "Checking..." : `${apiKeyCount ?? 0}`}
-                  </span>
-                </div>
-              )}
-              {service.name === "Files" &&
-              isFileConfigured &&
-              !fileConfigLoading ? (
-                <div className="mb-4 space-y-1 text-sm text-muted-foreground">
-                  <div>
-                    Provider:{" "}
-                    <span className="text-foreground">
-                      {providersLoading
+          <Link key={service.name} href={service.href} className="block">
+            <Card className="flex flex-col h-full hover:border-primary/50 transition-colors cursor-pointer">
+              <CardHeader>
+                <div className="flex items-center justify-between gap-3">
+                  <CardTitle>{service.name}</CardTitle>
+                  {service.adminOnly ? (
+                    isAdmin ? null : (
+                      <Badge variant="outline">Admins only</Badge>
+                    )
+                  ) : (
+                    <Badge
+                      variant={
+                        service.loading
+                          ? "secondary"
+                          : service.configured
+                            ? "default"
+                            : "secondary"
+                      }
+                    >
+                      {service.loading
                         ? "Checking..."
-                        : hasProvider
+                        : service.configured
                           ? "Configured"
                           : "Not configured"}
-                    </span>
-                  </div>
-                  <div>
-                    Buckets:{" "}
-                    <span className="text-foreground">
-                      {fileConfigLoading
-                        ? "Checking..."
-                        : hasBucket
-                          ? "Available"
-                          : "None"}
-                    </span>
-                  </div>
-                  <div>
-                    Files:{" "}
-                    <span className="text-foreground">
-                      {fileConfigLoading
-                        ? "Checking..."
-                        : hasFiles
-                          ? "Available"
-                          : "None"}
-                    </span>
-                  </div>
+                    </Badge>
+                  )}
                 </div>
-              ) : null}
-              {service.configured ? null : (
-                <Link
-                  href={`/projects/${projectId}/settings`}
-                  className="text-sm mt-auto"
-                >
-                  <div className="flex items-center">
-                    Configure
-                    <ArrowRight className="ml-2 h-4 w-4" />
+              </CardHeader>
+              <CardContent className="flex flex-1 flex-col">
+                <p className="mb-4 text-sm text-muted-foreground">
+                  {service.description}
+                </p>
+                {service.name === "API Keys" && isAdmin && (
+                  <div className="mb-4 text-sm text-muted-foreground">
+                    Number of API Keys:{" "}
+                    <span className="text-foreground">
+                      {apiKeysLoading
+                        ? "Checking..."
+                        : apiKeyAccessDenied
+                          ? "—"
+                          : `${apiKeyCount ?? 0}`}
+                    </span>
                   </div>
-                </Link>
-              )}
-            </CardContent>
-          </Card>
+                )}
+                {service.name === "Files" &&
+                isFileConfigured &&
+                !fileConfigLoading ? (
+                  <div className="mb-4 space-y-1 text-sm text-muted-foreground">
+                    <div>
+                      Provider:{" "}
+                      <span className="text-foreground">
+                        {providersLoading
+                          ? "Checking..."
+                          : hasProvider
+                            ? "Configured"
+                            : "Not configured"}
+                      </span>
+                    </div>
+                    <div>
+                      Buckets:{" "}
+                      <span className="text-foreground">
+                        {fileConfigLoading
+                          ? "Checking..."
+                          : hasBucket
+                            ? "Available"
+                            : "None"}
+                      </span>
+                    </div>
+                    <div>
+                      Files:{" "}
+                      <span className="text-foreground">
+                        {fileConfigLoading
+                          ? "Checking..."
+                          : hasFiles
+                            ? "Available"
+                            : "None"}
+                      </span>
+                    </div>
+                  </div>
+                ) : null}
+                <div className="mt-auto flex items-center text-sm text-primary">
+                  View {service.name.toLowerCase()}
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
         ))}
       </div>
     </div>

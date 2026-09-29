@@ -14,6 +14,7 @@ import { getProjectById } from "@/lib/project";
 import { useQuery } from "@tanstack/react-query";
 import { ProjectResponse } from "juno-sdk/build/main/internal/index";
 import { useParams } from "next/navigation";
+import { useEffect } from "react";
 import { toast } from "sonner";
 
 const ProjectAnalyticsPage = () => {
@@ -30,11 +31,13 @@ const ProjectAnalyticsPage = () => {
     },
   });
 
-  if (isError) {
-    toast.error("Error", {
-      description: `Failed to fetch project: ${JSON.stringify(error)}`,
-    });
-  }
+  useEffect(() => {
+    if (isError && error) {
+      toast.error("Error", {
+        description: `Failed to fetch project: ${error.message}`,
+      });
+    }
+  }, [isError, error]);
 
   return (
     <div className="flex flex-col">

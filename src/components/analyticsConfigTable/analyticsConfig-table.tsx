@@ -15,7 +15,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChartColumn, CircleX } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useReadOnlyMode } from "../providers/SessionProvider";
 import { BaseTable } from "../baseTable";
@@ -32,7 +32,6 @@ interface AnalyticsConfigTableProps {
 export function AnalyticsConfigTable({ projectId }: AnalyticsConfigTableProps) {
   const [isAddConfigDialogOpen, setIsAddConfigDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [selectedRows, setSelectedRows] = useState([]);
   const isReadOnly = useReadOnlyMode();
 
   const queryClient = useQueryClient();
@@ -44,11 +43,13 @@ export function AnalyticsConfigTable({ projectId }: AnalyticsConfigTableProps) {
 
   const analyticsConfigRowData = [data].filter((config) => config);
 
-  if (isError) {
-    toast.error("Error", {
-      description: `Failed to fetch analytics config: ${error.message}`,
-    });
-  }
+  useEffect(() => {
+    if (isError && error) {
+      toast.error("Error", {
+        description: `Failed to fetch analytics config: ${error.message}`,
+      });
+    }
+  }, [isError, error]);
 
   const deleteAnalyticsConfigHandler = useMutation({
     mutationFn: async () => deleteAnalyticsConfig(projectId),
@@ -131,11 +132,11 @@ export function AnalyticsConfigTable({ projectId }: AnalyticsConfigTableProps) {
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Selected Analytics Config</DialogTitle>
+            <DialogTitle>Delete Analytics Configuration</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete {selectedRows.length} selected
-              config{selectedRows.length > 1 ? "s" : ""}? This action cannot be
-              undone.
+              Are you sure you want to delete the analytics configuration for
+              this project? This will remove all analytics tracking settings and
+              cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -160,17 +161,15 @@ export function AnalyticsConfigTable({ projectId }: AnalyticsConfigTableProps) {
       </Dialog>
       <h1 className="text-lg font-bold">Analytics Configurations</h1>
       {isError && (
-        <Alert className="border-red-500/20 bg-red-500/10">
-          <div className="flex items-center gap-2 text-red-400">
-            <CircleX className="h-4 w-4" />
-            <span className="text-sm">
-              Couldn&apos;t load analytics config: {error.message}
-            </span>
-          </div>
+        <Alert variant="destructive">
+          <CircleX className="h-4 w-4" />
+          <span className="text-sm">
+            Couldn&apos;t load analytics config: {error.message}
+          </span>
         </Alert>
       )}
       {isError ? null : !isLoading && analyticsConfigRowData.length === 0 ? (
-        <Card className="max-w-[35%]">
+        <Card className="max-w-full sm:max-w-md">
           <CardHeader>
             <div className="flex items-center gap-3">
               <ChartColumn className="h-5 w-5 text-muted-foreground" />
@@ -229,8 +228,7 @@ export function AnalyticsConfigTable({ projectId }: AnalyticsConfigTableProps) {
               });
             }
           }}
-          onDeleteRow={(rows) => {
-            setSelectedRows(rows);
+          onDeleteRow={() => {
             setIsDeleteDialogOpen(true);
           }}
         />

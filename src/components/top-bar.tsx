@@ -22,6 +22,7 @@ function getPageTitle(pathname: string): string {
     if (sub === "/services/email") return "Email";
     if (sub === "/services/files") return "Files";
     if (sub === "/settings") return "Settings";
+    if (sub === "/analytics") return "Analytics";
   }
 
   return "Dashboard";

@@ -12,12 +12,15 @@ import {
   getAnalyticsConfig,
   updateAnalyticsConfig,
 } from "@/lib/settings";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { ChartColumn, CircleX } from "lucide-react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useReadOnlyMode } from "../providers/SessionProvider";
 import { BaseTable } from "../baseTable";
 import AddAnalyticsConfigForm from "../forms/AddAnalyticsConfigForm";
+import { Alert } from "../ui/alert";
 import { Button } from "../ui/button";
 import { DialogFooter, DialogHeader } from "../ui/dialog";
 import { analyticsConfigColumns } from "./columns";
@@ -29,7 +32,6 @@ interface AnalyticsConfigTableProps {
 export function AnalyticsConfigTable({ projectId }: AnalyticsConfigTableProps) {
   const [isAddConfigDialogOpen, setIsAddConfigDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [selectedRows, setSelectedRows] = useState([]);
   const isReadOnly = useReadOnlyMode();
 
   const queryClient = useQueryClient();
@@ -41,21 +43,16 @@ export function AnalyticsConfigTable({ projectId }: AnalyticsConfigTableProps) {
 
   const analyticsConfigRowData = [data].filter((config) => config);
 
-  if (isError) {
-    toast.error("Error", {
-      description: `Failed to fetch analytics config: ${error.message}`,
-    });
-  }
+  useEffect(() => {
+    if (isError && error) {
+      toast.error("Error", {
+        description: `Failed to fetch analytics config: ${error.message}`,
+      });
+    }
+  }, [isError, error]);
 
   const deleteAnalyticsConfigHandler = useMutation({
-    mutationFn: () => {
-      const deletePromises = selectedRows.map(async (row) => {
-        const projectId = row.id;
-        return deleteAnalyticsConfig(projectId);
-      });
-
-      return Promise.all(deletePromises);
-    },
+    mutationFn: async () => deleteAnalyticsConfig(projectId),
     onSuccess: () => {
       toast.success("Success", {
         description: `Successfully deleted analytics configs.`,
@@ -135,11 +132,11 @@ export function AnalyticsConfigTable({ projectId }: AnalyticsConfigTableProps) {
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Selected Analytics Config</DialogTitle>
+            <DialogTitle>Delete Analytics Configuration</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete {selectedRows.length} selected
-              config{selectedRows.length > 1 ? "s" : ""}? This action cannot be
-              undone.
+              Are you sure you want to delete the analytics configuration for
+              this project? This will remove all analytics tracking settings and
+              cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -163,48 +160,79 @@ export function AnalyticsConfigTable({ projectId }: AnalyticsConfigTableProps) {
         </DialogContent>
       </Dialog>
       <h1 className="text-lg font-bold">Analytics Configurations</h1>
-      <BaseTable
-        data={analyticsConfigRowData}
-        columns={analyticsConfigColumns(
-          Number(projectId),
-          addAnalyticsConfigHandler.isPending,
-          (
-            projectId: number,
-            keys: {
-              serverAnalyticsKey: string;
-              clientAnalyticsKey: string;
+      {isError && (
+        <Alert variant="destructive">
+          <CircleX className="h-4 w-4" />
+          <span className="text-sm">
+            Couldn&apos;t load analytics config: {error.message}
+          </span>
+        </Alert>
+      )}
+      {isError ? null : !isLoading && analyticsConfigRowData.length === 0 ? (
+        <Card className="max-w-full sm:max-w-md">
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <ChartColumn className="h-5 w-5 text-muted-foreground" />
+              <CardTitle>No Analytics Configuration</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground mb-4">
+              Project {projectId} has no analytics configuration yet. Add a
+              server key and a client key to start tracking user interactions,
+              visits, clicks, and custom events using Juno.
+            </p>
+            <Button
+              onClick={() => setIsAddConfigDialogOpen(true)}
+              disabled={isReadOnly || addAnalyticsConfigHandler.isPending}
+            >
+              Set up analytics
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <BaseTable
+          data={analyticsConfigRowData}
+          columns={analyticsConfigColumns(
+            Number(projectId),
+            addAnalyticsConfigHandler.isPending,
+            (
+              projectId: number,
+              keys: {
+                serverAnalyticsKey: string;
+                clientAnalyticsKey: string;
+              },
+            ) => {
+              const { serverAnalyticsKey, clientAnalyticsKey } = keys;
+              updateAnalyticsConfigHandler.mutate({
+                projectId,
+                serverAnalyticsKey,
+                clientAnalyticsKey,
+              });
+              setIsAddConfigDialogOpen(false);
             },
-          ) => {
-            const { serverAnalyticsKey, clientAnalyticsKey } = keys;
-            updateAnalyticsConfigHandler.mutate({
-              projectId,
-              serverAnalyticsKey,
-              clientAnalyticsKey,
-            });
-            setIsAddConfigDialogOpen(false);
-          },
-          isReadOnly,
-        )}
-        isLoading={isLoading}
-        filterParams={{
-          placeholder: "Filter by environment...",
-          filterColumn: "environment",
-        }}
-        onAddNewRow={() => {
-          if (analyticsConfigRowData.length === 0) {
-            setIsAddConfigDialogOpen(true);
-          } else {
-            toast.error("Error", {
-              description:
-                "Project can have at most 1 analytics configuration per environment",
-            });
-          }
-        }}
-        onDeleteRow={(rows) => {
-          setSelectedRows(rows);
-          setIsDeleteDialogOpen(true);
-        }}
-      />
+            isReadOnly,
+          )}
+          isLoading={isLoading}
+          filterParams={{
+            placeholder: "Filter by environment...",
+            filterColumn: "environment",
+          }}
+          onAddNewRow={() => {
+            if (analyticsConfigRowData.length === 0) {
+              setIsAddConfigDialogOpen(true);
+            } else {
+              toast.error("Error", {
+                description:
+                  "Project can have at most 1 analytics configuration per environment",
+              });
+            }
+          }}
+          onDeleteRow={() => {
+            setIsDeleteDialogOpen(true);
+          }}
+        />
+      )}
     </div>
   );
 }

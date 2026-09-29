@@ -126,7 +126,7 @@ export async function getEmailConfig(
 
 export async function getAnalyticsConfig(
   projectId: string,
-): Promise<AnalyticsConfigResponse> {
+): Promise<AnalyticsConfigResponse | null> {
   const session = await getSession();
   if (!session) {
     throw new Error("Unauthorized");
@@ -147,8 +147,13 @@ export async function getAnalyticsConfig(
     );
     return JSON.parse(JSON.stringify(analyticsConfig));
   } catch (e) {
-    if (e.response?.status === 404 || e.response?.status === 401) {
+    if (e.response?.status === 404) {
       return null;
+    }
+    if (e.response?.status === 401) {
+      throw new Error(
+        `Unauthorized: Juno rejected the request for project ${projectId}. The API key may be missing, invalid, or not permitted for this project.`,
+      );
     }
     throw e;
   }

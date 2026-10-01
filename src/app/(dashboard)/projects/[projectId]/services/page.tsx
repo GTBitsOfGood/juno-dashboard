@@ -146,7 +146,7 @@ const ServicesPage = () => {
         {services.map((service) => {
           const canAccess = !service.adminOnly || isAdmin;
           const card = (
-            <Card className="flex flex-col h-full hover:border-primary/50 transition-colors">
+            <Card className={`flex flex-col h-full transition-colors ${canAccess ? "hover:border-primary/50" : ""}`}>
               <CardHeader>
                 <div className="flex items-center justify-between gap-3">
                   <CardTitle>{service.name}</CardTitle>

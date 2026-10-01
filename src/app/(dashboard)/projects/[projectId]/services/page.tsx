@@ -21,7 +21,7 @@ import {
 const ServicesPage = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const { user } = useUserSession();
-  const isAdmin = user && user.type !== UserType.USER;
+  const isAdmin = !!user && user.type !== UserType.USER;
 
   const { data: emailConfig, isLoading: emailLoading } = useQuery({
     queryKey: ["emailConfig", projectId],
@@ -143,9 +143,12 @@ const ServicesPage = () => {
     <div>
       <h1 className="mb-4 text-lg font-bold">Services</h1>
       <div className="grid gap-4 lg:grid-cols-2">
-        {services.map((service) => (
-          <Link key={service.name} href={service.href} className="block">
-            <Card className="flex flex-col h-full hover:border-primary/50 transition-colors cursor-pointer">
+        {services.map((service) => {
+          const canAccess = !service.adminOnly || isAdmin;
+          const card = (
+            <Card
+              className={`flex flex-col h-full transition-colors ${canAccess ? "hover:border-primary/50" : ""}`}
+            >
               <CardHeader>
                 <div className="flex items-center justify-between gap-3">
                   <CardTitle>{service.name}</CardTitle>
@@ -224,14 +227,23 @@ const ServicesPage = () => {
                     </div>
                   </div>
                 ) : null}
-                <div className="mt-auto flex items-center text-sm text-primary">
-                  View {service.name.toLowerCase()}
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </div>
+                {canAccess && (
+                  <div className="mt-auto flex items-center text-sm text-primary">
+                    View {service.name.toLowerCase()}
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </div>
+                )}
               </CardContent>
             </Card>
-          </Link>
-        ))}
+          );
+          return canAccess ? (
+            <Link key={service.name} href={service.href} className="block">
+              {card}
+            </Link>
+          ) : (
+            <div key={service.name}>{card}</div>
+          );
+        })}
       </div>
     </div>
   );

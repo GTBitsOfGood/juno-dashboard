@@ -112,7 +112,9 @@ const AddEmailSenderForm = ({
                   <Input placeholder={placeholder} {...field} />
                 </FormControl>
                 <FormMessage />
-                {description && <FormDescription>{description}</FormDescription>}
+                {description && (
+                  <FormDescription>{description}</FormDescription>
+                )}
               </FormItem>
             )}
           />

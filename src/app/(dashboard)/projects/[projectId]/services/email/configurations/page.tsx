@@ -63,8 +63,8 @@ const EmailSendersAndDomainsPage = () => {
   // Bumped after a sender is registered so the form remounts with empty fields.
   const [senderFormKey, setSenderFormKey] = useState(0);
 
-  const { isLoading: projectLoading, data: project } = useQuery<ProjectResponse>(
-    {
+  const { isLoading: projectLoading, data: project } =
+    useQuery<ProjectResponse>({
       queryKey: ["project", projectId],
       queryFn: async () => {
         const result = await getProjectById(Number(projectId));
@@ -73,8 +73,7 @@ const EmailSendersAndDomainsPage = () => {
         }
         return result.project;
       },
-    },
-  );
+    });
 
   const {
     data: emailConfig,
@@ -349,9 +348,6 @@ const EmailSendersAndDomainsPage = () => {
       {renderBody()}
     </div>
   );
-};
-
-export default EmailSendersAndDomainsPage;
 };
 
 export default EmailSendersAndDomainsPage;

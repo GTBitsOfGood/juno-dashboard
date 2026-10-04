@@ -7,6 +7,7 @@ import {
   KeyRound,
   LayoutDashboard,
   Mail,
+  MailCheck,
   Settings,
   Shield,
   User,
@@ -117,6 +118,15 @@ export function ProjectSidebar({
       url: `/projects/${projectId}/services/email`,
       icon: Mail,
     },
+    ...(user && user.type !== UserType.USER
+      ? [
+          {
+            title: "Senders & Domains",
+            url: `/projects/${projectId}/services/email/configurations`,
+            icon: MailCheck,
+          },
+        ]
+      : []),
     {
       title: "Files",
       url: `/projects/${projectId}/services/files`,

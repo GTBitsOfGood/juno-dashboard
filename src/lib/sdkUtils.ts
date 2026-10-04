@@ -13,6 +13,7 @@ export type DnsRecord = {
 };
 
 export type DomainRegistration = {
+  domain: string;
   id: number;
   valid: boolean;
   records: {
@@ -49,8 +50,12 @@ function toDnsRecord(record?: Partial<DnsRecord>): DnsRecord {
   };
 }
 
-function toDomainRegistration(res: RegisterDomainResponse): DomainRegistration {
+function toDomainRegistration(
+  res: RegisterDomainResponse,
+  domain: string,
+): DomainRegistration {
   return {
+    domain,
     id: res.id,
     // The gateway returns `valid` as the string "true" / "false".
     valid: String(res.valid) === "true",
@@ -154,7 +159,7 @@ export async function registerJunoDomain(
       success: true,
       message:
         "Domain registered! Add the DNS records below at your DNS provider, then verify.",
-      domain: toDomainRegistration(res),
+      domain: toDomainRegistration(res, domain.trim()),
     };
   } catch (e) {
     console.error(e);
@@ -198,7 +203,7 @@ export async function verifyJunoDomain(
       },
     );
 
-    const registration = toDomainRegistration(res);
+    const registration = toDomainRegistration(res, domain.trim());
     return {
       success: true,
       message: registration.valid

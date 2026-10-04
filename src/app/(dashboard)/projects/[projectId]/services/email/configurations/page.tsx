@@ -42,6 +42,7 @@ import {
   verifyJunoDomain,
   type DomainActionResult,
   type DomainRegistration,
+  type SenderAddressInput,
 } from "@/lib/sdkUtils";
 import { getEmailConfig } from "@/lib/settings";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -84,7 +85,7 @@ const EmailSendersAndDomainsPage = () => {
 
   const registerSender = useMutation({
     mutationFn: (values: AddEmailSenderFormValues) =>
-      registerJunoSenderAddress(projectId, values),
+      registerJunoSenderAddress(projectId, values as SenderAddressInput),
     onSuccess: (res) => {
       if (res.success) {
         toast.success("Sender registered", { description: res.message });

@@ -63,8 +63,8 @@ const EmailSendersAndDomainsPage = () => {
   // Bumped after a sender is registered so the form remounts with empty fields.
   const [senderFormKey, setSenderFormKey] = useState(0);
 
-  const { isLoading: projectLoading, data: project } =
-    useQuery<ProjectResponse>({
+  const { isLoading: projectLoading, data: project } = useQuery<ProjectResponse>(
+    {
       queryKey: ["project", projectId],
       queryFn: async () => {
         const result = await getProjectById(Number(projectId));
@@ -73,9 +73,14 @@ const EmailSendersAndDomainsPage = () => {
         }
         return result.project;
       },
-    });
+    },
+  );
 
-  const { data: emailConfig, isLoading: emailConfigLoading } = useQuery({
+  const {
+    data: emailConfig,
+    isLoading: emailConfigLoading,
+    isError: emailConfigError,
+  } = useQuery({
     queryKey: ["emailConfig", projectId],
     queryFn: () => getEmailConfig(projectId),
     enabled: !!projectId,
@@ -85,6 +90,8 @@ const EmailSendersAndDomainsPage = () => {
 
   const registerSender = useMutation({
     mutationFn: (values: AddEmailSenderFormValues) =>
+      // The zod schema guarantees the required fields; zod infers every key as
+      // optional when tsconfig `strict` is off.
       registerJunoSenderAddress(projectId, values as SenderAddressInput),
     onSuccess: (res) => {
       if (res.success) {
@@ -98,6 +105,16 @@ const EmailSendersAndDomainsPage = () => {
       toast.error("Error", { description: `${e}` });
     },
   });
+
+  // Never leave one domain's DNS records on screen while working on another.
+  const clearRecordsForOtherDomain = (domain: string) => {
+    if (
+      domainResult &&
+      domainResult.domain.toLowerCase() !== domain.trim().toLowerCase()
+    ) {
+      setDomainResult(null);
+    }
+  };
 
   const handleDomainResult = (res: DomainActionResult) => {
     if (!res.success) {
@@ -122,6 +139,7 @@ const EmailSendersAndDomainsPage = () => {
       domain: string;
       subdomain?: string;
     }) => registerJunoDomain(projectId, domain, subdomain),
+    onMutate: ({ domain }) => clearRecordsForOtherDomain(domain),
     onSuccess: handleDomainResult,
     onError: (e) => {
       toast.error("Error", { description: `${e}` });
@@ -130,6 +148,7 @@ const EmailSendersAndDomainsPage = () => {
 
   const verifyDomain = useMutation({
     mutationFn: (domain: string) => verifyJunoDomain(projectId, domain),
+    onMutate: (domain) => clearRecordsForOtherDomain(domain),
     onSuccess: handleDomainResult,
     onError: (e) => {
       toast.error("Error", { description: `${e}` });
@@ -169,7 +188,23 @@ const EmailSendersAndDomainsPage = () => {
       );
     }
 
-    if (!emailConfig) {
+    if (emailConfigError) {
+      return (
+        <Card className="max-w-md">
+          <CardHeader>
+            <CardTitle>Couldn&apos;t Load Email Configuration</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              Something went wrong while checking this project&apos;s email
+              setup. Reload the page to try again.
+            </p>
+          </CardContent>
+        </Card>
+      );
+    }
+
+    if (emailConfig === null) {
       return (
         <Card className="max-w-md">
           <CardHeader>
@@ -236,7 +271,7 @@ const EmailSendersAndDomainsPage = () => {
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between gap-3">
-                <CardTitle>DNS Records</CardTitle>
+                <CardTitle>DNS Records for {domainResult.domain}</CardTitle>
                 <Badge variant={domainResult.valid ? "default" : "secondary"}>
                   {domainResult.valid ? "Verified" : "Not verified"}
                 </Badge>
@@ -314,6 +349,9 @@ const EmailSendersAndDomainsPage = () => {
       {renderBody()}
     </div>
   );
+};
+
+export default EmailSendersAndDomainsPage;
 };
 
 export default EmailSendersAndDomainsPage;

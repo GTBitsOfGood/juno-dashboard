@@ -118,11 +118,15 @@ export function ProjectSidebar({
       url: `/projects/${projectId}/services/email`,
       icon: Mail,
     },
-    {
-      title: "Senders & Domains",
-      url: `/projects/${projectId}/services/email/configurations`,
-      icon: MailCheck,
-    },
+    ...(user && user.type !== UserType.USER
+      ? [
+          {
+            title: "Senders & Domains",
+            url: `/projects/${projectId}/services/email/configurations`,
+            icon: MailCheck,
+          },
+        ]
+      : []),
     {
       title: "Files",
       url: `/projects/${projectId}/services/files`,

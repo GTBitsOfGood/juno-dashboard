@@ -25,7 +25,6 @@ import {
 } from "@/components/providers/SessionProvider";
 import { DEFAULT_CHART_WINDOW_DAYS } from "@/lib/date-range";
 import { getApiKeysAction } from "@/lib/actions";
-import { getAllFileProviders } from "@/lib/fileProvider";
 import { getProjectById } from "@/lib/project";
 import {
   getAllClickEvents,
@@ -96,47 +95,57 @@ const filterEventsByWindow = <T extends HasCreatedAt>(
     );
   });
 
+type SetupStatus = "configured" | "missing" | "checking" | "error";
+
 type SetupChecklistProps = {
   projectId: string;
-  emailConfigured: boolean | null;
-  filesConfigured: boolean | null;
-  analyticsConfigured: boolean | null;
-  apiKeysConfigured: boolean | null;
-  isLoading: boolean;
+  emailStatus: SetupStatus;
+  filesStatus: SetupStatus;
+  analyticsStatus: SetupStatus;
+  apiKeysStatus?: SetupStatus;
 };
 
 const SetupChecklist = ({
   projectId,
-  emailConfigured,
-  filesConfigured,
-  analyticsConfigured,
-  apiKeysConfigured,
-  isLoading,
+  emailStatus,
+  filesStatus,
+  analyticsStatus,
+  apiKeysStatus,
 }: SetupChecklistProps) => {
-  const items = [
+  const items: Array<{
+    label: string;
+    status: SetupStatus;
+    href: string;
+  }> = [
     {
       label: "Email",
-      configured: emailConfigured,
+      status: emailStatus,
       href: `/projects/${projectId}/services/email`,
     },
     {
       label: "Files",
-      configured: filesConfigured,
+      status: filesStatus,
       href: `/projects/${projectId}/services/files`,
     },
     {
       label: "Analytics",
-      configured: analyticsConfigured,
+      status: analyticsStatus,
       href: `/projects/${projectId}/analytics`,
     },
-    {
-      label: "API Keys",
-      configured: apiKeysConfigured,
-      href: `/projects/${projectId}/keys`,
-    },
+    ...(apiKeysStatus
+      ? [
+          {
+            label: "API Keys",
+            status: apiKeysStatus,
+            href: `/projects/${projectId}/keys`,
+          },
+        ]
+      : []),
   ];
 
-  if (isLoading || !items.some((item) => item.configured === false)) {
+  if (
+    !items.some((item) => item.status === "missing" || item.status === "error")
+  ) {
     return null;
   }
 
@@ -153,29 +162,36 @@ const SetupChecklist = ({
       <CardContent>
         <div className="grid gap-2 sm:grid-cols-2">
           {items.map((item) => {
-            const configured = item.configured === true;
-            const checking = item.configured === null;
+            const configured = item.status === "configured";
+            const checking = item.status === "checking";
+            const failed = item.status === "error";
 
             return (
-              <Link
-                key={item.label}
-                href={item.href}
-                className="flex items-center justify-between rounded-md border p-3 transition-colors hover:border-primary/50"
-              >
-                <span className="flex items-center gap-3 text-sm font-medium">
-                  <CheckCircle2
-                    className={
-                      configured
-                        ? "h-4 w-4 text-green-600"
-                        : "h-4 w-4 text-muted-foreground"
-                    }
-                  />
-                  {item.label}
-                </span>
-                <span className="flex items-center gap-2 text-xs text-muted-foreground">
-                  {checking ? "Checking..." : configured ? "Done" : "Set up"}
-                  {!configured && <ArrowRight className="h-3.5 w-3.5" />}
-                </span>
+              <Link key={item.label} href={item.href} className="block">
+                <Card className="flex items-center justify-between rounded-md border p-3 transition-colors hover:border-primary/50 cursor-pointer">
+                  <span className="flex items-center gap-3 text-sm font-medium">
+                    <CheckCircle2
+                      className={
+                        configured
+                          ? "h-4 w-4 text-green-600"
+                          : "h-4 w-4 text-muted-foreground"
+                      }
+                    />
+                    {item.label}
+                  </span>
+                  <span className="flex items-center gap-2 text-xs text-muted-foreground">
+                    {checking
+                      ? "Checking..."
+                      : failed
+                        ? "Could not check"
+                        : configured
+                          ? "Done"
+                          : "Set up"}
+                    {!failed && !configured && !checking ? (
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    ) : null}
+                  </span>
+                </Card>
               </Link>
             );
           })}
@@ -219,7 +235,11 @@ const DashboardPage = () => {
     refetchOnWindowFocus: true,
   });
 
-  const { data: emailConfig, isLoading: emailConfigLoading } = useQuery({
+  const {
+    data: emailConfig,
+    isLoading: emailConfigLoading,
+    isError: emailConfigError,
+  } = useQuery({
     queryKey: ["emailConfig", projectId],
     queryFn: () => getEmailConfig(projectId),
     enabled: !!projectId,
@@ -227,7 +247,11 @@ const DashboardPage = () => {
     refetchOnMount: "always",
   });
 
-  const { data: fileConfig, isLoading: fileConfigLoading } = useQuery({
+  const {
+    data: fileConfig,
+    isLoading: fileConfigLoading,
+    isError: fileConfigError,
+  } = useQuery({
     queryKey: ["fileConfig", projectId],
     queryFn: () => getFileConfig(projectId),
     enabled: !!projectId,
@@ -235,30 +259,27 @@ const DashboardPage = () => {
     refetchOnMount: "always",
   });
 
-  const { data: fileProviders, isLoading: fileProvidersLoading } = useQuery({
-    queryKey: ["fileProvider", projectId],
-    queryFn: () => getAllFileProviders(projectId),
+  const {
+    data: analyticsConfig,
+    isLoading: analyticsConfigLoading,
+    isError: analyticsConfigError,
+  } = useQuery({
+    queryKey: ["analyticsConfig", projectId],
+    queryFn: () => getAnalyticsConfig(projectId),
     enabled: !!projectId,
     staleTime: 0,
     refetchOnMount: "always",
   });
 
-  const { data: analyticsConfig, isLoading: analyticsConfigLoading } = useQuery(
-    {
-      queryKey: ["analyticsConfig", projectId],
-      queryFn: () => getAnalyticsConfig(projectId),
-      enabled: !!projectId,
-      staleTime: 0,
-      refetchOnMount: "always",
-    },
-  );
-
-  const { data: apiKeyData, isLoading: apiKeysLoading } = useQuery({
+  const {
+    data: apiKeyData,
+    isLoading: apiKeysLoading,
+    isError: apiKeysError,
+  } = useQuery({
     queryKey: ["apiKeyCount", projectId],
     queryFn: async () => {
       const limit = 100;
       let offset = 0;
-      let count = 0;
 
       while (true) {
         const result = await getApiKeysAction({ offset, limit });
@@ -267,9 +288,9 @@ const DashboardPage = () => {
         }
 
         const keys = result.keys ?? [];
-        count += keys.filter(
-          (key) => String(key.project) === String(projectId),
-        ).length;
+        if (keys.some((key) => String(key.project) === String(projectId))) {
+          return { count: 1, error: null };
+        }
 
         if (keys.length < limit) {
           break;
@@ -278,7 +299,7 @@ const DashboardPage = () => {
         offset += limit;
       }
 
-      return { count, error: null };
+      return { count: 0, error: null };
     },
     enabled: !!projectId && isAdmin,
     staleTime: 0,
@@ -291,36 +312,53 @@ const DashboardPage = () => {
     });
   }
 
+  const getConfigStatus = (
+    config: unknown,
+    isLoading: boolean,
+    isError: boolean,
+  ): SetupStatus =>
+    isLoading
+      ? "checking"
+      : isError && config === undefined
+        ? "error"
+        : config === null
+          ? "missing"
+          : "configured";
   const hasAnalyticsConfig =
     analyticsConfig === null ? false : !!analyticsConfig;
-  const hasEmailConfig = emailConfig === null ? false : !!emailConfig;
-  const hasFileConfig = fileConfig != null || (fileProviders?.length ?? 0) > 0;
-  const hasApiKeys = apiKeyData?.count != null && apiKeyData.count > 0;
-  const setupChecklistLoading =
-    emailConfigLoading ||
-    fileConfigLoading ||
-    fileProvidersLoading ||
-    analyticsConfigLoading ||
-    (isAdmin && apiKeysLoading);
-  const setupEmailConfigured = emailConfigLoading ? null : hasEmailConfig;
-  const setupFilesConfigured =
-    fileConfigLoading || fileProvidersLoading ? null : hasFileConfig;
-  const setupAnalyticsConfigured = analyticsConfigLoading
-    ? null
-    : hasAnalyticsConfig;
-  const setupApiKeysConfigured = !isAdmin
-    ? null
-    : apiKeysLoading || apiKeyData === undefined
-      ? null
-      : hasApiKeys;
+  const setupEmailStatus = getConfigStatus(
+    emailConfig,
+    emailConfigLoading,
+    emailConfigError,
+  );
+  const setupFilesStatus = getConfigStatus(
+    fileConfig,
+    fileConfigLoading,
+    fileConfigError,
+  );
+  const setupAnalyticsStatus = getConfigStatus(
+    analyticsConfig,
+    analyticsConfigLoading,
+    analyticsConfigError,
+  );
+  const setupApiKeysStatus = isAdmin
+    ? apiKeysLoading
+      ? "checking"
+      : apiKeysError || apiKeyData?.error
+        ? "error"
+        : apiKeyData === undefined
+          ? "checking"
+          : apiKeyData.count > 0
+            ? "configured"
+            : "missing"
+    : undefined;
   const setupChecklist = (
     <SetupChecklist
       projectId={projectId}
-      emailConfigured={setupEmailConfigured}
-      filesConfigured={setupFilesConfigured}
-      analyticsConfigured={setupAnalyticsConfigured}
-      apiKeysConfigured={setupApiKeysConfigured}
-      isLoading={setupChecklistLoading}
+      emailStatus={setupEmailStatus}
+      filesStatus={setupFilesStatus}
+      analyticsStatus={setupAnalyticsStatus}
+      apiKeysStatus={setupApiKeysStatus}
     />
   );
 

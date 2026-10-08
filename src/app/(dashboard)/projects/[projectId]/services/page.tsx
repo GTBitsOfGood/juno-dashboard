@@ -50,7 +50,7 @@ const ServicesPage = () => {
   const { data: providers, isLoading: providersLoading } = useQuery({
     queryKey: ["fileProvider", projectId],
     queryFn: () => getAllFileProviders(projectId),
-    enabled: !!projectId && !!fileConfig,
+    enabled: !!projectId,
     staleTime: 0,
     refetchOnMount: "always",
   });
@@ -95,13 +95,13 @@ const ServicesPage = () => {
   const apiKeyCount = apiKeyData?.count ?? null;
   const apiKeyAccessDenied = !isAdmin || apiKeyData?.error != null;
 
-  const isEmailConfigured = emailConfig !== null;
-  const isFileConfigured = fileConfig !== null;
-  const isAnalyticsConfigured = analyticsConfig !== null;
-
   const hasProvider = (providers?.length ?? 0) > 0;
   const hasBucket = (fileConfig?.buckets?.length ?? 0) > 0;
   const hasFiles = (fileConfig?.files?.length ?? 0) > 0;
+
+  const isEmailConfigured = emailConfig !== null;
+  const isFileConfigured = fileConfig !== null || hasProvider;
+  const isAnalyticsConfigured = analyticsConfig !== null;
 
   const services = [
     {
@@ -115,7 +115,7 @@ const ServicesPage = () => {
     {
       name: "Files",
       configured: isFileConfigured,
-      loading: fileConfigLoading,
+      loading: fileConfigLoading || providersLoading,
       description:
         "Configure file storage and manage buckets and uploaded files.",
       href: `/projects/${projectId}/services/files`,

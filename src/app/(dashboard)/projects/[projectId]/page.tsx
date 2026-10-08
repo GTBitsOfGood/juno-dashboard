@@ -19,7 +19,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import {
+  UserType,
+  useUserSession,
+} from "@/components/providers/SessionProvider";
 import { DEFAULT_CHART_WINDOW_DAYS } from "@/lib/date-range";
+import { getApiKeysAction } from "@/lib/actions";
+import { getAllFileProviders } from "@/lib/fileProvider";
 import { getProjectById } from "@/lib/project";
 import {
   getAllClickEvents,
@@ -27,11 +33,13 @@ import {
   getAllInputEvents,
   getAllVisitEvents,
   getAnalyticsConfig,
+  getEmailConfig,
+  getFileConfig,
   getCustomEventTypes,
 } from "@/lib/settings";
 import { useQuery } from "@tanstack/react-query";
 import type { ProjectResponse } from "juno-sdk/build/main/internal/index";
-import { BarChart3 } from "lucide-react";
+import { ArrowRight, BarChart3, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
@@ -88,6 +96,95 @@ const filterEventsByWindow = <T extends HasCreatedAt>(
     );
   });
 
+type SetupChecklistProps = {
+  projectId: string;
+  emailConfigured: boolean | null;
+  filesConfigured: boolean | null;
+  analyticsConfigured: boolean | null;
+  apiKeysConfigured: boolean | null;
+  isLoading: boolean;
+};
+
+const SetupChecklist = ({
+  projectId,
+  emailConfigured,
+  filesConfigured,
+  analyticsConfigured,
+  apiKeysConfigured,
+  isLoading,
+}: SetupChecklistProps) => {
+  const items = [
+    {
+      label: "Email",
+      configured: emailConfigured,
+      href: `/projects/${projectId}/services/email`,
+    },
+    {
+      label: "Files",
+      configured: filesConfigured,
+      href: `/projects/${projectId}/services/files`,
+    },
+    {
+      label: "Analytics",
+      configured: analyticsConfigured,
+      href: `/projects/${projectId}/analytics`,
+    },
+    {
+      label: "API Keys",
+      configured: apiKeysConfigured,
+      href: `/projects/${projectId}/keys`,
+    },
+  ];
+
+  if (isLoading || !items.some((item) => item.configured === false)) {
+    return null;
+  }
+
+  return (
+    <Card className="mb-6">
+      <CardHeader>
+        <CardTitle className="text-base">
+          Finish setting up your project
+        </CardTitle>
+        <p className="text-sm text-muted-foreground">
+          Configure the services your project needs to get started.
+        </p>
+      </CardHeader>
+      <CardContent>
+        <div className="grid gap-2 sm:grid-cols-2">
+          {items.map((item) => {
+            const configured = item.configured === true;
+            const checking = item.configured === null;
+
+            return (
+              <Link
+                key={item.label}
+                href={item.href}
+                className="flex items-center justify-between rounded-md border p-3 transition-colors hover:border-primary/50"
+              >
+                <span className="flex items-center gap-3 text-sm font-medium">
+                  <CheckCircle2
+                    className={
+                      configured
+                        ? "h-4 w-4 text-green-600"
+                        : "h-4 w-4 text-muted-foreground"
+                    }
+                  />
+                  {item.label}
+                </span>
+                <span className="flex items-center gap-2 text-xs text-muted-foreground">
+                  {checking ? "Checking..." : configured ? "Done" : "Set up"}
+                  {!configured && <ArrowRight className="h-3.5 w-3.5" />}
+                </span>
+              </Link>
+            );
+          })}
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
 const formatWindowRange = ({ start, end }: TimeBounds) => {
   const startLabel = start.toLocaleDateString("en-US", {
     month: "short",
@@ -106,11 +203,8 @@ const formatWindowRange = ({ start, end }: TimeBounds) => {
 const DashboardPage = () => {
   //breadcrumb logic
   const { projectId } = useParams<{ projectId: string }>();
-
-  const [hasAnalyticsConfig, setHasAnalyticsConfig] = useState<boolean | null>(
-    null,
-  );
-  const [analyticsConfigLoading, setAnalyticsConfigLoading] = useState(true);
+  const { user } = useUserSession();
+  const isAdmin = !!user && user.type !== UserType.USER;
 
   const { isLoading, isError, data, error } = useQuery<ProjectResponse>({
     queryKey: ["project", projectId],
@@ -125,27 +219,110 @@ const DashboardPage = () => {
     refetchOnWindowFocus: true,
   });
 
+  const { data: emailConfig, isLoading: emailConfigLoading } = useQuery({
+    queryKey: ["emailConfig", projectId],
+    queryFn: () => getEmailConfig(projectId),
+    enabled: !!projectId,
+    staleTime: 0,
+    refetchOnMount: "always",
+  });
+
+  const { data: fileConfig, isLoading: fileConfigLoading } = useQuery({
+    queryKey: ["fileConfig", projectId],
+    queryFn: () => getFileConfig(projectId),
+    enabled: !!projectId,
+    staleTime: 0,
+    refetchOnMount: "always",
+  });
+
+  const { data: fileProviders, isLoading: fileProvidersLoading } = useQuery({
+    queryKey: ["fileProvider", projectId],
+    queryFn: () => getAllFileProviders(projectId),
+    enabled: !!projectId,
+    staleTime: 0,
+    refetchOnMount: "always",
+  });
+
+  const { data: analyticsConfig, isLoading: analyticsConfigLoading } = useQuery(
+    {
+      queryKey: ["analyticsConfig", projectId],
+      queryFn: () => getAnalyticsConfig(projectId),
+      enabled: !!projectId,
+      staleTime: 0,
+      refetchOnMount: "always",
+    },
+  );
+
+  const { data: apiKeyData, isLoading: apiKeysLoading } = useQuery({
+    queryKey: ["apiKeyCount", projectId],
+    queryFn: async () => {
+      const limit = 100;
+      let offset = 0;
+      let count = 0;
+
+      while (true) {
+        const result = await getApiKeysAction({ offset, limit });
+        if (!result.success) {
+          return { count: null, error: result.error };
+        }
+
+        const keys = result.keys ?? [];
+        count += keys.filter(
+          (key) => String(key.project) === String(projectId),
+        ).length;
+
+        if (keys.length < limit) {
+          break;
+        }
+
+        offset += limit;
+      }
+
+      return { count, error: null };
+    },
+    enabled: !!projectId && isAdmin,
+    staleTime: 0,
+    refetchOnMount: "always",
+  });
+
   if (isError) {
     toast.error("Error", {
       description: `Failed to fetch project: ${JSON.stringify(error)}`,
     });
   }
 
-  useEffect(() => {
-    const checkAnalyticsConfig = async () => {
-      try {
-        const config = await getAnalyticsConfig(String(projectId));
-        setHasAnalyticsConfig(config !== null);
-      } catch (e) {
-        console.error("Error checking analytics config:", e);
-        setHasAnalyticsConfig(false);
-      } finally {
-        setAnalyticsConfigLoading(false);
-      }
-    };
-
-    checkAnalyticsConfig();
-  }, [projectId]);
+  const hasAnalyticsConfig =
+    analyticsConfig === null ? false : !!analyticsConfig;
+  const hasEmailConfig = emailConfig === null ? false : !!emailConfig;
+  const hasFileConfig = fileConfig != null || (fileProviders?.length ?? 0) > 0;
+  const hasApiKeys = apiKeyData?.count != null && apiKeyData.count > 0;
+  const setupChecklistLoading =
+    emailConfigLoading ||
+    fileConfigLoading ||
+    fileProvidersLoading ||
+    analyticsConfigLoading ||
+    (isAdmin && apiKeysLoading);
+  const setupEmailConfigured = emailConfigLoading ? null : hasEmailConfig;
+  const setupFilesConfigured =
+    fileConfigLoading || fileProvidersLoading ? null : hasFileConfig;
+  const setupAnalyticsConfigured = analyticsConfigLoading
+    ? null
+    : hasAnalyticsConfig;
+  const setupApiKeysConfigured = !isAdmin
+    ? null
+    : apiKeysLoading || apiKeyData === undefined
+      ? null
+      : hasApiKeys;
+  const setupChecklist = (
+    <SetupChecklist
+      projectId={projectId}
+      emailConfigured={setupEmailConfigured}
+      filesConfigured={setupFilesConfigured}
+      analyticsConfigured={setupAnalyticsConfigured}
+      apiKeysConfigured={setupApiKeysConfigured}
+      isLoading={setupChecklistLoading}
+    />
+  );
 
   const projectName = "Infra Testing Project";
 
@@ -562,6 +739,7 @@ const DashboardPage = () => {
         </Breadcrumb>
         <Separator className="mb-8" />
         <h1 className="mb-4 text-lg font-bold">Project Dashboard</h1>
+        {setupChecklist}
         <Card className="max-w-[35%]">
           <CardHeader>
             <div className="flex items-center gap-3">
@@ -603,6 +781,7 @@ const DashboardPage = () => {
       </Breadcrumb>
       <Separator className="mb-8" />
       <h1 className="mb-4 text-lg font-bold">Project Dashboard</h1>
+      {setupChecklist}
 
       <div className="space-y-6 w-full">
         <SimpleEventsSection

@@ -1,6 +1,7 @@
 "use client";
 
 import { AnalyticsConfigTable } from "@/components/analyticsConfigTable/analyticsConfig-table";
+import { VisitEventsTable } from "@/components/analyticsEventsTable/visitEvents-table";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -10,7 +11,9 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 import { getProjectById } from "@/lib/project";
+import { getAnalyticsConfig } from "@/lib/settings";
 import { useQuery } from "@tanstack/react-query";
 import { ProjectResponse } from "juno-sdk/build/main/internal/index";
 import { useParams } from "next/navigation";
@@ -31,6 +34,13 @@ const ProjectAnalyticsPage = () => {
     },
   });
 
+  const { data: analyticsConfig, isLoading: analyticsConfigLoading } = useQuery(
+    {
+      queryKey: ["analyticsConfig", projectId],
+      queryFn: () => getAnalyticsConfig(projectId),
+    },
+  );
+
   useEffect(() => {
     if (isError && error) {
       toast.error("Error", {
@@ -38,6 +48,18 @@ const ProjectAnalyticsPage = () => {
       });
     }
   }, [isError, error]);
+
+  const renderVisitEvents = () => {
+    if (isLoading || analyticsConfigLoading) {
+      return <Skeleton className="h-40 w-full" />;
+    }
+
+    if (!analyticsConfig || !data?.name) {
+      return null;
+    }
+
+    return <VisitEventsTable projectId={projectId} projectName={data.name} />;
+  };
 
   return (
     <div className="flex flex-col">
@@ -61,6 +83,7 @@ const ProjectAnalyticsPage = () => {
       <Separator className="mb-8" />
       <div className="flex flex-col gap-8">
         <AnalyticsConfigTable projectId={projectId} />
+        {renderVisitEvents()}
       </div>
     </div>
   );

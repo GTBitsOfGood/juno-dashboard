@@ -75,6 +75,9 @@ export function AnalyticsConfigTable({ projectId }: AnalyticsConfigTableProps) {
       queryClient.invalidateQueries({
         queryKey: ["analyticsConfig", projectId],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["visitEventsPage", projectId],
+      });
     },
     onError: (error) => toast.error(error.message),
   });
@@ -97,6 +100,9 @@ export function AnalyticsConfigTable({ projectId }: AnalyticsConfigTableProps) {
       });
       queryClient.invalidateQueries({
         queryKey: ["analyticsConfig", projectId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["visitEventsPage", projectId],
       });
     },
     onError: (error) => toast.error(error.message),

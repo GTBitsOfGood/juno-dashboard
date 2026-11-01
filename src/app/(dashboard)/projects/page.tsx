@@ -12,7 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { getVisibleProjects } from "./actions";
+import { getProjects } from "@/lib/sdkActions";
 
 export default function ProjectsPage() {
   const [projects, setProjects] = useState<{ id: string; name: string }[]>([]);
@@ -26,7 +26,7 @@ export default function ProjectsPage() {
       setLoading(true);
       setError(false);
       try {
-        const result = await getVisibleProjects();
+        const result = await getProjects();
         if (!result.success) throw new Error("Failed to fetch projects");
         if (active)
           setProjects(
@@ -48,9 +48,9 @@ export default function ProjectsPage() {
   }, [attempt]);
 
   return (
-    <div>
+    <div className="flex flex-col gap-4">
       <h1 className="text-lg font-bold">Projects</h1>
-      <div className="mt-4 rounded-md border">
+      <div className="rounded-md border">
         <Table aria-label="Projects" aria-busy={loading}>
           <TableHeader>
             <TableRow>
@@ -73,25 +73,29 @@ export default function ProjectsPage() {
             ) : error ? (
               <TableRow>
                 <TableCell colSpan={2} className="py-8 text-center">
-                  <p role="alert" className="mb-3">
-                    Unable to load projects. Please try again.
-                  </p>
-                  <Button
-                    variant="outline"
-                    onClick={() => setAttempt((value) => value + 1)}
-                  >
-                    Try again
-                  </Button>
+                  <div className="flex flex-col items-center gap-3">
+                    <p role="alert">
+                      Unable to load projects. Please try again.
+                    </p>
+                    <Button
+                      variant="outline"
+                      onClick={() => setAttempt((value) => value + 1)}
+                    >
+                      Try again
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             ) : projects.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={2} className="py-8 text-center">
-                  <p>No projects available.</p>
-                  <p className="mt-1 text-muted-foreground">
-                    Contact your administrator to request a new project or
-                    access to an existing project.
-                  </p>
+                  <div className="flex flex-col gap-1">
+                    <p>No projects available.</p>
+                    <p className="text-muted-foreground">
+                      Contact your administrator to request a new project or
+                      access to an existing project.
+                    </p>
+                  </div>
                 </TableCell>
               </TableRow>
             ) : (

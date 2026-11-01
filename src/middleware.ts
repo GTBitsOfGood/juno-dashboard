@@ -23,8 +23,12 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL(redirectPath ?? "/login", req.url));
   }
 
-  // only allow users to access their own projects
-  if (verifiedUser.type === UserType.USER) {
+  // All signed-in users can view the list; project routes require membership.
+  if (
+    verifiedUser.type === UserType.USER &&
+    pathname !== "/projects" &&
+    pathname !== "/projects/"
+  ) {
     const isAllowedProjectPath = verifiedUser.projectIds.some((projectId) => {
       const projectPath = `/projects/${projectId}`;
       return pathname === projectPath || pathname.startsWith(`${projectPath}/`);

@@ -1,11 +1,17 @@
 "use client";
 
+import { BaseTable } from "@/components/baseTable";
+import {
+  getDomainColumns,
+  getSenderColumns,
+} from "@/components/emailTables/columns";
 import AddEmailDomainForm from "@/components/forms/AddEmailDomainForm";
 import AddEmailSenderForm, {
   type AddEmailSenderFormValues,
 } from "@/components/forms/AddEmailSenderForm";
 import {
   UserType,
+  useReadOnlyMode,
   useUserSession,
 } from "@/components/providers/SessionProvider";
 import { Badge } from "@/components/ui/badge";
@@ -37,6 +43,8 @@ import {
 } from "@/components/ui/table";
 import { getProjectById } from "@/lib/project";
 import {
+  getJunoDomains,
+  getJunoSenders,
   registerJunoDomain,
   registerJunoSenderAddress,
   verifyJunoDomain,
@@ -45,7 +53,7 @@ import {
   type SenderAddressInput,
 } from "@/lib/sdkUtils";
 import { getEmailConfig } from "@/lib/settings";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ProjectResponse } from "juno-sdk/build/main/internal/index";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -56,6 +64,8 @@ const EmailSendersAndDomainsPage = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const { user } = useUserSession();
   const isAdmin = !!user && user.type !== UserType.USER;
+  const isReadOnly = useReadOnlyMode();
+  const queryClient = useQueryClient();
 
   const [domainResult, setDomainResult] = useState<DomainRegistration | null>(
     null,
@@ -87,6 +97,37 @@ const EmailSendersAndDomainsPage = () => {
     refetchOnMount: "always",
   });
 
+  // The tables only render for admins on a project with an email config.
+  const listsEnabled = !!projectId && isAdmin && !!emailConfig;
+
+  const sendersQuery = useQuery({
+    queryKey: ["emailSenders", projectId],
+    queryFn: async () => {
+      const result = await getJunoSenders(projectId);
+      if (!result.success) {
+        throw new Error(result.message);
+      }
+      return result.senders ?? [];
+    },
+    enabled: listsEnabled,
+    staleTime: 0,
+    refetchOnMount: "always",
+  });
+
+  const domainsQuery = useQuery({
+    queryKey: ["emailDomains", projectId],
+    queryFn: async () => {
+      const result = await getJunoDomains(projectId);
+      if (!result.success) {
+        throw new Error(result.message);
+      }
+      return result.domains ?? [];
+    },
+    enabled: listsEnabled,
+    staleTime: 0,
+    refetchOnMount: "always",
+  });
+
   const registerSender = useMutation({
     mutationFn: (values: AddEmailSenderFormValues) =>
       // The zod schema guarantees the required fields; zod infers every key as
@@ -96,6 +137,9 @@ const EmailSendersAndDomainsPage = () => {
       if (res.success) {
         toast.success("Sender registered", { description: res.message });
         setSenderFormKey((key) => key + 1);
+        queryClient.invalidateQueries({
+          queryKey: ["emailSenders", projectId],
+        });
       } else {
         toast.error("Error", { description: res.message });
       }
@@ -120,6 +164,8 @@ const EmailSendersAndDomainsPage = () => {
       toast.error("Error", { description: res.message });
       return;
     }
+    // A new or re-checked domain changes the domains table.
+    queryClient.invalidateQueries({ queryKey: ["emailDomains", projectId] });
     if (res.domain) {
       setDomainResult(res.domain);
     }
@@ -265,6 +311,62 @@ const EmailSendersAndDomainsPage = () => {
             </CardContent>
           </Card>
         </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Senders</CardTitle>
+            <CardDescription>
+              Addresses this project can send from. A sender stays Pending until
+              the address owner clicks the verification link SendGrid emails
+              them.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {sendersQuery.isError ? (
+              <p className="text-sm text-destructive">
+                {sendersQuery.error.message}
+              </p>
+            ) : (
+              <BaseTable
+                data={sendersQuery.data ?? []}
+                columns={getSenderColumns()}
+                isLoading={sendersQuery.isLoading}
+              />
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Domains</CardTitle>
+            <CardDescription>
+              Domains this project sends from. Click Verify to re-check a
+              domain&apos;s DNS records and update its status.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {domainsQuery.isError ? (
+              <p className="text-sm text-destructive">
+                {domainsQuery.error.message}
+              </p>
+            ) : (
+              <BaseTable
+                data={domainsQuery.data ?? []}
+                columns={getDomainColumns({
+                  verifyingDomain: verifyDomain.isPending
+                    ? verifyDomain.variables
+                    : null,
+                  disabled:
+                    isReadOnly ||
+                    registerDomain.isPending ||
+                    verifyDomain.isPending,
+                  onVerify: (domain) => verifyDomain.mutate(domain),
+                })}
+                isLoading={domainsQuery.isLoading}
+              />
+            )}
+          </CardContent>
+        </Card>
 
         {domainResult && (
           <Card>

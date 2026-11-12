@@ -10,7 +10,8 @@ import { SidebarTrigger } from "./ui/sidebar";
 function getPageTitle(pathname: string): string {
   if (pathname === "/admin") return "Dashboard";
   if (pathname === "/admin/users") return "Users";
-  if (pathname === "/admin/projects") return "Projects";
+  if (pathname === "/admin/projects" || pathname === "/projects")
+    return "Projects";
   if (pathname === "/admin/keys") return "API Keys";
   if (pathname === "/admin/settings") return "Settings";
 

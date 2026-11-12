@@ -48,9 +48,7 @@ export function TopBar() {
           <SidebarTrigger />
           <h1 className="text-lg font-semibold">{title}</h1>
           <h1 className="text-md font-extralight ml-4">
-            <a href="/docs">
-              Documentation
-            </a>
+            <a href="/docs">Documentation</a>
           </h1>
         </div>
 

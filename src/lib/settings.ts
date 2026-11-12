@@ -457,6 +457,63 @@ export async function getAllVisitEvents(
   }
 }
 
+export async function getVisitEventsPaginated(
+  projectName: string,
+  projectId: string,
+  options?: {
+    afterId?: string;
+    limit?: number;
+  },
+) {
+  const session = await getSession();
+  if (!session) {
+    return {
+      success: false,
+      error: "Unauthorized",
+      events: [],
+      afterId: "",
+    };
+  }
+
+  const junoClient = getJunoInstance();
+  try {
+    const response = await junoClient.analytics.getVisitEventsPaginated(
+      {
+        projectName,
+        afterId: options?.afterId,
+        limit: options?.limit,
+      },
+      {
+        userJwt: session.jwt,
+        projectId: Number(projectId),
+      },
+    );
+    const parsed = JSON.parse(JSON.stringify(response));
+    return {
+      success: true,
+      events: parsed.events ?? [],
+      afterId: parsed.afterId ?? "",
+    };
+  } catch (error) {
+    console.error("Error fetching paginated visit events:", error);
+    if (error.response?.status === 500) {
+      return {
+        success: false,
+        error:
+          "The analytics service rejected the request. Check that this project's server and client keys are valid.",
+        events: [],
+        afterId: "",
+      };
+    }
+    return {
+      success: false,
+      error: "Failed to fetch visit events",
+      events: [],
+      afterId: "",
+    };
+  }
+}
+
 export async function getCustomEventTypes(
   projectName: string,
   projectId: string,

@@ -22,6 +22,7 @@ export interface EventProperties {
   objectId?: string;
   userId?: string;
   textValue?: string;
+  pageUrl?: string;
 }
 
 export interface CustomEventType {

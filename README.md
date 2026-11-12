@@ -16,6 +16,8 @@
 
 </div>
 
+
+> 📖 Juno's docs live at [juno-docs.mintlify.site](https://juno-docs.mintlify.site) (still being filled in, see [juno#267](https://github.com/GTBitsOfGood/juno/issues/267)). The dashboard is at [juno.bitsofgood.org](https://juno.bitsofgood.org).
 # Project Description
 
 This is the dashboard code for easily interacting with [Juno](https://github.com/GTBitsOfGood/juno), [Bits of Good](https://bitsofgood.org/)'s central microservice architecture. See the main repository for more details. 

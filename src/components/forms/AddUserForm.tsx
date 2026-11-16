@@ -17,6 +17,7 @@ import { UserColumn } from "../usertable/columns";
 import { CircleX, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { Alert } from "../ui/alert";
+import { toast } from "sonner";
 
 const createUserSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -27,9 +28,14 @@ const createUserSchema = z.object({
 type CreateUserFormProps = {
   onUserAdd: (newUser: UserColumn) => void;
   onClose?: () => void;
+  projectId?: number;
 };
 
-const CreateUserForm = ({ onUserAdd, onClose }: CreateUserFormProps) => {
+const CreateUserForm = ({
+  onUserAdd,
+  onClose,
+  projectId,
+}: CreateUserFormProps) => {
   /** Form to create a user */
   const createUserForm = useForm({
     resolver: zodResolver(createUserSchema),
@@ -47,9 +53,13 @@ const CreateUserForm = ({ onUserAdd, onClose }: CreateUserFormProps) => {
     data: Required<z.infer<typeof createUserSchema>>,
   ) => {
     setLoading(true);
+    setError("");
     try {
-      const result = await createUserAction(data);
+      const result = await createUserAction({ ...data, projectId });
       if (result.success) {
+        if (result.linkError) {
+          toast.warning("User created", { description: result.linkError });
+        }
         const newUser = {
           id: result.user.id,
           name: result.user.name,
@@ -64,11 +74,16 @@ const CreateUserForm = ({ onUserAdd, onClose }: CreateUserFormProps) => {
           onClose();
         }
       } else {
-        setError("Invalid email or password.");
-        setLoading(false);
+        setError(
+          typeof result.error === "string"
+            ? result.error
+            : "Could not create user. Check the email isn't already in use.",
+        );
       }
-    } catch (error) {
-      console.error("Error creating user:", error);
+    } catch {
+      setError("An unexpected error occurred. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "sonner";
 import {
   Card,
   CardContent,
@@ -72,13 +73,17 @@ const AdminPage = () => {
         const [counts] = await Promise.all([getJunoCounts()]);
 
         if (!counts.success) {
-          console.error(`Failed to fetch project count: ${counts.error}`);
+          toast.error("Couldn't load project and user counts", {
+            description: String(counts.error),
+          });
+          return;
         }
 
         setProjectCount(counts.projectCount);
         setUserCount(counts.userCount);
       } catch (error) {
-        console.log("Error fetching data:", error);
+        console.error("Error fetching admin counts:", error);
+        toast.error("Couldn't load project and user counts");
       } finally {
         setLoading(false);
       }
@@ -87,8 +92,8 @@ const AdminPage = () => {
     fetchData();
   }, []);
 
-  const [projectCount, setProjectCount] = useState<number | null>(0);
-  const [userCount, setUserCount] = useState<number | null>(0);
+  const [projectCount, setProjectCount] = useState<number | null>(null);
+  const [userCount, setUserCount] = useState<number | null>(null);
   const [loading, setLoading] = useState(true); // TODO: add skeleton load animations instead of loading
 
   return (
@@ -108,9 +113,7 @@ const AdminPage = () => {
               <div className="text-2xl font-bold">Loading...</div>
             ) : (
               <>
-                <div className="text-2xl font-bold">
-                  {projectCount ?? "N/A"}
-                </div>
+                <div className="text-2xl font-bold">{projectCount ?? "—"}</div>
                 <p className="text-xs text-muted-foreground">
                   Total projects on Juno
                 </p>
@@ -128,7 +131,7 @@ const AdminPage = () => {
               <div className="text-2xl font-bold">Loading...</div>
             ) : (
               <>
-                <div className="text-2xl font-bold">{userCount ?? "N/A"}</div>
+                <div className="text-2xl font-bold">{userCount ?? "—"}</div>
                 <p className="text-xs text-muted-foreground">
                   Total users on Juno
                 </p>

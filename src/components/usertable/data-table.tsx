@@ -51,6 +51,7 @@ interface DataTableProps<TData> {
   projectData: ProjectColumn[];
   isLoading: boolean;
   onUserAction: (user: UserColumn, action: "add" | "update" | "delete") => void;
+  projectId?: number;
 }
 
 export function UserDataTable<TData>({
@@ -58,6 +59,7 @@ export function UserDataTable<TData>({
   projectData,
   isLoading,
   onUserAction,
+  projectId,
 }: DataTableProps<TData>) {
   const isReadOnly = useReadOnlyMode();
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -180,6 +182,7 @@ export function UserDataTable<TData>({
               <CreateUserForm
                 onUserAdd={(user) => onUserAction?.(user, "add")}
                 onClose={() => setIsAddUserDialogOpen(false)}
+                projectId={projectId}
               />
             </DialogContent>
           </Dialog>

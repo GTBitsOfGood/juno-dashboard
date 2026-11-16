@@ -15,7 +15,7 @@ import {
   getFileConfig,
 } from "@/lib/settings";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { BaseTable } from "../baseTable";
 import AddFileConfigForm from "../forms/AddFileConfigForm";
@@ -53,11 +53,13 @@ export function FileConfigTable({ projectId }: FileConfigTableProps) {
         config.files?.map((file) => file?.fileId?.path ?? "Unknown file") ?? [],
     }));
 
-  if (isError) {
-    toast.error("Error", {
-      description: `Failed to fetch file configs: ${JSON.stringify(error)}`,
-    });
-  }
+  useEffect(() => {
+    if (isError) {
+      toast.error("Error", {
+        description: `Failed to fetch file configs: ${error?.message ?? "Unknown error"}`,
+      });
+    }
+  }, [isError, error]);
 
   const deleteFileConfigHandler = useMutation({
     mutationFn: async () => deleteFileConfig(projectId),

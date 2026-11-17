@@ -364,7 +364,7 @@ const DashboardPage = () => {
     />
   );
 
-  const projectName = "Infra Testing Project";
+  const projectName = data?.name;
 
   const {
     data: clickEventsResponse,

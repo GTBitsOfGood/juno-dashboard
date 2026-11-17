@@ -11,7 +11,7 @@ import {
 import { setupJunoEmail } from "@/lib/sdkUtils";
 import { getEmailConfig } from "@/lib/settings";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { BaseTable } from "../baseTable";
 import AddEmailConfigForm from "../forms/AddEmailConfigForm";
@@ -50,11 +50,13 @@ export function EmailConfigTable({ projectId }: EmailConfigTableProps) {
       senderUsernames: config.senders?.map((sender) => sender.username) ?? [],
     }));
 
-  if (isError) {
-    toast.error("Error", {
-      description: `Failed to fetch email config: ${JSON.stringify(error)}`,
-    });
-  }
+  useEffect(() => {
+    if (isError) {
+      toast.error("Error", {
+        description: `Failed to fetch email config: ${error?.message ?? "Unknown error"}`,
+      });
+    }
+  }, [isError, error]);
 
   const deleteEmailConfig = useMutation({
     // TODO: use SDK method to delete email config

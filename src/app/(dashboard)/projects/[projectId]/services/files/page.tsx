@@ -57,13 +57,13 @@ const FileServicePage = () => {
   useEffect(() => {
     if (isProjectError) {
       toast.error("Error", {
-        description: `Failed to fetch project: ${JSON.stringify(projectError)}`,
+        description: `Failed to fetch project: ${projectError?.message ?? "Unknown error"}`,
       });
     }
 
     if (isConfigError) {
       toast.error("Error", {
-        description: `Failed to fetch file config: ${JSON.stringify(configError)}`,
+        description: `Failed to fetch file config: ${configError?.message ?? "Unknown error"}`,
       });
     }
   }, [isProjectError, isConfigError, projectError, configError]);

@@ -52,6 +52,7 @@ export async function createUserAction(data: {
   name: string;
   email: string;
   password: string;
+  projectId?: number;
 }) {
   const session = await getSession();
   if (!session) {
@@ -65,9 +66,16 @@ export async function createUserAction(data: {
     };
   }
 
-  const junoClient = getJunoInstance();
+  const { name, email, password, projectId } = data;
 
-  const { name, email, password } = data;
+  if (projectId !== undefined && !hasProjectAccess(session.user, projectId)) {
+    return {
+      success: false,
+      error: "You do not have access to this project",
+    };
+  }
+
+  const junoClient = getJunoInstance();
 
   try {
     const user = await junoClient.user.createUser({
@@ -77,20 +85,56 @@ export async function createUserAction(data: {
       credentials: session.jwt,
     });
 
+    const projectIds = [...(user.projectIds ?? [])].map(Number);
+    let linkError: string | undefined;
+
+    if (projectId !== undefined && !projectIds.includes(projectId)) {
+      try {
+        await junoClient.user.linkToProject({
+          credentials: session.jwt,
+          project: { id: projectId },
+          userId: String(user.id),
+        });
+        projectIds.push(projectId);
+      } catch (error) {
+        console.error("Error linking new user to project:", error);
+        linkError =
+          "User was created but could not be added to this project. Add them manually from the user's actions menu.";
+      }
+    }
+
     return {
       success: true,
+      linkError,
       user: {
         id: user.id,
         name: user.name,
         email: user.email,
         type: user.type,
-        projectIds: user.projectIds,
+        projectIds,
       },
     };
   } catch (error) {
     console.error("Error creating user:", error);
-    return { success: false, error: error.body };
+    return { success: false, error: await junoErrorMessage(error) };
   }
+}
+
+// juno-sdk throws a ResponseError holding the unread Response: JSON
+// `{ message }` for validation errors, plain text like
+// "6 ALREADY_EXISTS: The resource already exists." for gRPC errors.
+async function junoErrorMessage(error): Promise<string | undefined> {
+  let message = error?.body?.message;
+  if (message === undefined && error?.response) {
+    const text: string = await error.response.text().catch(() => "");
+    try {
+      message = JSON.parse(text).message;
+    } catch {
+      message = text.replace(/^\d+ [A-Z_]+: /, "") || undefined;
+    }
+  }
+  if (Array.isArray(message)) return message.join(", ");
+  return typeof message === "string" ? message : undefined;
 }
 
 export async function createKeyAction(data: {

@@ -306,11 +306,13 @@ const DashboardPage = () => {
     refetchOnMount: "always",
   });
 
-  if (isError) {
-    toast.error("Error", {
-      description: `Failed to fetch project: ${JSON.stringify(error)}`,
-    });
-  }
+  useEffect(() => {
+    if (isError) {
+      toast.error("Error", {
+        description: `Failed to fetch project: ${error?.message ?? "Unknown error"}`,
+      });
+    }
+  }, [isError, error]);
 
   const getConfigStatus = (
     config: unknown,

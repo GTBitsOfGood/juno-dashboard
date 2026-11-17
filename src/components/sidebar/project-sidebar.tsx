@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "sonner";
 import {
   ChevronDown,
   Files,
@@ -57,6 +58,12 @@ export function ProjectSidebar() {
         const getAllProjects = async () => {
           try {
             const result = await getProjects();
+            if (!result.success) {
+              toast.error("Couldn't load your projects", {
+                description: result.error,
+              });
+              return;
+            }
             const projectsList =
               result.projects?.map((project) => ({
                 id: project.id,
@@ -72,6 +79,12 @@ export function ProjectSidebar() {
           const getAllProjectsForUser = async () => {
             try {
               const result = await getProjects();
+              if (!result.success) {
+                toast.error("Couldn't load your projects", {
+                  description: result.error,
+                });
+                return;
+              }
               const userProjectIds = new Set(user.projectIds);
               const projectsList =
                 result.projects

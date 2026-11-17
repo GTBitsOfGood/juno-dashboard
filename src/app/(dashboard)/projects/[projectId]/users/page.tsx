@@ -35,7 +35,9 @@ export default function ProjectUsersPage() {
         if (usersResult.success) {
           setUsers(usersResult.users);
         } else {
-          console.error(usersResult.error);
+          toast.error("Couldn't load project users", {
+            description: String(usersResult.error),
+          });
         }
 
         if (projectsResult.success) {
@@ -47,6 +49,7 @@ export default function ProjectUsersPage() {
         }
       } catch (error) {
         console.error("Error fetching data:", error);
+        toast.error("Couldn't load project users");
       } finally {
         setLoading(false);
       }
@@ -109,6 +112,7 @@ export default function ProjectUsersPage() {
         }))}
         isLoading={loading}
         onUserAction={handleUserAction}
+        projectId={Number(projectId)}
       />
     </div>
   );

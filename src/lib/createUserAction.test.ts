@@ -97,22 +97,28 @@ describe("createUserAction", () => {
     expect(result.linkError).toBeString();
   });
 
-  test("returns juno's error message as a string so the form can show it", async () => {
+  test("shows juno's message for a duplicate email (gRPC text body)", async () => {
     createUser.mockImplementationOnce(async () => {
-      throw Object.assign(new Error("Conflict"), {
-        body: { message: "User with this email already exists" },
+      throw Object.assign(new Error("Response returned an error code"), {
+        response: new Response(
+          "6 ALREADY_EXISTS: The resource already exists.",
+          { status: 409 },
+        ),
       });
     });
     const result = await createUserAction(input);
 
     expect(result.success).toBe(false);
-    expect(result.error).toBe("User with this email already exists");
+    expect(result.error).toBe("The resource already exists.");
   });
 
-  test("joins validation message arrays", async () => {
+  test("joins validation messages from a JSON body", async () => {
     createUser.mockImplementationOnce(async () => {
-      throw Object.assign(new Error("Bad Request"), {
-        body: { message: ["email must be an email", "password too short"] },
+      throw Object.assign(new Error("Response returned an error code"), {
+        response: Response.json(
+          { message: ["email must be an email", "password too short"] },
+          { status: 400 },
+        ),
       });
     });
     const result = await createUserAction(input);

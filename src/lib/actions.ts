@@ -116,12 +116,25 @@ export async function createUserAction(data: {
     };
   } catch (error) {
     console.error("Error creating user:", error);
-    const message = error?.body?.message;
-    return {
-      success: false,
-      error: Array.isArray(message) ? message.join(", ") : message,
-    };
+    return { success: false, error: await junoErrorMessage(error) };
   }
+}
+
+// juno-sdk throws a ResponseError holding the unread Response: JSON
+// `{ message }` for validation errors, plain text like
+// "6 ALREADY_EXISTS: The resource already exists." for gRPC errors.
+async function junoErrorMessage(error): Promise<string | undefined> {
+  let message = error?.body?.message;
+  if (message === undefined && error?.response) {
+    const text: string = await error.response.text().catch(() => "");
+    try {
+      message = JSON.parse(text).message;
+    } catch {
+      message = text.replace(/^\d+ [A-Z_]+: /, "") || undefined;
+    }
+  }
+  if (Array.isArray(message)) return message.join(", ");
+  return typeof message === "string" ? message : undefined;
 }
 
 export async function createKeyAction(data: {

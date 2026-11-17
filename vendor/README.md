@@ -8,7 +8,7 @@ juno-sdk main has unpublished work we need:
 - [juno-sdk#88](https://github.com/GTBitsOfGood/juno-sdk/pull/88) file providers by config id (not merged yet)
 
 This tarball is an `npm pack` of juno-sdk at
-`566c5cb3fcc21c24f20527c42c3f860f24892468` (the juno-sdk#88 branch, on top of `main`
+`a904f29bcd6d3f951a608bc76287cf8c8f7a3cf7` (the juno-sdk#88 branch head, on top of `main`
 `cab346c`, as of 2026-11-17). Re-pack from `main` once #88 merges.
 The SDK's `build/` output is gitignored and there is no install-time build script, so a
 git dependency would not work on Netlify or a fresh local `bun install`.

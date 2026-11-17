@@ -23,7 +23,7 @@
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
         "cmdk": "1.0.0",
-        "juno-sdk": "file:vendor/juno-sdk-566c5cb3fcc21c24f20527c42c3f860f24892468.tgz",
+        "juno-sdk": "file:vendor/juno-sdk-a904f29bcd6d3f951a608bc76287cf8c8f7a3cf7.tgz",
         "lucide-react": "^0.487.0",
         "next": "15.2.6",
         "next-themes": "^0.4.6",
@@ -723,7 +723,7 @@
 
     "jsx-ast-utils": ["jsx-ast-utils@3.3.5", "", { "dependencies": { "array-includes": "^3.1.6", "array.prototype.flat": "^1.3.1", "object.assign": "^4.1.4", "object.values": "^1.1.6" } }, "sha512-ZZow9HBI5O6EPgSJLUb8n2NKgmVWTwCvHGwFuJlMjvLFqlGG6pjirPhtdsseaLZjSibD8eegzmYpUZwoIlj2cQ=="],
 
-    "juno-sdk": ["juno-sdk@vendor/juno-sdk-566c5cb3fcc21c24f20527c42c3f860f24892468.tgz", { "dependencies": { "@bitauth/libauth": "^1.17.1" } }, "sha512-O5fxSEK4TqEk6Z0i9u3jIvQZrDcQcllcXV++0WNdz9RaR+KW0WMo2DFMgt3jdnKgeP5nR17avAENuaAHq6C+SA=="],
+    "juno-sdk": ["juno-sdk@vendor/juno-sdk-a904f29bcd6d3f951a608bc76287cf8c8f7a3cf7.tgz", { "dependencies": { "@bitauth/libauth": "^1.17.1" } }, "sha512-KIY9RjiuaN5okarU9+hWuPKxO+TVJnPEmWQe9F9pr+7/kKG5HncdoKWrwilnH0EqxxKDgoQpsp1bpyVVKWhE7Q=="],
 
     "keyv": ["keyv@4.5.4", "", { "dependencies": { "json-buffer": "3.0.1" } }, "sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw=="],
 

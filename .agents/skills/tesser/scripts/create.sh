@@ -10,7 +10,7 @@ id=$(jcall "$box" POST /project "{\"name\":\"$proj\"}" | jq -r '.id | if type=="
 [ -n "$id" ] && [ "$id" != null ] || { echo "create.sh: project $proj was not created" >&2; exit 1; }
 tok=$(JEMAIL="dev+$name@example.com" JPASS=dev-password jcall "$box" POST /auth/user/jwt "" | jq -r '.token // empty')
 [ -n "$tok" ] || { echo "create.sh: run login.sh first" >&2; exit 1; }
-uid=$(tesser ssh "$box" -- curl -sS http://localhost:8888/auth/test-auth -H "Authorization: Bearer $tok" |
+uid=$(tesser ssh "$box" -- curl -sS --fail-with-body http://localhost:8888/auth/test-auth -H "Authorization: Bearer $tok" |
   jq -r '.user.id | if type=="object" then .low else . end')
 jcall "$box" PUT "/user/id/$uid/project" "{\"id\":$id}" >/dev/null
 echo "http://${box/_/-}.localhost:3000/projects"

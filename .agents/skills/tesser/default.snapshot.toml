@@ -1,0 +1,2 @@
+# Every dashboard box (and the `tesser exec` workbench) starts with bun and node_modules installed.
+setup = "bash .agents/skills/tesser/scripts/install.sh"

@@ -7,7 +7,7 @@ import {
   getEmailConfig,
   getFileConfig,
 } from "@/lib/settings";
-import { getAllFileProviders } from "@/lib/fileProvider";
+import { getProjectFileProviders } from "@/lib/fileProvider";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
@@ -49,7 +49,7 @@ const ServicesPage = () => {
 
   const { data: providers, isLoading: providersLoading } = useQuery({
     queryKey: ["fileProvider", projectId],
-    queryFn: () => getAllFileProviders(projectId),
+    queryFn: () => getProjectFileProviders(projectId),
     enabled: !!projectId && !!fileConfig,
     staleTime: 0,
     refetchOnMount: "always",

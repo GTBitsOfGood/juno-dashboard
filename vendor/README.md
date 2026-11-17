@@ -5,9 +5,11 @@ juno-sdk main has unpublished work we need:
 
 - [juno-sdk#79](https://github.com/GTBitsOfGood/juno-sdk/pull/79) credentials param on paginated analytics event queries
 - [juno-sdk#81](https://github.com/GTBitsOfGood/juno-sdk/pull/81) email senders/domains
+- [juno-sdk#88](https://github.com/GTBitsOfGood/juno-sdk/pull/88) file providers by config id (not merged yet)
 
 This tarball is an `npm pack` of juno-sdk at
-`cab346c54f67481092c46edcdd5493b03e5f4e75` (current `main` as of 2026-11-12).
+`566c5cb3fcc21c24f20527c42c3f860f24892468` (the juno-sdk#88 branch, on top of `main`
+`cab346c`, as of 2026-11-17). Re-pack from `main` once #88 merges.
 The SDK's `build/` output is gitignored and there is no install-time build script, so a
 git dependency would not work on Netlify or a fresh local `bun install`.
 

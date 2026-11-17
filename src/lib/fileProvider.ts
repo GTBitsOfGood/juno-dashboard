@@ -9,7 +9,9 @@ import { hasProjectAccess, requireAdmin } from "./auth";
 import { getJunoInstance } from "./juno";
 import { getSession } from "./session";
 
-export async function getAllFileProviders(
+// Providers linked to the project's file config. A file config's id is its
+// project's id, and the gateway only returns the caller's own project.
+export async function getProjectFileProviders(
   projectId: string,
 ): Promise<FileProvider[]> {
   const session = await getSession();
@@ -22,10 +24,13 @@ export async function getAllFileProviders(
   const junoClient = getJunoInstance();
 
   try {
-    const providers = await junoClient.file.getAllFileProviders({
-      userJwt: session.jwt,
-      projectId: projectId,
-    });
+    const providers = await junoClient.file.getFileProvidersByConfigId(
+      projectId,
+      {
+        userJwt: session.jwt,
+        projectId: projectId,
+      },
+    );
 
     return JSON.parse(JSON.stringify(providers));
   } catch (e) {

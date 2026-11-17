@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import {
   deleteProvider,
-  getAllFileProviders,
+  getProjectFileProviders,
   registerProvider,
 } from "@/lib/fileProvider";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -56,7 +56,7 @@ export function FileProviderTable({ projectId }: FileProviderTableProps) {
       if (!isValidId(projectId)) {
         throw new Error("Invalid projectId");
       }
-      return await getAllFileProviders(projectId);
+      return await getProjectFileProviders(projectId);
     },
   });
 

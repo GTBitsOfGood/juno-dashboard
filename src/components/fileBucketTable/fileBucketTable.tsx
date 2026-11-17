@@ -18,7 +18,7 @@ import {
   getBucketsByConfigIdAndEnv,
   registerBucket,
 } from "@/lib/fileBucket";
-import { getAllFileProviders } from "@/lib/fileProvider";
+import { getProjectFileProviders } from "@/lib/fileProvider";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Row } from "@tanstack/react-table";
 import type { FileProvider } from "juno-sdk/build/main/internal/index";
@@ -78,7 +78,7 @@ export function FileBucketTable({ projectId, configId }: FileBucketTableProps) {
       ) {
         throw new Error("Invalid projectId");
       }
-      return await getAllFileProviders(projectId);
+      return await getProjectFileProviders(projectId);
     },
   });
 

@@ -96,4 +96,27 @@ describe("createUserAction", () => {
     expect(result.user?.projectIds).toEqual([]);
     expect(result.linkError).toBeString();
   });
+
+  test("returns juno's error message as a string so the form can show it", async () => {
+    createUser.mockImplementationOnce(async () => {
+      throw Object.assign(new Error("Conflict"), {
+        body: { message: "User with this email already exists" },
+      });
+    });
+    const result = await createUserAction(input);
+
+    expect(result.success).toBe(false);
+    expect(result.error).toBe("User with this email already exists");
+  });
+
+  test("joins validation message arrays", async () => {
+    createUser.mockImplementationOnce(async () => {
+      throw Object.assign(new Error("Bad Request"), {
+        body: { message: ["email must be an email", "password too short"] },
+      });
+    });
+    const result = await createUserAction(input);
+
+    expect(result.error).toBe("email must be an email, password too short");
+  });
 });

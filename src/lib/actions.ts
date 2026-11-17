@@ -116,7 +116,11 @@ export async function createUserAction(data: {
     };
   } catch (error) {
     console.error("Error creating user:", error);
-    return { success: false, error: error.body };
+    const message = error?.body?.message;
+    return {
+      success: false,
+      error: Array.isArray(message) ? message.join(", ") : message,
+    };
   }
 }
 

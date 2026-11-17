@@ -10,7 +10,8 @@ import { SidebarTrigger } from "./ui/sidebar";
 function getPageTitle(pathname: string): string {
   if (pathname === "/admin") return "Dashboard";
   if (pathname === "/admin/users") return "Users";
-  if (pathname === "/admin/projects") return "Projects";
+  if (pathname === "/admin/projects" || pathname === "/projects")
+    return "Projects";
   if (pathname === "/admin/keys") return "API Keys";
   if (pathname === "/admin/settings") return "Settings";
 
@@ -47,9 +48,7 @@ export function TopBar() {
           <SidebarTrigger />
           <h1 className="text-lg font-semibold">{title}</h1>
           <h1 className="text-md font-extralight ml-4">
-            <a href="https://github.com/GTBitsOfGood/juno/wiki">
-              Documentation
-            </a>
+            <a href="/docs">Documentation</a>
           </h1>
         </div>
 

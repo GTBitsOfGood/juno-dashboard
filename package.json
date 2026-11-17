@@ -31,7 +31,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "1.0.0",
-    "juno-sdk": "file:vendor/juno-sdk-a904f29bcd6d3f951a608bc76287cf8c8f7a3cf7.tgz",
+    "juno-sdk": "file:vendor/juno-sdk-c176a0a6b3d7c2c9dfb133f5b5feb5473ed2715a.tgz",
     "lucide-react": "^0.487.0",
     "next": "15.2.6",
     "next-themes": "^0.4.6",

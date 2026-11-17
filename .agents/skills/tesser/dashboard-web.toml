@@ -1,0 +1,17 @@
+# The Next.js dashboard (`bun dev`), talking to the juno backend box (juno-api, from GTBitsOfGood/juno) on localhost:8888.
+ports = [3000]
+size = "large"
+
+[run]
+setup = "bash .agents/skills/tesser/scripts/install.sh"
+dev = "bash .agents/skills/tesser/scripts/web-run.sh"
+
+[health]
+path = "/login"
+timeout = "900s"
+
+[deps]
+8888 = "juno-api:8888"
+
+[env]
+load = [".example.env"]

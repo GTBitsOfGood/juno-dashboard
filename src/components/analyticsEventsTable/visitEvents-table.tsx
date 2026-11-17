@@ -142,11 +142,17 @@ export function VisitEventsTable({
                 variant="outline"
                 size="sm"
                 onClick={() =>
-                  setCursors((previous) => [...previous, nextCursor])
+                  // Only advance from the page this button was rendered on, so
+                  // a fast double-click can't push the same cursor twice.
+                  setCursors((previous) =>
+                    previous.length - 1 === pageIndex
+                      ? [...previous, nextCursor]
+                      : previous,
+                  )
                 }
                 disabled={
                   !nextCursor ||
-                  events.length === 0 ||
+                  events.length < pageSize ||
                   isFetching ||
                   isPlaceholderData
                 }

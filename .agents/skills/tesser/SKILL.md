@@ -9,8 +9,10 @@ For tesser itself, `tesser --help`. Pick the cheapest path that proves your task
 
 | service | manifest | port | shared instance | what it is |
 | ------- | -------- | ---- | --------------- | ---------- |
-| dashboard-web | `dashboard-web.toml` | 3000 | pinned | Next.js dashboard (`bun dev`) |
-| juno-api | in GTBitsOfGood/juno | 8888 | pinned | the juno backend; the dashboard reaches it on `localhost:8888` |
+| dashboard-web | `dashboard-web.toml` | 3000 | none | Next.js dashboard (`bun dev`) |
+| juno-api | in GTBitsOfGood/juno | 8888 | none | the juno backend; the dashboard reaches it on `localhost:8888` |
+
+There are no always-on shared instances: start what you need, and `tesser rm` it when done.
 
 ## Waiting
 Run every command below in the foreground with your tool's timeout raised to 10 minutes
@@ -25,10 +27,11 @@ On the worktree's workbench (starts from the snapshot: bun 1.4.2 + `bun install 
 After a lockfile change, prefix with `bun install --frozen-lockfile &&`.
 
 ## Up
-`bash .agents/skills/tesser/scripts/up.sh` starts (or reuses) this worktree's dashboard-web box against
-the shared juno-api and prints `dashboard-web <box_id> <url>`. Next answers within seconds; a route's
-first compile takes ~3 s. To test against a juno change, start juno-api from a juno worktree and run
-`JUNO_BOX=<that box> bash .agents/skills/tesser/scripts/up.sh`.
+1. From a juno checkout (`gh repo clone GTBitsOfGood/juno`), `bash .agents/skills/tesser/scripts/up.sh`
+   prints `juno-api <box_id> <url>` (1 to 3.5 min warm, longer cold).
+2. Here, `JUNO_BOX=<that box_id> bash .agents/skills/tesser/scripts/up.sh` starts (or reuses) this
+   worktree's dashboard box wired to it and prints `dashboard-web <box_id> <url>`. Next answers within
+   seconds; a route's first compile takes ~3 s.
 
 ## Sign in
 `bash .agents/skills/tesser/scripts/login.sh <box_id>` signs in as `dev+<worktree>@example.com`
@@ -42,7 +45,7 @@ Each call is a new juno JWT; set the cookie on `localhost` for a browser from `t
 - `bash .agents/skills/tesser/scripts/create.sh <box_id> '<name>'` makes one more project linked to your
   user and prints the URL where its name shows. Names are unique across the juno instance: add a suffix.
 - Database: see the juno repo's tesser skill (`db.sh`).
-- Write only in your own projects. Never reseed or reset the shared juno-api.
+- Write only in your own projects.
 
 ## Iterate
 `src/` hot-reloads after `tesser sync <box>`. A dependency or `.agents/skills/tesser` change needs
@@ -50,8 +53,7 @@ Each call is a new juno JWT; set the cookie on `localhost` for a browser from `t
 
 ## When it breaks
 Check one layer at a time: `tesser status <box>`, `tesser logs <box>`, `tesser wire <box>`, then your data.
-A missing or unhealthy shared juno-api is not yours to fix: report the box and error.
-- `dep :8888 (juno-api) has nothing behind it`: no juno-api instance; `tesser wire <box> juno-api <juno box>` then `tesser sync <box> --restart`.
+- `dep :8888 (juno-api) has nothing behind it`: start juno-api (Up, step 1), then `tesser wire <box> juno-api <juno box>` and `tesser sync <box> --restart`.
 - `/projects` redirects to `/login`: the JWT is from a different juno-api; run login.sh again.
 
 ## Hand-off

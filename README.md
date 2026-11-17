@@ -28,6 +28,8 @@ This is the dashboard code for easily interacting with [Juno](https://github.com
 
 ## Getting Started
 
+> ⚠️ **Temporary:** `juno-sdk` is installed from a vendored tarball of [juno-sdk@cab346c](https://github.com/GTBitsOfGood/juno-sdk/commit/cab346c54f67481092c46edcdd5493b03e5f4e75) (see `vendor/`) because 0.0.12+ is not on npm yet. Once it is published, switch the dependency back to the npm version and delete `vendor/`.
+
 Installing all needed packages:
 
 ```bash

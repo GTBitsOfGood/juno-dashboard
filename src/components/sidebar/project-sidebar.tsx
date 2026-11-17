@@ -7,6 +7,7 @@ import {
   KeyRound,
   LayoutDashboard,
   Mail,
+  MailCheck,
   Settings,
   Shield,
   User,
@@ -26,6 +27,7 @@ import {
 } from "@/components/ui/sidebar";
 import { getProjects } from "@/lib/sdkActions";
 import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import { UserType, useUserSession } from "../providers/SessionProvider";
 import {
   DropdownMenu,
@@ -36,20 +38,18 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 
-type ProjectSidebarProps = {
-  projectId: number;
-  currProjName?: string;
-};
-
-export function ProjectSidebar({
-  currProjName,
-  projectId,
-}: ProjectSidebarProps) {
+export function ProjectSidebar() {
+  const params = useParams<{ projectId?: string }>();
+  const projectId =
+    params.projectId === undefined ? undefined : Number(params.projectId);
   const { user } = useUserSession();
 
   const [projects, setProjects] = useState<Array<{ id: number; name: string }>>(
     [],
   );
+  const currProjName = projects.find(
+    (project) => project.id === projectId,
+  )?.name;
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -117,6 +117,15 @@ export function ProjectSidebar({
       url: `/projects/${projectId}/services/email`,
       icon: Mail,
     },
+    ...(user && user.type !== UserType.USER
+      ? [
+          {
+            title: "Senders & Domains",
+            url: `/projects/${projectId}/services/email/configurations`,
+            icon: MailCheck,
+          },
+        ]
+      : []),
     {
       title: "Files",
       url: `/projects/${projectId}/services/files`,
@@ -152,7 +161,10 @@ export function ProjectSidebar({
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <SidebarMenuButton className="h-12 px-4 hover:bg-accent/50 data-[state=open]:bg-accent/50 border border-white/10 rounded-lg font-semibold">
-                    {currProjName || "Select Project"}
+                    {currProjName ||
+                      (projectId === undefined
+                        ? "Select Project"
+                        : `Project ${projectId}`)}
                     <ChevronDown className="ml-auto h-4 w-4 transition-transform data-[state=open]:rotate-180" />
                   </SidebarMenuButton>
                 </DropdownMenuTrigger>
@@ -200,23 +212,25 @@ export function ProjectSidebar({
       </SidebarHeader>
 
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Application</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <a href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {projectId !== undefined && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Application</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {items.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <a href={item.url}>
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </a>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
     </Sidebar>
   );

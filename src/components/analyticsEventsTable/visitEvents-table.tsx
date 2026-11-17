@@ -33,7 +33,7 @@ export function VisitEventsTable({
   const pageIndex = cursors.length - 1;
   const currentCursor = cursors[pageIndex];
 
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isError, isFetching, isPlaceholderData } = useQuery({
     queryKey: [
       "visitEventsPage",
       projectId,
@@ -97,7 +97,7 @@ export function VisitEventsTable({
             data={events}
             isLoading={isLoading}
           />
-          <div className="flex items-center justify-between py-4">
+          <div className="flex flex-wrap items-center justify-between gap-4 py-4">
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">
                 Rows per page
@@ -121,7 +121,7 @@ export function VisitEventsTable({
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <Button
                 variant="outline"
                 size="sm"
@@ -144,7 +144,12 @@ export function VisitEventsTable({
                 onClick={() =>
                   setCursors((previous) => [...previous, nextCursor])
                 }
-                disabled={!nextCursor || events.length === 0}
+                disabled={
+                  !nextCursor ||
+                  events.length === 0 ||
+                  isFetching ||
+                  isPlaceholderData
+                }
               >
                 Next
               </Button>

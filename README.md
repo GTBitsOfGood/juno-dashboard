@@ -16,13 +16,13 @@
 
 </div>
 
-> 📖 Juno's docs live at [juno.bitsofgood.org/docs](https://juno.bitsofgood.org/docs) (still being filled in, see [juno#267](https://github.com/GTBitsOfGood/juno/issues/267)). The dashboard is at [juno.bitsofgood.org](https://juno.bitsofgood.org).
+> 📖 Juno's docs live at [juno.bitsofgood.org/docs](https://juno.bitsofgood.org/docs). The dashboard is at [juno.bitsofgood.org](https://juno.bitsofgood.org). The API is at [api.juno.bitsofgood.org](https://api.juno.bitsofgood.org).
 
 # Project Description
 
 This is the dashboard code for easily interacting with [Juno](https://github.com/GTBitsOfGood/juno), [Bits of Good](https://bitsofgood.org/)'s central microservice architecture. See the main repository for more details. 
 
-## Prequisites
+## Prerequisites
 
 - [Bun](https://bun.sh/docs/installation)
 
@@ -48,27 +48,21 @@ bun dev
 
 The site is served at [http://localhost:3000](http://localhost:3000).
 
-### Setting up Environment for File or Email Configurations
+### Environment variables
 
-In order to be authorized locally for file or email configurations, you must change your `.env` `JUNO_API_KEY`.
+Create a `.env` in this repository (you can start from `.example.env`). For a local Juno stack:
 
-First, ensure that you have the `JUNO_BASE_URL=http://localhost:8888`.
-
-Second, you'll need to start juno, then visit `localhost:8888/docs#` in your browser. This should bring you to the juno docs page. You will want to scroll down to `/auth/key` path, and click it and then click 'try it out'.
-
-Now, you should be able to enter API request fields. The username and password should be `test-superadmin@test.com` and `test-password`. For the POST request body,
-
-```json
-{
-  "description": "string",
-  "environment": "string",
-  "project": {
-    "name": "test-seed-project"
-  }
-}
+```
+JUNO_BASE_URL=http://localhost:8888
+NEXT_PUBLIC_JUNO_BASE_URL=http://localhost:8888
+JUNO_API_KEY=
 ```
 
-or if you are using a different project, then replace with that project name.
+`JUNO_BASE_URL` is used by the server-side SDK client (it already defaults to `http://localhost:8888`). `NEXT_PUBLIC_JUNO_BASE_URL` is also read when verifying a login JWT; set both to the same gateway URL.
+
+The Juno Docker stack does not start this dashboard. Start Juno from the [juno](https://github.com/GTBitsOfGood/juno) repo first (see the [local development guide](https://juno.bitsofgood.org/docs/local-development)), then run `bun dev` here.
+
+The local seed superadmin is `test-superadmin@test.com` / `test-password`, with project `test-seed-project`. You can sign in to the dashboard with that account and create an API key under the project's **API Keys** page, or create one from the gateway Swagger at [http://localhost:8888/docs](http://localhost:8888/docs) (`POST /auth/key`). Put that key in `JUNO_API_KEY` if you need the dashboard to call file, email, or analytics routes as the project.
 
 ### Components 
 
